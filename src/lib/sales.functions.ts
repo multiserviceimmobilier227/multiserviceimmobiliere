@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { addMonths, format } from "date-fns";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const createSaleSchema = z.object({
   clientId: z.string().uuid(),
@@ -13,12 +14,10 @@ const createSaleSchema = z.object({
 });
 
 export const createSaleDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => createSaleSchema.parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client.server");
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) throw new Error("Unauthorized");
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
 
     // Start a transaction-like process
     const { data: sale, error: saleError } = await supabase
@@ -30,13 +29,13 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         deposit_amount: data.depositAmount,
         payment_plan_type: data.paymentPlanType,
         agency_id: data.agencyId,
-        created_by: user.id,
+        created_by: userId,
         status: "Brouillon",
       })
       .select()
       .single();
 
-    if (saleError) throw saleError;
+    if (saleError) throw new Error(saleError.message);
 
     if (data.paymentPlanType === "Échéancier" && data.durationMonths) {
       const remainingAmount = data.totalAmount - data.depositAmount;
@@ -56,50 +55,49 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         .from("payment_schedules")
         .insert(schedules);
 
-      if (scheduleError) throw scheduleError;
+      if (scheduleError) throw new Error(scheduleError.message);
     }
 
     return sale;
   });
 
 export const validateSale = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client.server");
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) throw new Error("Unauthorized");
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
 
     // Check if user has PDG role
-    const { data: roleData } = await supabase
+    const { data: roleData, error: roleError } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("role", "pdg")
       .single();
 
-    if (!roleData) throw new Error("Seul le PDG peut valider une vente.");
+    if (roleError || !roleData) throw new Error("Seul le PDG peut valider une vente.");
 
     const { data: sale, error: saleError } = await supabase
       .from("sales")
       .update({
         status: "Validée",
-        validated_by_id: user.id,
+        validated_by_id: userId,
         validation_date: new Date().toISOString(),
       })
       .eq("id", data.saleId)
       .select()
       .single();
 
-    if (saleError) throw saleError;
+    if (saleError) throw new Error(saleError.message);
 
     return sale;
   });
 
 export const getSaleDetails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client.server");
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     
     const { data: sale, error } = await supabase
       .from("sales")
@@ -112,6 +110,7 @@ export const getSaleDetails = createServerFn({ method: "GET" })
       .eq("id", data.saleId)
       .single();
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     return sale;
   });
+
