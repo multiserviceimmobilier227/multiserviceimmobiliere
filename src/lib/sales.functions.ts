@@ -295,7 +295,39 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     if (paymentError) throw new Error(paymentError.message);
 
-    // 2. Update sale balance
+    // 2. Update payment schedules (Phase 10 logic)
+    // Find oldest unpaid schedules and apply the amount to them
+    const { data: schedules } = await supabase
+      .from("payment_schedules")
+      .select("*")
+      .eq("sale_id", data.saleId)
+      .neq("status", "Payé")
+      .order("due_date", { ascending: true });
+
+    if (schedules && schedules.length > 0) {
+      let remainingPayment = data.amount;
+      for (const schedule of schedules) {
+        if (remainingPayment <= 0) break;
+        
+        const currentPaid = schedule.amount_paid || 0;
+        const currentDue = schedule.amount_due;
+        const needed = currentDue - currentPaid;
+        
+        const apply = Math.min(remainingPayment, needed);
+        const newPaid = currentPaid + apply;
+        remainingPayment -= apply;
+        
+        await supabase
+          .from("payment_schedules")
+          .update({ 
+            amount_paid: newPaid,
+            status: newPaid >= currentDue ? "Payé" : "Partiel"
+          })
+          .eq("id", schedule.id);
+      }
+    }
+
+    // 3. Update sale balance
     const { data: sale } = await supabase
       .from("sales")
       .select("balance")
