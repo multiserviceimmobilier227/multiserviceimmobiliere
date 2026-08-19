@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
   return {
@@ -9,3 +10,17 @@ export const getGlobalSettings = createServerFn({ method: "GET" }).handler(async
     location: "Maradi, Niger",
   };
 });
+
+export const getAgences = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("agences")
+      .select("*")
+      .eq("is_active", true)
+      .order("name");
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });

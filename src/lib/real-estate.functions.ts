@@ -154,3 +154,89 @@ export const getZonesByLotissement = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data;
   });
+
+export const createZone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    name: z.string().min(1),
+    lotissement_id: z.string().uuid(),
+    description: z.string().optional().nullable(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("zones")
+      .insert({
+        name: input.name,
+        lotissement_id: input.lotissement_id,
+        description: input.description ?? null,
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const createIlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    numero: z.string().min(1),
+    zone_id: z.string().uuid(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("ilots")
+      .insert({
+        numero: input.numero,
+        zone_id: input.zone_id,
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const createPlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    plot_number: z.string().min(1),
+    ilot_id: z.string().uuid(),
+    surface_area: z.number().min(0),
+    base_price: z.number().min(0),
+    site_id: z.string().uuid().optional().nullable(),
+    status: z.string().optional(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("plots")
+      .insert({
+        plot_number: input.plot_number,
+        ilot_id: input.ilot_id,
+        surface_area: input.surface_area,
+        base_price: input.base_price,
+        site_id: input.site_id as string,
+        status: (input.status || "Disponible") as PlotStatus
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const getSites = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("sites")
+      .select("*")
+      .order("name");
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
