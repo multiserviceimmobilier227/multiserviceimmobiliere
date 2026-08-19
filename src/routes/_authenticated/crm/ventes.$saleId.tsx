@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { getSaleById } from '@/lib/sales.functions';
+import { useSuspenseQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { getSaleById, transferSalePlot } from '@/lib/sales.functions';
+import { getSaleTransfers } from '@/lib/transfers.functions';
 import { getContractBySaleId, generateContract, signContract } from '@/lib/contracts.functions';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getPlots } from '@/lib/real-estate.functions';
 import { 
   FileText, 
   User, 
@@ -14,7 +15,9 @@ import {
   Settings2,
   Download,
   CheckCircle2,
-  Printer
+  Printer,
+  History,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,6 +29,24 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
 import { useUserRole } from '@/routes/_authenticated';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_authenticated/crm/ventes/$saleId')({
   component: SaleDetailsPage,
@@ -41,6 +62,10 @@ function SaleDetailsPage() {
   const { saleId } = Route.useParams();
   const queryClient = useQueryClient();
   const { role } = useUserRole();
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [selectedPlotId, setSelectedPlotId] = useState<string>('');
+  const [transferReason, setTransferReason] = useState('');
+
   const { data: sale } = useSuspenseQuery({
     queryKey: ['sale', saleId],
     queryFn: () => (getSaleById as any)(saleId),
@@ -49,6 +74,17 @@ function SaleDetailsPage() {
   const { data: contract } = useSuspenseQuery({
     queryKey: ['contract', saleId],
     queryFn: () => (getContractBySaleId as any)(saleId),
+  });
+
+  const { data: availablePlots } = useQuery({
+    queryKey: ['available-plots'],
+    queryFn: () => (getPlots as any)({ status: 'Disponible' }),
+    enabled: isTransferDialogOpen
+  });
+
+  const { data: transfers } = useQuery({
+    queryKey: ['sale-transfers', saleId],
+    queryFn: () => (getSaleTransfers as any)(saleId),
   });
 
   const generateMutation = useMutation({
@@ -67,7 +103,27 @@ function SaleDetailsPage() {
     }
   });
 
+  const transferMutation = useMutation({
+    mutationFn: (variables: { saleId: string; newPlotId: string; reason: string }) => 
+      (transferSalePlot as any)(variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+      queryClient.invalidateQueries({ queryKey: ['sale-transfers', saleId] });
+      setIsTransferDialogOpen(false);
+      setTransferReason('');
+      setSelectedPlotId('');
+      toast.success("Mutation de parcelle effectuée avec succès");
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur: ${error.message}`);
+    }
+  });
+
   if (!sale) return null;
+
+  const selectedPlot = availablePlots?.find((p: any) => p.id === selectedPlotId);
+  const priceDiff = selectedPlot ? selectedPlot.base_price - sale.total_price : 0;
+
 
   const style = statusStyles[sale.status as string] || statusStyles['en_cours'];
   const totalPrice = sale.total_price || 0;
@@ -339,12 +395,18 @@ function SaleDetailsPage() {
               <CardHeader>
                 <CardTitle className="text-lg font-sans flex items-center gap-2">
                   <ArrowRightLeft className="h-5 w-5 text-orange-500" />
-                  Transfert de Parcelle
+                  Mutation de Parcelle
                 </CardTitle>
-                <CardDescription>Changer la parcelle A pour une parcelle B</CardDescription>
+                <CardDescription>Transférer la vente vers une autre parc disponible</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full font-sans">Initier un transfert</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full font-sans"
+                  onClick={() => setIsTransferDialogOpen(true)}
+                >
+                  Initier une mutation
+                </Button>
               </CardContent>
             </Card>
             <Card>
@@ -361,23 +423,130 @@ function SaleDetailsPage() {
             </Card>
           </div>
           
-          {(sale as any).adjustments && (sale as any).adjustments.length > 0 && (
+          {transfers && transfers.length > 0 && (
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="text-sm font-sans uppercase text-muted-foreground">Historique des Ajustements</CardTitle>
+                <CardTitle className="text-sm font-sans uppercase text-muted-foreground flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Historique des Mutations
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Liste des ajustements ici */}
+                <div className="space-y-4">
+                  {transfers.map((t: any) => (
+                    <div key={t.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg bg-muted/20 gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="font-mono text-[10px]">DE</Badge>
+                          <span className="font-semibold">Lot {t.old_plot?.plot_number}</span>
+                          <ArrowRightLeft className="h-3 w-3 text-muted-foreground" />
+                          <Badge variant="outline" className="font-mono text-[10px] bg-primary/10 text-primary border-primary/20">À</Badge>
+                          <span className="font-semibold text-primary">Lot {t.new_plot?.plot_number}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground italic">"{t.reason}"</p>
+                      </div>
+                      <div className="text-right text-xs space-y-1">
+                        <p className="font-bold">
+                          {t.price_difference > 0 ? '+' : ''}{formatFCFA(t.price_difference)}
+                        </p>
+                        <p className="text-muted-foreground">
+                          Le {format(new Date(t.created_at), 'Pp', { locale: fr })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
+
+          <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle className="font-sans flex items-center gap-2">
+                  <ArrowRightLeft className="h-5 w-5 text-primary" />
+                  Mutation vers une nouvelle parcelle
+                </DialogTitle>
+                <DialogDescription className="font-sans">
+                  Sélectionnez une parcelle disponible. Le système calculera automatiquement l'écart de prix.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="space-y-2">
+                  <Label className="font-sans">Nouvelle parcelle</Label>
+                  <Select value={selectedPlotId} onValueChange={setSelectedPlotId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une parcelle..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availablePlots?.map((p: any) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          Lot {p.plot_number} - {p.ilot?.zone?.lotissement?.name} ({formatFCFA(p.base_price)})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedPlot && (
+                  <div className="bg-muted/50 p-4 rounded-lg space-y-3 border border-border/50">
+                    <div className="flex justify-between text-sm font-sans">
+                      <span className="text-muted-foreground">Prix actuel :</span>
+                      <span className="font-semibold">{formatFCFA(sale.total_price)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-sans">
+                      <span className="text-muted-foreground">Nouveau prix :</span>
+                      <span className="font-semibold">{formatFCFA(selectedPlot.base_price)}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between font-sans">
+                      <span className="font-bold text-sm">Différence à régulariser :</span>
+                      <Badge className={priceDiff > 0 ? "bg-orange-100 text-orange-800 border-orange-200" : "bg-green-100 text-green-800 border-green-200"}>
+                        {priceDiff > 0 ? '+' : ''}{formatFCFA(priceDiff)}
+                      </Badge>
+                    </div>
+                    {priceDiff !== 0 && (
+                      <div className="flex items-start gap-2 text-[10px] text-muted-foreground mt-2 italic">
+                        <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                        Le solde restant du client passera de {formatFCFA(sale.balance)} à {formatFCFA(sale.balance + priceDiff)}.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label className="font-sans">Motif du transfert (requis)</Label>
+                  <Textarea 
+                    placeholder="Ex: Demande client pour une meilleure zone..." 
+                    value={transferReason}
+                    onChange={(e) => setTransferReason(e.target.value)}
+                    className="h-24"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsTransferDialogOpen(false)}>Annuler</Button>
+                <Button 
+                  onClick={() => transferMutation.mutate({ 
+                    saleId: sale.id, 
+                    newPlotId: selectedPlotId, 
+                    reason: transferReason 
+                  })}
+                  disabled={!selectedPlotId || transferReason.length < 5 || transferMutation.isPending}
+                  className="gap-2"
+                >
+                  {transferMutation.isPending ? "Traitement..." : "Confirmer la mutation"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
         
         <TabsContent value="historique" className="mt-6">
           <Card>
             <CardContent className="p-0">
               <div className="p-6 text-center text-muted-foreground font-sans italic">
-                Journal d'audit détaillé pour ce contrat (en cours de liaison).
+                Journal d'audit détaillé pour ce dossier de vente.
               </div>
             </CardContent>
           </Card>
