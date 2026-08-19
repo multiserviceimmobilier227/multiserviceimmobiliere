@@ -34,17 +34,11 @@ const acquisitionSchema = z.object({
   vendeur: z.string().min(1, "Vendeur requis"),
   date_achat: z.string().min(1, "Date requise"),
   prix_principal: z.number().min(0, "Prix requis"),
-  lotissement_id: z.string().uuid().optional().nullable(),
-  plot_id: z.string().uuid().optional().nullable(),
+  lotissement_id: z.string().uuid().nullable().optional(),
+  plot_id: z.string().uuid().nullable().optional(),
 });
 
-type FormValues = {
-  vendeur: string;
-  date_achat: string;
-  prix_principal: number;
-  lotissement_id?: string | null;
-  plot_id?: string | null;
-};
+type FormValues = z.infer<typeof acquisitionSchema>;
 
 export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const queryClient = useQueryClient();
@@ -65,7 +59,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
   });
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(acquisitionSchema) as any,
+    resolver: zodResolver(acquisitionSchema),
     defaultValues: { 
       vendeur: "", 
       date_achat: new Date().toISOString().split('T')[0], 
@@ -101,7 +95,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ""} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,7 +109,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                   <FormItem>
                     <FormLabel>Date d'achat</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} value={field.value || ""} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +125,6 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                       <Input 
                         type="number" 
                         {...field} 
-                        value={field.value ?? 0}
                         onChange={(e) => field.onChange(Number(e.target.value))} 
                       />
                     </FormControl>
