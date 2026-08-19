@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 /**
@@ -12,7 +11,8 @@ export const checkUserRole = createServerFn({ method: "GET" })
     role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client'])
   }))
   .handler(async ({ data }) => {
-    const { data: hasRole, error } = await supabase.rpc('has_role', {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: hasRole, error } = await supabaseAdmin.rpc('has_role', {
       _user_id: data.userId,
       _role: data.role
     });
@@ -30,14 +30,13 @@ export const checkUserRole = createServerFn({ method: "GET" })
  */
 export const getUsersWithRoles = createServerFn({ method: "GET" })
   .handler(async () => {
-    // In a real app, you would fetch from auth.users (requires admin client)
-    // and join with public.user_roles.
-    // For now, we'll fetch only from user_roles which is public.
-    const { data, error } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Fetch users from auth.users via admin client and join manually or use a view if we had one
+    // For now, let's just fetch roles and try to get user metadata if possible
+    const { data, error } = await supabaseAdmin
       .from('user_roles')
       .select(`
-        *,
-        user_id
+        *
       `);
 
     if (error) throw error;
@@ -49,7 +48,8 @@ export const getUsersWithRoles = createServerFn({ method: "GET" })
  */
 export const getAuditLogs = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from('audit_logs')
       .select('*')
       .order('created_at', { ascending: false });
@@ -57,3 +57,4 @@ export const getAuditLogs = createServerFn({ method: "GET" })
     if (error) throw error;
     return data;
   });
+
