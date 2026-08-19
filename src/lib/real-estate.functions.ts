@@ -49,8 +49,9 @@ export const createLotissement = createServerFn({ method: "POST" })
       .eq('user_id', context.userId)
       .maybeSingle();
 
-    if (!userRole || !['pdg', 'informaticien', 'secretaire'].includes(userRole.role)) {
-      throw new Error("Unauthorized: Only PDG, Informaticien or Secretaire can create lotissements");
+    const { hasPermission } = await import("@/lib/permissions");
+    if (!hasPermission(userRole?.role as any, 'create_lotissement')) {
+      throw new Error("Unauthorized: You do not have permission to create lotissements");
     }
 
     // Exact optional property types fix: ensure undefined becomes null for Supabase
@@ -71,6 +72,7 @@ export const createLotissement = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return data;
   });
+
 
 export const getPlots = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
