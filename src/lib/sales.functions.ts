@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enforcePermission } from "./permissions.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const saleSchema = z.object({
   clientId: z.string().uuid(),

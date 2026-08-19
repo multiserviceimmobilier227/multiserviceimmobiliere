@@ -857,6 +857,61 @@ export type Database = {
           },
         ]
       }
+      sale_transfers: {
+        Row: {
+          authorized_by: string | null
+          created_at: string | null
+          id: string
+          new_plot_id: string
+          old_plot_id: string
+          price_difference: number
+          reason: string
+          sale_id: string
+        }
+        Insert: {
+          authorized_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_plot_id: string
+          old_plot_id: string
+          price_difference?: number
+          reason: string
+          sale_id: string
+        }
+        Update: {
+          authorized_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_plot_id?: string
+          old_plot_id?: string
+          price_difference?: number
+          reason?: string
+          sale_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_transfers_new_plot_id_fkey"
+            columns: ["new_plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_transfers_old_plot_id_fkey"
+            columns: ["old_plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_transfers_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           balance: number
@@ -1052,6 +1107,15 @@ export type Database = {
     }
     Functions: {
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
+      handle_plot_transfer: {
+        Args: {
+          p_author_id: string
+          p_new_plot_id: string
+          p_reason: string
+          p_sale_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
