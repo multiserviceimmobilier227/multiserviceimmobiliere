@@ -128,10 +128,11 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
       .eq('user_id', context.userId)
       .maybeSingle();
 
-    const allowedRoles = ['pdg', 'informaticien', 'secretaire', 'commercial', 'comptable'];
-    if (!userRole || !allowedRoles.includes(userRole.role)) {
+    const { hasPermission } = await import("@/lib/permissions");
+    if (!hasPermission(userRole?.role as any, 'manage_plots')) {
       throw new Error("Unauthorized");
     }
+
 
     // 1. Get old status
     const { data: plot, error: fetchError } = await supabaseAdmin

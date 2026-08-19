@@ -33,13 +33,16 @@ function AgencesPage() {
 
   if (isLoading) return null;
 
-  if (role !== 'pdg' && role !== 'informaticien') {
+  if (!checkPermission('manage_agences')) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
+        <div className="text-center space-y-4">
+          <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
+        </div>
       </div>
     );
   }
+
 
 
   const [isAdding, setIsAdding] = useState(false);

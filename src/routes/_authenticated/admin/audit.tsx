@@ -28,13 +28,14 @@ function AuditPage() {
 
   if (isLoading) return null;
 
-  if (role !== 'pdg' && role !== 'informaticien') {
+  if (!checkPermission('view_audit_logs')) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
       </div>
     );
   }
+
 
 
   const getActionColor = (action: string) => {
