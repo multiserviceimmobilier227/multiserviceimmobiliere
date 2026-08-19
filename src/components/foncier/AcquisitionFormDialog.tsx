@@ -65,10 +65,11 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
       vendeur: "", 
       date_achat: new Date().toISOString().split('T')[0], 
       prix_principal: 0,
-      lotissement_id: null,
-      plot_id: null,
+      lotissement_id: null as any,
+      plot_id: null as any,
     },
   });
+
 
   const mutation = useMutation({
     mutationFn: (values: FormValues) => createAcq({ data: { ...values, status: 'En attente' } }),
