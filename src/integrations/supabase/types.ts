@@ -170,6 +170,114 @@ export type Database = {
         }
         Relationships: []
       }
+      ilots: {
+        Row: {
+          created_at: string
+          id: string
+          numero: string
+          zone_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          numero: string
+          zone_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          numero?: string
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ilots_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lotissement_attachments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_type: string | null
+          file_url: string
+          id: string
+          lotissement_id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          lotissement_id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          lotissement_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "lotissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lotissements: {
+        Row: {
+          agence_id: string | null
+          created_at: string
+          id: string
+          location: string
+          name: string
+          plan_communal: string | null
+          superficie_totale: number | null
+          updated_at: string
+        }
+        Insert: {
+          agence_id?: string | null
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          plan_communal?: string | null
+          superficie_totale?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agence_id?: string | null
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          plan_communal?: string | null
+          superficie_totale?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotissements_agence_id_fkey"
+            columns: ["agence_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -211,15 +319,55 @@ export type Database = {
           },
         ]
       }
+      plot_status_history: {
+        Row: {
+          created_at: string
+          id: string
+          new_status: Database["public"]["Enums"]["plot_status_new"]
+          old_status: Database["public"]["Enums"]["plot_status_new"] | null
+          plot_id: string
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          new_status: Database["public"]["Enums"]["plot_status_new"]
+          old_status?: Database["public"]["Enums"]["plot_status_new"] | null
+          plot_id: string
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["plot_status_new"]
+          old_status?: Database["public"]["Enums"]["plot_status_new"] | null
+          plot_id?: string
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plot_status_history_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plots: {
         Row: {
           base_price: number
           created_at: string
           id: string
+          ilot_id: string | null
           notes: string | null
+          plan_url: string | null
           plot_number: string
           site_id: string
-          status: Database["public"]["Enums"]["plot_status"]
+          status: Database["public"]["Enums"]["plot_status_new"]
           surface_area: number
           updated_at: string
         }
@@ -227,10 +375,12 @@ export type Database = {
           base_price: number
           created_at?: string
           id?: string
+          ilot_id?: string | null
           notes?: string | null
+          plan_url?: string | null
           plot_number: string
           site_id: string
-          status?: Database["public"]["Enums"]["plot_status"]
+          status?: Database["public"]["Enums"]["plot_status_new"]
           surface_area: number
           updated_at?: string
         }
@@ -238,14 +388,23 @@ export type Database = {
           base_price?: number
           created_at?: string
           id?: string
+          ilot_id?: string | null
           notes?: string | null
+          plan_url?: string | null
           plot_number?: string
           site_id?: string
-          status?: Database["public"]["Enums"]["plot_status"]
+          status?: Database["public"]["Enums"]["plot_status_new"]
           surface_area?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "plots_ilot_id_fkey"
+            columns: ["ilot_id"]
+            isOneToOne: false
+            referencedRelation: "ilots"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "plots_site_id_fkey"
             columns: ["site_id"]
@@ -371,6 +530,38 @@ export type Database = {
           },
         ]
       }
+      zones: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          lotissement_id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lotissement_id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lotissement_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zones_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "lotissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -399,6 +590,15 @@ export type Database = {
       id_type: "cni" | "passeport" | "permis" | "autre"
       payment_method: "espece" | "virement" | "cheque" | "mobile_money"
       plot_status: "disponible" | "reserve" | "vendu" | "litige"
+      plot_status_new:
+        | "Disponible"
+        | "Réservée"
+        | "Attribuée"
+        | "En cours de paiement"
+        | "Entièrement payée"
+        | "Vendue"
+        | "Bloquée"
+        | "Annulée"
       sale_status: "reservation" | "en_cours" | "termine" | "annule"
       site_status: "actif" | "inactif" | "termine"
     }
@@ -543,6 +743,16 @@ export const Constants = {
       id_type: ["cni", "passeport", "permis", "autre"],
       payment_method: ["espece", "virement", "cheque", "mobile_money"],
       plot_status: ["disponible", "reserve", "vendu", "litige"],
+      plot_status_new: [
+        "Disponible",
+        "Réservée",
+        "Attribuée",
+        "En cours de paiement",
+        "Entièrement payée",
+        "Vendue",
+        "Bloquée",
+        "Annulée",
+      ],
       sale_status: ["reservation", "en_cours", "termine", "annule"],
       site_status: ["actif", "inactif", "termine"],
     },

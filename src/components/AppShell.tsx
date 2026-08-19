@@ -65,8 +65,8 @@ export function AppShell({ children }: { children?: ReactNode }) {
                   Immobilier
                 </h2>
                 <div className="space-y-1">
-                  <NavItem to="/" icon={Map}>Parcelles & Lotissements</NavItem>
-                  <NavItem to="/" icon={Building2}>Acquisitions</NavItem>
+                  <NavItem to="/immobilier/lotissements" icon={Map}>Parcelles & Lotissements</NavItem>
+                  <NavItem to="/immobilier/parcelles" icon={Building2}>Suivi Parcelles</NavItem>
                 </div>
               </div>
 
