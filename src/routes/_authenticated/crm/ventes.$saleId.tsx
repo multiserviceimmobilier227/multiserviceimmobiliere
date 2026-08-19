@@ -192,7 +192,115 @@ function SaleDetailsPage() {
           <TabsTrigger value="historique">Historique</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="details" className="mt-6">
+        <TabsContent value="contrat" className="mt-6">
+          {!contract ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Génération du Contrat</CardTitle>
+                <CardDescription>
+                  Aucun contrat n'a été généré pour cette vente. La génération figera les données actuelles (prix, parcelle, client).
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => generateMutation.mutate()} 
+                  disabled={generateMutation.isPending}
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Générer le brouillon du contrat
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="md:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Contrat {contract.contract_number || '(Brouillon)'}
+                      {contract.status === 'signed' && (
+                        <Badge className="bg-green-100 text-green-800 border-green-200">Signé</Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>Données gelées historiquement</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Printer className="h-4 w-4" />
+                    Imprimer
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-2 gap-8 text-sm">
+                    <div className="space-y-3">
+                      <h4 className="font-bold border-b pb-1 uppercase text-[10px] text-muted-foreground">Client (Gelé)</h4>
+                      <div className="space-y-1">
+                        <p className="font-semibold">{(contract.frozen_client_data as any).first_name} {(contract.frozen_client_data as any).last_name}</p>
+                        <p className="text-muted-foreground">Tél: {(contract.frozen_client_data as any).phone}</p>
+                        <p className="text-muted-foreground">CNIB: {(contract.frozen_client_data as any).cnib || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-bold border-b pb-1 uppercase text-[10px] text-muted-foreground">Parcelle (Gelée)</h4>
+                      <div className="space-y-1">
+                        <p className="font-semibold">Lot {(contract.frozen_plot_data as any).plot_number}</p>
+                        <p className="text-muted-foreground">{(contract.frozen_plot_data as any).lotissement_name}</p>
+                        <p className="text-muted-foreground">{(contract.frozen_plot_data as any).surface} m²</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 p-4 rounded-lg">
+                    <h4 className="font-bold uppercase text-[10px] text-muted-foreground mb-3">Conditions Financières (Gelées)</h4>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Prix Total</p>
+                        <p className="font-bold">{formatFCFA((contract.frozen_price_data as any).total_price)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Apport Initial</p>
+                        <p className="font-bold">{formatFCFA((contract.frozen_price_data as any).down_payment)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Solde Restant</p>
+                        <p className="font-bold">{formatFCFA((contract.frozen_price_data as any).balance)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {contract.status === 'draft' && (
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => signMutation.mutate(contract.id)}
+                        disabled={signMutation.isPending || !canSign}
+                        className="gap-2"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Signer Officiellement
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm uppercase text-muted-foreground">Documents Scannés</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                    <Download className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground font-sans">
+                      Glissez le contrat signé ici ou cliquez pour uploader (PDF/Image)
+                    </p>
+                    <Button variant="ghost" size="sm" className="mt-4 text-[10px]">Parcourir</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-sans">Conditions du Contrat</CardTitle>
