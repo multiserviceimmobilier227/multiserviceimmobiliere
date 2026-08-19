@@ -262,14 +262,17 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
         
         for (let i = 0; i < unpaidSchedules.length; i++) {
           const schedule = unpaidSchedules[i];
+          if (!schedule) continue;
+          
           const isLast = i === unpaidSchedules.length - 1;
-          const newAmount = isLast ? (remainingToSchedule - distributed) : monthlyAmount;
+          const currentPaid = Number(schedule.amount_paid) || 0;
+          const newAmountDue = isLast ? (remainingToSchedule - distributed) + currentPaid : monthlyAmount + currentPaid;
           
           await supabase
             .from("payment_schedules")
             .update({ 
-              amount_due: newAmount + (Number(schedule.amount_paid) || 0),
-              status: (Number(schedule.amount_paid) || 0) >= (newAmount + (Number(schedule.amount_paid) || 0)) ? "Payé" : (Number(schedule.amount_paid) > 0 ? "Partiel" : "En attente")
+              amount_due: newAmountDue,
+              status: currentPaid >= newAmountDue ? "Payé" : (currentPaid > 0 ? "Partiel" : "En attente")
             })
             .eq("id", schedule.id);
           
