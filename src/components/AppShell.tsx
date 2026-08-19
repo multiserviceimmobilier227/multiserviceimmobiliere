@@ -124,8 +124,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {checkPermission('manage_agences') && (
             <NavItem to="/admin/agences" icon={Building2} label="Agences" onClick={onItemClick} />
           )}
-          {checkPermission('manage_permissions') || role === 'pdg' ? (
-            <NavItem to="/admin/permissions" icon={Lock} label="Journal d'Audit" onClick={onItemClick} />
+          {checkPermission('manage_users') || role === 'pdg' ? (
+            <NavItem to="/admin/permissions" icon={Lock} label="Matrice Permissions" onClick={onItemClick} />
           ) : null}
           {checkPermission('view_audit_logs') && (
             <NavItem to="/admin/audit" icon={History} label="Audit & Logs" onClick={onItemClick} />
