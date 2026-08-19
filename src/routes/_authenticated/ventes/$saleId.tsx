@@ -13,6 +13,7 @@ import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/_authenticated/ventes/$saleId')({
