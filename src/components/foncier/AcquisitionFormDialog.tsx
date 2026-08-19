@@ -44,7 +44,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
   });
 
   const mutation = useMutation({
-    mutationFn: (values: FormValues) => createAcq({ data: values }),
+    mutationFn: (values: FormValues) => createAcq({ data: { ...values, status: 'En attente' } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["acquisitions"] });
       toast.success("Acquisition enregistrée");
@@ -62,33 +62,45 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
         <DialogHeader><DialogTitle>Nouvelle Acquisition</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
-            <FormField control={form.control} name="vendeur" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Vendeur</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="date_achat" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date d'achat</FormLabel>
-                <FormControl><Input type="date" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="prix_principal" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prix Principal (FCFA)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(Number(e.target.value))} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField 
+              control={form.control} 
+              name="vendeur" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vendeur</FormLabel>
+                  <FormControl><Input {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
+            <FormField 
+              control={form.control} 
+              name="date_achat" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date d'achat</FormLabel>
+                  <FormControl><Input type="date" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
+            <FormField 
+              control={form.control} 
+              name="prix_principal" 
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prix Principal (FCFA)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(Number(e.target.value))} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} 
+            />
             <Button type="submit" className="w-full bg-[#D1127B]" disabled={mutation.isPending}>
               {mutation.isPending ? "Enregistrement..." : "Enregistrer"}
             </Button>

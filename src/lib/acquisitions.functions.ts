@@ -11,6 +11,24 @@ const acquisitionSchema = z.object({
   status: z.string().default('En attente'),
 });
 
+export const getAcquisitions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("acquisitions")
+      .select(`
+        *,
+        lotissement:lotissements(name),
+        plot:plots(plot_number),
+        costs:acquisition_costs(*)
+      `)
+      .order("date_achat", { ascending: false });
+    
+    if (error) throw new Error(error.message);
+    return (data || []) as any[];
+  });
+
 export const createAcquisition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => acquisitionSchema.parse(data))
