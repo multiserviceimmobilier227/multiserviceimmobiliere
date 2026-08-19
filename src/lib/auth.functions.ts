@@ -41,8 +41,9 @@ export const assignUserRole = createServerFn({ method: "POST" })
       .upsert({ 
         user_id: data.userId, 
         role: data.role,
-        agence_id: data.agenceId
+        agence_id: data.agenceId ?? null
       }, { onConflict: 'user_id,role' });
+
 
     if (error) throw error;
     return { success: true };
