@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { AppRole, Permission } from "./permissions";
 
 /**
  * Get the current permission matrix from the database
@@ -23,7 +22,7 @@ export const getRolePermissions = createServerFn({ method: "GET" })
     }
 
     const { data: dbPermissions, error } = await supabaseAdmin
-      .from('role_permissions')
+      .from('role_permissions' as any)
       .select('*');
 
     if (error) {
@@ -31,7 +30,7 @@ export const getRolePermissions = createServerFn({ method: "GET" })
       return [];
     }
 
-    return dbPermissions;
+    return dbPermissions as any[];
   });
 
 /**
@@ -60,12 +59,12 @@ export const updateRolePermission = createServerFn({ method: "POST" })
 
     if (data.enabled) {
       const { error } = await supabaseAdmin
-        .from('role_permissions')
-        .upsert({ role: data.role, permission: data.permission });
+        .from('role_permissions' as any)
+        .upsert({ role: data.role as any, permission: data.permission });
       if (error) throw error;
     } else {
       const { error } = await supabaseAdmin
-        .from('role_permissions')
+        .from('role_permissions' as any)
         .delete()
         .match({ role: data.role, permission: data.permission });
       if (error) throw error;
