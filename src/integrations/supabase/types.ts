@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      acquisition_costs: {
+        Row: {
+          acquisition_id: string
+          amount: number
+          category: Database["public"]["Enums"]["acquisition_cost_category"]
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          proof_url: string | null
+        }
+        Insert: {
+          acquisition_id: string
+          amount: number
+          category: Database["public"]["Enums"]["acquisition_cost_category"]
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          proof_url?: string | null
+        }
+        Update: {
+          acquisition_id?: string
+          amount?: number
+          category?: Database["public"]["Enums"]["acquisition_cost_category"]
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          proof_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_costs_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acquisitions: {
+        Row: {
+          created_at: string
+          date_achat: string
+          id: string
+          lotissement_id: string | null
+          plot_id: string | null
+          prix_principal: number
+          status: string
+          updated_at: string
+          vendeur: string
+        }
+        Insert: {
+          created_at?: string
+          date_achat?: string
+          id?: string
+          lotissement_id?: string | null
+          plot_id?: string | null
+          prix_principal?: number
+          status?: string
+          updated_at?: string
+          vendeur: string
+        }
+        Update: {
+          created_at?: string
+          date_achat?: string
+          id?: string
+          lotissement_id?: string | null
+          plot_id?: string | null
+          prix_principal?: number
+          status?: string
+          updated_at?: string
+          vendeur?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisitions_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "lotissement_profitability"
+            referencedColumns: ["lotissement_id"]
+          },
+          {
+            foreignKeyName: "acquisitions_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "lotissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acquisitions_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agences: {
         Row: {
           address: string | null
@@ -232,6 +331,13 @@ export type Database = {
             foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
             columns: ["lotissement_id"]
             isOneToOne: false
+            referencedRelation: "lotissement_profitability"
+            referencedColumns: ["lotissement_id"]
+          },
+          {
+            foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
@@ -360,6 +466,7 @@ export type Database = {
       plots: {
         Row: {
           base_price: number
+          cost_price_calculated: number | null
           created_at: string
           id: string
           ilot_id: string | null
@@ -373,6 +480,7 @@ export type Database = {
         }
         Insert: {
           base_price: number
+          cost_price_calculated?: number | null
           created_at?: string
           id?: string
           ilot_id?: string | null
@@ -386,6 +494,7 @@ export type Database = {
         }
         Update: {
           base_price?: number
+          cost_price_calculated?: number | null
           created_at?: string
           id?: string
           ilot_id?: string | null
@@ -557,6 +666,13 @@ export type Database = {
             foreignKeyName: "zones_lotissement_id_fkey"
             columns: ["lotissement_id"]
             isOneToOne: false
+            referencedRelation: "lotissement_profitability"
+            referencedColumns: ["lotissement_id"]
+          },
+          {
+            foreignKeyName: "zones_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
@@ -564,7 +680,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      lotissement_profitability: {
+        Row: {
+          lotissement_id: string | null
+          lotissement_name: string | null
+          potential_revenue: number | null
+          total_investment: number | null
+          total_plots: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -576,6 +701,13 @@ export type Database = {
       }
     }
     Enums: {
+      acquisition_cost_category:
+        | "Prix Achat"
+        | "Frais Acte"
+        | "Géomètre"
+        | "Commission"
+        | "Taxe"
+        | "Autre"
       app_role:
         | "admin"
         | "moderator"
@@ -728,6 +860,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acquisition_cost_category: [
+        "Prix Achat",
+        "Frais Acte",
+        "Géomètre",
+        "Commission",
+        "Taxe",
+        "Autre",
+      ],
       app_role: [
         "admin",
         "moderator",
