@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const clientSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
-  email: z.string().email().optional().nullable(),
+  email: z.string().email().optional().nullable().or(z.literal("")),
   phone: z.string().min(1),
   address: z.string().optional().nullable(),
   id_type: z.enum(["cni", "passeport", "permis", "autre"]),
@@ -64,7 +64,9 @@ export const upsertClient = createServerFn({ method: "POST" })
     client: clientSchema
   }).parse(data))
   .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const updateData: any = {
       first_name: data.client.first_name,
       last_name: data.client.last_name,
@@ -104,7 +106,9 @@ export const addClientInteraction = createServerFn({ method: "POST" })
     interaction_date: z.string().optional(),
   }).parse(data))
   .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const { data: userRes } = await supabase.auth.getUser();
     const { data: interaction, error } = await supabase
       .from("client_interactions")
