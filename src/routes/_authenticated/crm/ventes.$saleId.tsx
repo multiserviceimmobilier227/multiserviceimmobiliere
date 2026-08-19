@@ -35,7 +35,7 @@ function SaleDetailsPage() {
   const { saleId } = Route.useParams();
   const { data: sale } = useSuspenseQuery({
     queryKey: ['sale', saleId],
-    queryFn: () => getSaleById({ id: saleId }),
+    queryFn: () => getSaleById(saleId),
   });
 
   if (!sale) return null;
