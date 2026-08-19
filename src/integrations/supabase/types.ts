@@ -522,6 +522,53 @@ export type Database = {
           },
         ]
       }
+      plot_pricing: {
+        Row: {
+          base_price: number
+          created_at: string
+          effective_date: string
+          id: string
+          min_price: number | null
+          notes: string | null
+          plot_id: string
+          prepared_by_id: string | null
+          validated_by_id: string | null
+          validation_date: string | null
+        }
+        Insert: {
+          base_price: number
+          created_at?: string
+          effective_date?: string
+          id?: string
+          min_price?: number | null
+          notes?: string | null
+          plot_id: string
+          prepared_by_id?: string | null
+          validated_by_id?: string | null
+          validation_date?: string | null
+        }
+        Update: {
+          base_price?: number
+          created_at?: string
+          effective_date?: string
+          id?: string
+          min_price?: number | null
+          notes?: string | null
+          plot_id?: string
+          prepared_by_id?: string | null
+          validated_by_id?: string | null
+          validation_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plot_pricing_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plot_status_history: {
         Row: {
           created_at: string
@@ -620,15 +667,53 @@ export type Database = {
           },
         ]
       }
+      price_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          price_per_m2: number
+          surface_range_max: number
+          surface_range_min: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_per_m2: number
+          surface_range_max: number
+          surface_range_min: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_per_m2?: number
+          surface_range_max?: number
+          surface_range_min?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales: {
         Row: {
           balance: number
+          catalog_price: number | null
           client_id: string
           created_at: string
+          discount_amount: number | null
           down_payment: number | null
+          final_price: number | null
           id: string
           plot_id: string
           prepared_by_id: string | null
+          price_validated_by_id: string | null
+          price_validation_date: string | null
           sale_date: string
           status: Database["public"]["Enums"]["sale_status"]
           total_price: number
@@ -638,12 +723,17 @@ export type Database = {
         }
         Insert: {
           balance: number
+          catalog_price?: number | null
           client_id: string
           created_at?: string
+          discount_amount?: number | null
           down_payment?: number | null
+          final_price?: number | null
           id?: string
           plot_id: string
           prepared_by_id?: string | null
+          price_validated_by_id?: string | null
+          price_validation_date?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_price: number
@@ -653,12 +743,17 @@ export type Database = {
         }
         Update: {
           balance?: number
+          catalog_price?: number | null
           client_id?: string
           created_at?: string
+          discount_amount?: number | null
           down_payment?: number | null
+          final_price?: number | null
           id?: string
           plot_id?: string
           prepared_by_id?: string | null
+          price_validated_by_id?: string | null
+          price_validation_date?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_price?: number
@@ -799,6 +894,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
