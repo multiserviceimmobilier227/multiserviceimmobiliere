@@ -155,8 +155,8 @@ function SalesListPage() {
                     {formatFCFA(sale.balance)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={`font-sans text-[10px] uppercase tracking-tighter ${style.color}`}>
-                      {style.label}
+                    <Badge variant="outline" className={`font-sans text-[10px] uppercase tracking-tighter ${style?.color || ''}`}>
+                      {style?.label || sale.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
