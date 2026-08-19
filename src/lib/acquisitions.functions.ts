@@ -85,25 +85,34 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
+    const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
 
-    // Get monthly sales
-    const { data: monthlySales } = await supabaseAdmin
+    // 1. Monthly Sales Volume (Sum of total_amount for sales this month)
+    const { data: salesVolume } = await supabaseAdmin
       .from("sales")
       .select("total_amount")
-      .gte("sale_date", startOfMonth.toISOString().split('T')[0]);
+      .gte("sale_date", startOfMonthStr);
 
-    // Get monthly collections (payments) - assuming a 'payments' table exists or will exist
-    // For now, let's use deposit_amount from recent sales as a proxy if payments table is missing
-    const { data: collections } = await supabaseAdmin
+    // 2. Monthly Collections (Sum of deposits + sum of actual payments this month)
+    
+    // Sum of deposits from sales created this month
+    const { data: deposits } = await supabaseAdmin
       .from("sales")
       .select("deposit_amount")
-      .gte("sale_date", startOfMonth.toISOString().split('T')[0]);
+      .gte("sale_date", startOfMonthStr);
 
-    const totalSales = monthlySales?.reduce((sum, s) => sum + Number(s.total_amount), 0) || 0;
-    const totalCollections = collections?.reduce((sum, c) => sum + Number(c.deposit_amount), 0) || 0;
+    // Sum of actual payments from the payments table this month
+    const { data: payments } = await supabaseAdmin
+      .from("payments")
+      .select("amount")
+      .gte("payment_date", startOfMonthStr);
+
+    const totalSalesVolume = salesVolume?.reduce((sum, s) => sum + Number(s.total_amount), 0) || 0;
+    const totalDeposits = deposits?.reduce((sum, s) => sum + Number(s.deposit_amount), 0) || 0;
+    const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
 
     return {
-      monthlySales: totalSales,
-      monthlyCollections: totalCollections
+      monthlySales: totalSalesVolume,
+      monthlyCollections: totalDeposits + totalPayments
     };
   });

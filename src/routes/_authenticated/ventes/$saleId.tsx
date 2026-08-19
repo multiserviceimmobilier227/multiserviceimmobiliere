@@ -1,6 +1,6 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +13,7 @@ import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/_authenticated/ventes/$saleId')({
@@ -31,6 +32,13 @@ function SaleDetailsComponent() {
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
   const [isAdjustOpen, setIsAdjustOpen] = useState(false)
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false)
+  const [payAmount, setPayAmount] = useState('')
+  const [payMethod, setPayMethod] = useState<'espece' | 'virement' | 'cheque' | 'mobile_money'>('espece')
+  const [payRef, setPayRef] = useState('')
+  const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  
+  const registerPaymentFn = useServerFn(registerPayment)
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
@@ -59,6 +67,28 @@ function SaleDetailsComponent() {
     onSuccess: () => {
       toast.success('Prix ajusté avec succès')
       setIsAdjustOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur : ${error.message}`)
+    }
+  })
+  
+  const paymentMutation = useMutation({
+    mutationFn: () => registerPaymentFn({
+      data: {
+        saleId,
+        amount: parseFloat(payAmount),
+        paymentDate: payDate,
+        method: payMethod,
+        reference: payRef || null,
+      }
+    }),
+    onSuccess: () => {
+      toast.success('Paiement enregistré avec succès')
+      setIsPaymentOpen(false)
+      setPayAmount('')
+      setPayRef('')
       queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
     },
     onError: (error: any) => {
@@ -145,9 +175,75 @@ function SaleDetailsComponent() {
             </DialogContent>
           </Dialog>
 
+          {/* Enregistrement de Paiement */}
+          <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-white hover:bg-primary/90" disabled={sale.status === 'annule' || (sale.balance || 0) <= 0}>
+                <DollarSign className="mr-2 h-4 w-4" /> Encaisser Paiement
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Encaisser un Paiement</DialogTitle>
+                <DialogDescription>
+                  Enregistrez un nouveau versement pour cette vente. Le solde sera mis à jour automatiquement.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="payAmount">Montant à encaisser (FCFA)</Label>
+                  <Input 
+                    id="payAmount" 
+                    type="number" 
+                    value={payAmount} 
+                    onChange={(e) => setPayAmount(e.target.value)}
+                    placeholder="Montant du versement" 
+                  />
+                  <p className="text-xs text-muted-foreground">Solde restant : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payDate">Date du paiement</Label>
+                  <Input 
+                    id="payDate" 
+                    type="date" 
+                    value={payDate} 
+                    onChange={(e) => setPayDate(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payMethod">Mode de paiement</Label>
+                  <Select value={payMethod} onValueChange={(val: any) => setPayMethod(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir un mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="espece">Espèces</SelectItem>
+                      <SelectItem value="virement">Virement Bancaire</SelectItem>
+                      <SelectItem value="cheque">Chèque</SelectItem>
+                      <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payRef">Référence (N° Chèque/Transaction)</Label>
+                  <Input 
+                    id="payRef" 
+                    value={payRef} 
+                    onChange={(e) => setPayRef(e.target.value)}
+                    placeholder="Ex: CHQ-123456 ou Transaction ID" 
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsPaymentOpen(false)}>Annuler</Button>
+                <Button onClick={() => paymentMutation.mutate()} disabled={!payAmount || parseFloat(payAmount) <= 0}>Confirmer l'encaissement</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {sale.status === 'reservation' && (
-            <Button className="bg-green-600 hover:bg-green-700" onClick={() => validateMutation.mutate()}>
-              <CheckCircle2 className="mr-2 h-4 w-4" /> Valider Contrat (PDG)
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => validateMutation.mutate()} disabled={validateMutation.isPending}>
+              <CheckCircle2 className="mr-2 h-4 w-4" /> {validateMutation.isPending ? 'Validation...' : 'Valider Contrat (PDG)'}
             </Button>
           )}
         </div>
@@ -289,6 +385,30 @@ function SaleDetailsComponent() {
                       <p className="font-semibold">Mutation {mut.status}</p>
                       <p className="text-muted-foreground">{mut.reason}</p>
                       <p className="mt-1">Différence : {new Intl.NumberFormat('fr-FR').format(mut.price_difference)} FCFA</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {(sale as any).payments && (sale as any).payments.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <History className="h-4 w-4" />
+                  Historique des Paiements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(sale as any).payments.map((p: any) => (
+                    <div key={p.id} className="text-xs p-2 border-l-2 border-green-400 bg-green-50/30 flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold">{new Intl.NumberFormat('fr-FR').format(p.amount)} FCFA</p>
+                        <p className="text-muted-foreground">{format(new Date(p.payment_date), 'dd/MM/yyyy')} - {p.method}</p>
+                        {p.reference && <p className="text-[10px] text-muted-foreground">Réf: {p.reference}</p>}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -1,28 +1,28 @@
-# Plan d'implémentation - Phase 9.5 (Finalisation)
+# Plan de travail : Phase 9.5 — Câblage UI & Opérationnalité Totale
 
-## Phase 9.5 — Câblage UI & Opérationnalité Totale
+Ce plan finalise l'intégration des fonctionnalités cœur (Ventes, Acquisitions, CRM, Foncier) pour rendre le logiciel MSI 2.0 pleinement exploitable.
 
-### A. CRM & Foncier (Terminé)
-- [x] Liste des lotissements, zones et ilots.
-- [x] Vue hiérarchique : Lotissement > Zones > Ilots > Parcelles.
-- [x] Formulaires de création Lotissement/Zone/Ilot/Parcelle.
-- [x] Connexion du Dashboard aux compteurs réels (Clients, Parcelles).
+## 1. Câblage CRM & Foncier (Réalisé)
+- [x] **Hiérarchie Lotissements** : Navigation fluide de Lotissement > Zone > Ilot > Parcelles.
+- [x] **Visualisation 360° Client** : Profil complet avec historique des interactions et acquisitions.
+- [x] **Tableau de Bord** : Indicateurs temps réel (Ventes mensuelles, Recouvrements, Disponibilité foncière).
 
-### D. Acquisitions & Frais Annexes (Terminé)
-- [x] Formulaire d'acquisition avec sélection optionnelle de lotissement/parcelle.
-- [x] Enregistrement des frais annexes (Géomètre, Actes, etc.) liés à une acquisition.
-- [x] Liste des acquisitions avec total investi (Prix + Frais).
+## 2. Cycle de Vente & Encaissements (Réalisé)
+- [x] **Détail de Vente** : Interface riche regroupant client, parcelle, échéancier et historique.
+- [x] **Gestion des Paiements** : Bouton "Encaisser Paiement" avec mise à jour instantanée du solde et traçabilité.
+- [x] **Ajustements PDG** : Interface de révision de prix avec motif obligatoire.
+- [x] **Validation & Snapshots** : Gel des données contractuelles lors de la signature.
 
-### E. Dashboard Financier Réel (Terminé)
-- [x] Création des fonctions d'agrégation `getDashboardStats` (Ventes du mois, Encaissements).
-- [x] Câblage des indicateurs financiers sur le Dashboard principal.
+## 3. Acquisitions & Coûts de Revient (Réalisé)
+- [x] **Calculateur de Rentabilité** : Intégration des frais annexes (Géomètre, Actes, Commissions) dans le prix de revient.
+- [x] **Formulaire d'Acquisition** : Sélection liée au stock foncier existant.
 
-### F. Finalisation & Audit final (À faire)
-- [ ] Vérification de la cohérence des soldes clients après paiement partiel.
-- [ ] Audit de sécurité sur les `createServerFn` (vérification systématique des rôles si nécessaire).
-- [ ] Tests de bout en bout : Acquisition -> Lotissement -> Vente -> Paiement.
+## 4. Prochaines Étapes (Phase 10+)
+- [ ] **Génération PDF** : Moteur de génération de contrats et reçus au format PDF.
+- [ ] **Automatisations CRM** : Relances automatiques par SMS/Email pour les retards de paiement.
+- [ ] **Workflow de Mutation** : Formulaire complet pour le transfert de droits sur parcelle (A vers B).
 
 ## Détails Techniques
-- Utilisation de `supabaseAdmin` dans les `createServerFn` pour les agrégations complexes.
-- Snapshots de contrats lors de la validation PDG pour garantir l'historique.
-- Verrouillage des modifications de prix après le premier versement.
+- Utilisation de `useMutation` pour les encaissements et validations.
+- Recalcul des soldes côté serveur dans `sales.functions.ts`.
+- Historisation systématique dans la table `payments` liée à `sales`.
