@@ -16,9 +16,9 @@ export const getRolePermissions = createServerFn({ method: "GET" })
       .eq('user_id', context.userId)
       .maybeSingle();
 
-    if (callerRole?.role !== 'pdg' && callerRole?.role !== 'informaticien') {
-      throw new Error("Unauthorized");
-    }
+    // All authenticated users can see permissions to hydrate the UI
+    // but actual checks are enforced server-side for critical actions
+
 
     const { data: dbPermissions, error } = await supabaseAdmin
       .from('role_permissions' as any)
