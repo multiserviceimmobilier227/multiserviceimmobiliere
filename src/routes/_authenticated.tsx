@@ -20,13 +20,33 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedLayout() {
   const [mounted, setMounted] = useState(false)
+  const [session, setSession] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setMounted(true)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  if (!mounted) {
-    return null
+  if (!mounted || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return null // beforeLoad will handle redirect
   }
 
   return (
