@@ -111,7 +111,7 @@ export const requestSaleAdjustment = createServerFn({ method: "POST" })
     type: z.enum(['price_adjustment', 'change_plot'])
   }).parse(data))
   .handler(async ({ data, context }) => {
-    await enforcePermission(context.userId, 'manage_sales');
+    await enforcePermission(context.userId, 'request_price_adjustment');
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: adjustment, error } = await supabaseAdmin
@@ -139,7 +139,7 @@ export const validateSaleAdjustment = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data, context }) => {
     // Vérification stricte du rôle PDG ou Admin pour la validation
-    const canValidate = await verifyPermission(context.userId, 'validate_sensitive_op');
+    const canValidate = await verifyPermission(context.userId, 'validate_price_adjustment');
     if (!canValidate) throw new Error("Seul le PDG ou un Administrateur peut valider cette opération");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
