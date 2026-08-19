@@ -103,14 +103,14 @@ export const validateSale = createServerFn({ method: "POST" })
       .from("contract_snapshots")
       .insert({
         sale_id: data.saleId,
-        client_data: sale.client,
-        plot_data: sale.plot,
+        client_data: sale.client as any,
+        plot_data: sale.plot as any,
         sale_data: {
           total_amount: sale.total_amount,
           deposit_amount: sale.deposit_amount,
           payment_plan_type: (sale as any).payment_plan_type,
           sale_date: sale.sale_date
-        },
+        } as any,
         created_by: userId
       });
 
