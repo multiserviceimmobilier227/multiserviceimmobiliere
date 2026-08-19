@@ -46,8 +46,9 @@ function AgencesPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(newAgence);
+    mutation.mutate({ data: newAgence });
   };
+
 
   return (
     <div className="space-y-6">
