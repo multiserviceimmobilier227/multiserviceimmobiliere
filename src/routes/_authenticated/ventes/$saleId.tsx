@@ -303,22 +303,35 @@ function SaleDetailsComponent() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Échéance</TableHead>
-                  <TableHead>Montant</TableHead>
+                  <TableHead>Dû</TableHead>
+                  <TableHead>Payé</TableHead>
+                  <TableHead>Solde</TableHead>
                   <TableHead>Statut</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sale.payment_schedules?.map((item: any, idx: number) => (
-                  <TableRow key={item.id}>
-                    <TableCell>Mois {idx + 1} ({format(new Date(item.due_date), 'MMM yyyy', { locale: fr })})</TableCell>
-                    <TableCell className="font-medium">{new Intl.NumberFormat('fr-FR').format(item.amount_due)} FCFA</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={item.status === 'Payé' ? 'bg-green-100 text-green-800' : ''}>
-                        {item.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {sale.payment_schedules?.map((item: any, idx: number) => {
+                  const paid = item.amount_paid || 0;
+                  const balance = item.amount_due - paid;
+                  const isOverdue = new Date(item.due_date) < new Date() && item.status !== 'Payé';
+                  
+                  return (
+                    <TableRow key={item.id} className={isOverdue ? "bg-red-50/50" : ""}>
+                      <TableCell className="text-xs">
+                        {format(new Date(item.due_date), 'dd/MM/yyyy', { locale: fr })}
+                        {item.schedule_type === 'manuel' && <Badge variant="outline" className="ml-2 text-[8px] h-3 px-1">Manuel</Badge>}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{new Intl.NumberFormat('fr-FR').format(item.amount_due)}</TableCell>
+                      <TableCell className="font-mono text-xs text-green-600">{new Intl.NumberFormat('fr-FR').format(paid)}</TableCell>
+                      <TableCell className="font-mono text-xs text-red-600">{new Intl.NumberFormat('fr-FR').format(balance)}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={item.status === 'Payé' ? 'bg-green-100 text-green-800 text-[10px]' : 'text-[10px]'}>
+                          {item.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {(!sale.payment_schedules || sale.payment_schedules.length === 0) && (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">Paiement comptant / Aucun échéancier</TableCell>

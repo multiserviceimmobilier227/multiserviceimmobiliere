@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
+import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -10,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { createSaleDraft } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
-import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, UserPlus } from 'lucide-react'
+import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, UserPlus, Calendar } from 'lucide-react'
+import { PaymentScheduleEditor } from '@/components/ventes/PaymentScheduleEditor'
 import { ClientFormDialog } from '@/components/crm/ClientFormDialog'
 import { z } from 'zod'
 
@@ -35,7 +37,9 @@ function NewSaleComponent() {
     totalAmount: 0,
     depositAmount: 0,
     paymentPlanType: 'Échéancier' as 'Comptant' | 'Échéancier',
-    durationMonths: 12,
+    durationMonths: 15, // Default for MSI 2.0 Phase 10
+    firstPaymentDate: format(new Date(), 'yyyy-MM-dd'),
+    customSchedules: [] as any[],
   })
 
   useEffect(() => {
@@ -238,23 +242,44 @@ function NewSaleComponent() {
               </div>
 
               {formData.paymentPlanType === 'Échéancier' && (
-                <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-                  <Label>Durée de l'échéancier (mois)</Label>
-                  <Input 
-                    type="number" 
-                    value={formData.durationMonths} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, durationMonths: Number(e.target.value) }))}
-                  />
-                  <div className="mt-4 text-sm space-y-1">
-                    <div className="flex justify-between">
-                      <span>Reste à payer :</span>
-                      <span className="font-bold">{new Intl.NumberFormat('fr-FR').format(formData.totalAmount - formData.depositAmount)} FCFA</span>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label>Date du 1er versement / Ancrage</Label>
+                      <div className="relative">
+                        <Input 
+                          type="date" 
+                          value={formData.firstPaymentDate} 
+                          onChange={(e) => setFormData(prev => ({ ...prev, firstPaymentDate: e.target.value }))}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between text-primary">
-                      <span>Mensualité estimée :</span>
-                      <span className="font-bold">{new Intl.NumberFormat('fr-FR').format(Math.round((formData.totalAmount - formData.depositAmount) / formData.durationMonths))} FCFA / mois</span>
+                    <div className="space-y-2">
+                      <Label>Durée de l'échéancier (mois)</Label>
+                      <Select 
+                        value={formData.durationMonths.toString()} 
+                        onValueChange={(val) => setFormData(prev => ({ ...prev, durationMonths: Number(val) }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="15">Standard (15 mois)</SelectItem>
+                          <SelectItem value="20">Étendu (20 mois)</SelectItem>
+                          <SelectItem value="12">Court (12 mois)</SelectItem>
+                          <SelectItem value="24">Long (24 mois)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
+
+                  <PaymentScheduleEditor 
+                    totalAmount={formData.totalAmount}
+                    depositAmount={formData.depositAmount}
+                    initialDuration={formData.durationMonths}
+                    firstPaymentDate={formData.firstPaymentDate}
+                    onChange={(schedules) => setFormData(prev => ({ ...prev, customSchedules: schedules }))}
+                  />
                 </div>
               )}
 
@@ -264,7 +289,7 @@ function NewSaleComponent() {
                 </Button>
                 <Button 
                   className="flex-1 bg-green-600 hover:bg-green-700" 
-                  disabled={mutation.isPending} 
+                  disabled={mutation.isPending || (formData.paymentPlanType === 'Échéancier' && formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount))} 
                   onClick={() => mutation.mutate({ data: formData })}
                 >
 

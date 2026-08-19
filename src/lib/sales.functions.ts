@@ -11,6 +11,12 @@ const createSaleSchema = z.object({
   paymentPlanType: z.enum(["Comptant", "Échéancier"]),
   durationMonths: z.number().int().min(1).max(120).optional(),
   agencyId: z.string().uuid().optional(),
+  firstPaymentDate: z.string().optional(),
+  customSchedules: z.array(z.object({
+    due_date: z.string(),
+    amount_due: z.number().positive(),
+    notes: z.string().optional()
+  })).optional()
 });
 
 export const createSaleDraft = createServerFn({ method: "POST" })
@@ -44,6 +50,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         prepared_by_id: userId,
         status: "reservation",
         sale_date: format(new Date(), "yyyy-MM-dd"),
+        first_payment_date: data.firstPaymentDate || null,
       })
 
       .select()
@@ -51,25 +58,45 @@ export const createSaleDraft = createServerFn({ method: "POST" })
 
     if (saleError) throw new Error(saleError.message);
 
-    if (data.paymentPlanType === "Échéancier" && data.durationMonths) {
-      const remainingAmount = data.totalAmount - data.depositAmount;
-      const monthlyAmount = Math.round((remainingAmount / data.durationMonths) * 100) / 100;
-      
+    if (data.paymentPlanType === "Échéancier") {
       const schedules = [];
-      for (let i = 1; i <= data.durationMonths; i++) {
-        schedules.push({
-          sale_id: sale.id,
-          due_date: format(addMonths(new Date(), i), "yyyy-MM-dd"),
-          amount_due: monthlyAmount,
-          status: "En attente",
-        });
+      const baseDate = data.firstPaymentDate ? new Date(data.firstPaymentDate) : new Date();
+
+      if (data.customSchedules && data.customSchedules.length > 0) {
+        // Use custom schedules if provided
+        for (const item of data.customSchedules) {
+          schedules.push({
+            sale_id: sale.id,
+            due_date: item.due_date,
+            amount_due: item.amount_due,
+            status: "En attente",
+            schedule_type: "manuel",
+            notes: item.notes || null
+          });
+        }
+      } else if (data.durationMonths) {
+        // Default equal installments
+        const remainingAmount = data.totalAmount - data.depositAmount;
+        const monthlyAmount = Math.round((remainingAmount / data.durationMonths) * 100) / 100;
+        
+        for (let i = 1; i <= data.durationMonths; i++) {
+          schedules.push({
+            sale_id: sale.id,
+            due_date: format(addMonths(baseDate, i), "yyyy-MM-dd"),
+            amount_due: monthlyAmount,
+            status: "En attente",
+            schedule_type: "automatique"
+          });
+        }
       }
 
-      const { error: scheduleError } = await supabase
-        .from("payment_schedules")
-        .insert(schedules);
+      if (schedules.length > 0) {
+        const { error: scheduleError } = await supabase
+          .from("payment_schedules")
+          .insert(schedules);
 
-      if (scheduleError) throw new Error(scheduleError.message);
+        if (scheduleError) throw new Error(scheduleError.message);
+      }
     }
 
     return sale;
@@ -268,7 +295,39 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     if (paymentError) throw new Error(paymentError.message);
 
-    // 2. Update sale balance
+    // 2. Update payment schedules (Phase 10 logic)
+    // Find oldest unpaid schedules and apply the amount to them
+    const { data: schedules } = await supabase
+      .from("payment_schedules")
+      .select("*")
+      .eq("sale_id", data.saleId)
+      .neq("status", "Payé")
+      .order("due_date", { ascending: true });
+
+    if (schedules && schedules.length > 0) {
+      let remainingPayment = data.amount;
+      for (const schedule of schedules) {
+        if (remainingPayment <= 0) break;
+        
+        const currentPaid = schedule.amount_paid || 0;
+        const currentDue = schedule.amount_due;
+        const needed = currentDue - currentPaid;
+        
+        const apply = Math.min(remainingPayment, needed);
+        const newPaid = currentPaid + apply;
+        remainingPayment -= apply;
+        
+        await supabase
+          .from("payment_schedules")
+          .update({ 
+            amount_paid: newPaid,
+            status: newPaid >= currentDue ? "Payé" : "Partiel"
+          })
+          .eq("id", schedule.id);
+      }
+    }
+
+    // 3. Update sale balance
     const { data: sale } = await supabase
       .from("sales")
       .select("balance")
