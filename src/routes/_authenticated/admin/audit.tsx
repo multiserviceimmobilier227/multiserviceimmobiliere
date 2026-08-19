@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/admin/audit')({
 });
 
 function AuditPage() {
-  const { role, isLoading } = useUserRole();
+  const { role, isLoading, checkPermission } = useUserRole();
   const { data: logs } = useSuspenseQuery({
     queryKey: ['audit-logs'],
     queryFn: () => getAuditLogs(),

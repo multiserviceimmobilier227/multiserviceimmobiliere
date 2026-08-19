@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/admin/agences')({
 });
 
 function AgencesPage() {
-  const { role, isLoading } = useUserRole();
+  const { role, isLoading, checkPermission } = useUserRole();
   const queryClient = useQueryClient();
   const { data: agences } = useSuspenseQuery({
     queryKey: ['agences'],

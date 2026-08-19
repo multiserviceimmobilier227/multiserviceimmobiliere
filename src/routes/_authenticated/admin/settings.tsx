@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_authenticated/admin/settings')({
 });
 
 function SettingsPage() {
-  const { role, isLoading } = useUserRole();
+  const { role, isLoading, checkPermission } = useUserRole();
   const queryClient = useQueryClient();
   const { data: settings } = useSuspenseQuery({
     queryKey: ['settings'],
