@@ -23,7 +23,7 @@ interface NavItemProps {
   to: string;
   icon: React.ElementType;
   children: ReactNode;
-  onClick?: () => void | undefined;
+  onClick?: () => void;
 }
 
 const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
@@ -44,7 +44,7 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Général
       </h2>
       <div className="space-y-1">
-        <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick}>Tableau de bord</NavItem>
+        <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick || undefined}>Tableau de bord</NavItem>
       </div>
     </div>
 
@@ -53,10 +53,10 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Immobilier
       </h2>
       <div className="space-y-1">
-        <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick}>Parcelles & Lotissements</NavItem>
-        <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick}>Suivi Parcelles</NavItem>
-        <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick}>Tarifs & Offres</NavItem>
-        <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick}>Acquisitions & Coûts</NavItem>
+        <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
+        <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
+        <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
+        <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
       </div>
     </div>
 
@@ -65,9 +65,9 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Clients & Ventes
       </h2>
       <div className="space-y-1">
-        <NavItem to="/crm" icon={Users} onClick={onItemClick}>Clients</NavItem>
-        <NavItem to="/crm" icon={FileText} onClick={onItemClick}>Contrats & Ventes</NavItem>
-        <NavItem to="/crm" icon={History} onClick={onItemClick}>Réservations</NavItem>
+        <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
+        <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
+        <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
       </div>
     </div>
 
@@ -76,9 +76,9 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Finance
       </h2>
       <div className="space-y-1">
-        <NavItem to="/" icon={Wallet} onClick={onItemClick}>Encaissements</NavItem>
-        <NavItem to="/" icon={CreditCard} onClick={onItemClick}>Dépenses</NavItem>
-        <NavItem to="/" icon={FileText} onClick={onItemClick}>Comptabilité</NavItem>
+        <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
+        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
+        <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
       </div>
     </div>
 
@@ -87,10 +87,10 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Administration
       </h2>
       <div className="space-y-1">
-        <NavItem to="/admin/users" icon={Users} onClick={onItemClick}>Utilisateurs</NavItem>
-        <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick}>Agences</NavItem>
-        <NavItem to="/admin/audit" icon={History} onClick={onItemClick}>Journal d'Audit</NavItem>
-        <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick}>Paramètres</NavItem>
+        <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
+        <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
+        <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
+        <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
       </div>
     </div>
   </nav>
