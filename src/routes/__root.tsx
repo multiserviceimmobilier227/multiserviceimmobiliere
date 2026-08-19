@@ -25,6 +25,9 @@ export const Route = createRootRouteWithContext<{
         content: 'Système de gestion immobilière pour Multi Services Immobilière, Maradi (Niger).',
       },
     ],
+    links: [
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+    ],
   }),
   component: RootComponent,
 })

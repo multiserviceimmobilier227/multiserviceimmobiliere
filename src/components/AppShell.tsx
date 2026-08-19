@@ -12,8 +12,11 @@ import {
   CreditCard,
   History,
   Menu,
-  X
+  X,
+  PieChart,
+  ClipboardList
 } from "lucide-react";
+import { MsiLogo } from "@/components/ui/msi-logo";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -38,7 +41,7 @@ const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
 );
 
 const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
-  <nav className="space-y-6">
+  <nav className="space-y-6 pb-20">
     <div>
       <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
         Général
@@ -78,8 +81,9 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
       </h2>
       <div className="space-y-1">
         <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
-        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
-        <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
+        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses & Charges</NavItem>
+        <NavItem to="/" icon={PieChart} onClick={onItemClick || undefined}>Analyses Financières</NavItem>
+        <NavItem to="/" icon={ClipboardList} onClick={onItemClick || undefined}>Audit & Rapprochement</NavItem>
       </div>
     </div>
 
@@ -101,12 +105,10 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const Logo = () => (
-    <div className="flex items-center gap-2 font-bold text-primary">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-sans">
-        MSI
-      </div>
-      <span className="text-xl tracking-tight font-sans">MSI 2.0</span>
-    </div>
+    <Link to="/" className="flex items-center gap-2 font-bold text-primary hover:opacity-90 transition-opacity">
+      <MsiLogo className="h-10 w-auto" />
+      <span className="text-xl tracking-tight font-sans hidden sm:inline-block">MSI 2.0</span>
+    </Link>
   );
 
   return (
