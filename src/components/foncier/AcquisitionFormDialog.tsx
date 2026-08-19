@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -69,7 +68,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ''} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +81,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Date d'achat</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} value={field.value || ''} />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +97,6 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                     <Input 
                       type="number" 
                       {...field} 
-                      value={field.value ?? 0}
                       onChange={(e) => field.onChange(Number(e.target.value))} 
                     />
                   </FormControl>
