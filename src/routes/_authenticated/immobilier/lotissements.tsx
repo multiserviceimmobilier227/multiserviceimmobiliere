@@ -10,6 +10,8 @@ import {
   Grid
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { LotissementFormDialog } from '@/components/foncier/LotissementFormDialog';
 import {
   Card,
   CardContent,
@@ -25,6 +27,7 @@ export const Route = createFileRoute('/_authenticated/immobilier/lotissements')(
 });
 
 function LotissementsPage() {
+  const [isNewLotissementOpen, setIsNewLotissementOpen] = useState(false);
   const { data: lotissements, isLoading } = useQuery({
     queryKey: ['lotissements'],
     queryFn: () => getLotissements(),
@@ -39,7 +42,10 @@ function LotissementsPage() {
             Gérez votre portefeuille foncier, les lotissements et leurs divisions.
           </p>
         </div>
-        <Button className="gap-2 font-sans bg-primary hover:bg-primary/90">
+        <Button 
+          className="gap-2 font-sans bg-primary hover:bg-primary/90"
+          onClick={() => setIsNewLotissementOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           Nouveau Lotissement
         </Button>
@@ -112,6 +118,11 @@ function LotissementsPage() {
           )}
         </div>
       )}
+
+      <LotissementFormDialog 
+        open={isNewLotissementOpen} 
+        onOpenChange={setIsNewLotissementOpen} 
+      />
     </div>
   );
 }

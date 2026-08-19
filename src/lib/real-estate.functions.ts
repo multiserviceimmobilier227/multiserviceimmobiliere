@@ -154,3 +154,64 @@ export const getZonesByLotissement = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data;
   });
+
+export const createZone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    name: z.string().min(1),
+    lotissement_id: z.string().uuid(),
+    description: z.string().optional().nullable(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("zones")
+      .insert(input)
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const createIlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    numero: z.string().min(1),
+    zone_id: z.string().uuid(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("ilots")
+      .insert(input)
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const createPlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    plot_number: z.string().min(1),
+    ilot_id: z.string().uuid(),
+    surface: z.number().min(0),
+    price_total: z.number().min(0),
+    status: z.string().optional(),
+  }).parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("plots")
+      .insert({
+        ...input,
+        status: input.status || "Disponible"
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
