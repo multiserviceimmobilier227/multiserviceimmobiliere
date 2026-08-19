@@ -81,8 +81,8 @@ export const createSale = createServerFn({ method: "POST" })
 
 export const getSaleById = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .validator((id: string) => z.string().uuid().parse(id))
+  .handler(async ({ data: id, context }) => {
     await enforcePermission(context.userId, 'view_sales');
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -94,7 +94,7 @@ export const getSaleById = createServerFn({ method: "GET" })
         plot:plots(*, ilot:ilots(*, zone:zones(*, lotissement:lotissements(*)))),
         adjustments:sale_adjustments(*)
       `)
-      .eq("id", data.id)
+      .eq("id", id)
       .single();
 
     if (error) throw new Error(error.message);
