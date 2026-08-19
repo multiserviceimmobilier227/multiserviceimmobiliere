@@ -23,7 +23,7 @@ interface NavItemProps {
   to: string;
   icon: React.ElementType;
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: () => void | undefined;
 }
 
 const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
