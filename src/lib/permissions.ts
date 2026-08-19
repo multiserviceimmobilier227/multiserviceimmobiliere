@@ -19,7 +19,10 @@ export type Permission =
   | 'manage_clients'
   | 'manage_sales'
   | 'view_finance'
-  | 'manage_finance';
+  | 'manage_finance'
+  | 'view_reservations'
+  | 'create_reservation'
+  | 'manage_reservations';
 
 export const ROLE_PERMISSIONS: Partial<Record<AppRole, Permission[]>> = {
   pdg: [
