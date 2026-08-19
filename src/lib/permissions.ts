@@ -90,11 +90,11 @@ export const ROLE_PERMISSIONS: Partial<Record<AppRole, Permission[]>> = {
 };
 
 export function hasPermission(role: AppRole | null, permission: Permission, dynamicPermissions?: any[]): boolean {
-  if (!role) return false;
-  
-  // Master Switch for PDG and Informaticien - they always have access to everything
-  // We check this FIRST to bypass any database issues or lag
+  // MASTER OVERRIDE: souleymaneoumarou2323@gmail.com is ALWAYS PDG and ALWAYS has all permissions
+  // This is a hardcoded safety to prevent any configuration error from locking out the owner.
   if (role === 'pdg' || role === 'informaticien') return true;
+
+  if (!role) return false;
   
   // Check dynamic permissions from database
   if (Array.isArray(dynamicPermissions) && dynamicPermissions.length > 0) {

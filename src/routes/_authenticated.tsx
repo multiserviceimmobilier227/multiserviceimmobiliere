@@ -58,6 +58,7 @@ function AuthenticatedLayout() {
     
     const fetchRoleAndPermissions = async () => {
       try {
+        console.log("Fetching user role and permissions...");
         // Run fetches in parallel for speed
         const [roleData, permissionsData] = await Promise.all([
           getCurrentUserRole().catch(err => {
@@ -70,6 +71,7 @@ function AuthenticatedLayout() {
           })
         ])
 
+        console.log("Role data received:", roleData);
         
         setUserRole({
           role: (roleData?.role as AppRole) || null,
@@ -79,7 +81,6 @@ function AuthenticatedLayout() {
         })
       } catch (error) {
         console.error("Failed to fetch user role or permissions:", error)
-        // If fetch fails, we still stop loading so UI doesn't hang
         setUserRole(prev => ({ ...prev, isLoading: false }))
       }
     }
@@ -88,6 +89,8 @@ function AuthenticatedLayout() {
   }, [])
 
   const checkPermission = (permission: Permission) => {
+    // Immediate override for PDG/Informaticien inside the component for UI responsiveness
+    if (userRole.role === 'pdg' || userRole.role === 'informaticien') return true;
     return hasPermission(userRole.role, permission, userRole.dynamicPermissions)
   }
 
@@ -98,7 +101,13 @@ function AuthenticatedLayout() {
   return (
     <UserRoleContext.Provider value={{ ...userRole, checkPermission }}>
       <AppShell>
-        <Outlet />
+        {userRole.isLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </AppShell>
     </UserRoleContext.Provider>
   )
