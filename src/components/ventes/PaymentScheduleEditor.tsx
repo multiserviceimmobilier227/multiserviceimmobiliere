@@ -163,7 +163,7 @@ export function PaymentScheduleEditor({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">#</TableHead>
+              <TableHead className="w-12">Mois</TableHead>
               <TableHead>Date d'échéance</TableHead>
               <TableHead>Montant (FCFA)</TableHead>
               <TableHead className="w-12"></TableHead>
