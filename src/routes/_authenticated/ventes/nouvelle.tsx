@@ -230,8 +230,9 @@ function NewSaleComponent() {
                 <Button 
                   className="flex-1 bg-green-600 hover:bg-green-700" 
                   disabled={mutation.isPending} 
-                  onClick={() => mutation.mutate(formData)}
+                  onClick={() => mutation.mutate({ data: formData })}
                 >
+
                   {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                   Valider le brouillon
                 </Button>
