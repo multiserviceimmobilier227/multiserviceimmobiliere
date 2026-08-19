@@ -144,6 +144,7 @@ export const getSaleDetails = createServerFn({ method: "GET" })
           )
         ),
         payment_schedules(*),
+        payments(*),
         snapshots:contract_snapshots(*),
         mutations:sale_mutations(*)
       `)
