@@ -1,4 +1,4 @@
-import { Shield, History, Building2, Settings, Lock } from "lucide-react";
+import { Shield, History, Building2, Settings, Lock, Calendar } from "lucide-react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { getAuditLogs, getCurrentUserRole } from "@/lib/auth.functions";
 import { useUserRole } from "@/routes/_authenticated";
