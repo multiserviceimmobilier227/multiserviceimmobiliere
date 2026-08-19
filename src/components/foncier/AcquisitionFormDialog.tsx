@@ -152,7 +152,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="none">Aucun (Achat hors lotissement)</SelectItem>
-                      {lotissements?.map((l: any) => (
+                      {(lotissements as any)?.map((l: any) => (
                         <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -179,7 +179,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="none">Aucune (Achat global)</SelectItem>
-                      {plots?.map((p: any) => (
+                      {(plots as any)?.map((p: any) => (
                         <SelectItem key={p.id} value={p.id}>N° {p.plot_number} ({p.ilot?.zone?.lotissement?.name})</SelectItem>
                       ))}
                     </SelectContent>
