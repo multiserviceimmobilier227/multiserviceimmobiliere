@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getSaleById } from '@/lib/sales.functions';
+import { getContractBySaleId, generateContract, signContract } from '@/lib/contracts.functions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   FileText, 
   User, 
@@ -10,7 +12,9 @@ import {
   AlertCircle,
   ArrowRightLeft,
   Settings2,
-  Download
+  Download,
+  CheckCircle2,
+  Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -20,6 +24,8 @@ import { fr } from 'date-fns/locale';
 import { formatFCFA } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from 'sonner';
+import { useUserRole } from '@/routes/_authenticated';
 
 export const Route = createFileRoute('/_authenticated/crm/ventes/$saleId')({
   component: SaleDetailsPage,
