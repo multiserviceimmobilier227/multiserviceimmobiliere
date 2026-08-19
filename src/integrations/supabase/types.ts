@@ -522,6 +522,44 @@ export type Database = {
           },
         ]
       }
+      payment_schedules: {
+        Row: {
+          amount_due: number
+          amount_paid: number | null
+          created_at: string | null
+          due_date: string
+          id: string
+          sale_id: string
+          status: string
+        }
+        Insert: {
+          amount_due: number
+          amount_paid?: number | null
+          created_at?: string | null
+          due_date: string
+          id?: string
+          sale_id: string
+          status?: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number | null
+          created_at?: string | null
+          due_date?: string
+          id?: string
+          sale_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedules_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -926,10 +964,12 @@ export type Database = {
       }
       sales: {
         Row: {
+          agency_id: string | null
           balance: number
           catalog_price: number | null
           client_id: string
           created_at: string
+          deposit_amount: number | null
           discount_amount: number | null
           down_payment: number | null
           final_price: number | null
@@ -940,16 +980,19 @@ export type Database = {
           price_validation_date: string | null
           sale_date: string
           status: Database["public"]["Enums"]["sale_status"]
+          total_amount: number | null
           total_price: number
           updated_at: string
           validated_by_id: string | null
           validation_date: string | null
         }
         Insert: {
+          agency_id?: string | null
           balance: number
           catalog_price?: number | null
           client_id: string
           created_at?: string
+          deposit_amount?: number | null
           discount_amount?: number | null
           down_payment?: number | null
           final_price?: number | null
@@ -960,16 +1003,19 @@ export type Database = {
           price_validation_date?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
+          total_amount?: number | null
           total_price: number
           updated_at?: string
           validated_by_id?: string | null
           validation_date?: string | null
         }
         Update: {
+          agency_id?: string | null
           balance?: number
           catalog_price?: number | null
           client_id?: string
           created_at?: string
+          deposit_amount?: number | null
           discount_amount?: number | null
           down_payment?: number | null
           final_price?: number | null
@@ -980,12 +1026,20 @@ export type Database = {
           price_validation_date?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
+          total_amount?: number | null
           total_price?: number
           updated_at?: string
           validated_by_id?: string | null
           validation_date?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sales_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sales_client_id_fkey"
             columns: ["client_id"]
