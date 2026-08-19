@@ -58,24 +58,29 @@ export const upsertClient = createServerFn({ method: "POST" })
     client: clientSchema
   }).parse(data))
   .handler(async ({ data }) => {
+    const updateData: any = {
+      first_name: data.client.first_name,
+      last_name: data.client.last_name,
+      email: data.client.email ?? null,
+      phone: data.client.phone,
+      address: data.client.address ?? null,
+      id_type: data.client.id_type,
+      id_number: data.client.id_number ?? null,
+      occupation: data.client.occupation ?? null,
+      date_naissance: data.client.date_naissance ?? null,
+      lieu_naissance: data.client.lieu_naissance ?? null,
+      nationalite: data.client.nationalite ?? null,
+      civilite: data.client.civilite ?? null,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (data.id) {
+      updateData.id = data.id;
+    }
+
     const { data: client, error } = await supabase
       .from("clients")
-      .upsert({
-        id: data.id,
-        first_name: data.client.first_name,
-        last_name: data.client.last_name,
-        email: data.client.email ?? null,
-        phone: data.client.phone,
-        address: data.client.address ?? null,
-        id_type: data.client.id_type,
-        id_number: data.client.id_number ?? null,
-        occupation: data.client.occupation ?? null,
-        date_naissance: data.client.date_naissance ?? null,
-        lieu_naissance: data.client.lieu_naissance ?? null,
-        nationalite: data.client.nationalite ?? null,
-        civilite: data.client.civilite ?? null,
-        updated_at: new Date().toISOString(),
-      })
+      .upsert(updateData)
       .select()
       .single();
 
