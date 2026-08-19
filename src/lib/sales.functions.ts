@@ -227,5 +227,53 @@ export const createMutationRequest = createServerFn({ method: "POST" })
     return mutation;
   });
 
+export const registerPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    saleId: z.string().uuid(),
+    amount: z.number().positive(),
+    paymentDate: z.string(),
+    method: z.string(),
+    reference: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+
+    // 1. Record the payment
+    const { data: payment, error: paymentError } = await supabase
+      .from("payments")
+      .insert({
+        sale_id: data.saleId,
+        amount: data.amount,
+        payment_date: data.paymentDate,
+        method: data.method,
+        reference: data.reference ?? null,
+        notes: data.notes ?? null,
+      })
+      .select()
+      .single();
+
+    if (paymentError) throw new Error(paymentError.message);
+
+    // 2. Update sale balance
+    const { data: sale } = await supabase
+      .from("sales")
+      .select("balance")
+      .eq("id", data.saleId)
+      .single();
+
+    if (sale) {
+      const newBalance = Math.max(0, Number(sale.balance) - data.amount);
+      await supabase
+        .from("sales")
+        .update({ balance: newBalance })
+        .eq("id", data.saleId);
+    }
+
+    return payment;
+  });
+
+
 
 
