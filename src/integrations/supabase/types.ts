@@ -47,6 +47,80 @@ export type Database = {
         }
         Relationships: []
       }
+      plots: {
+        Row: {
+          base_price: number
+          created_at: string
+          id: string
+          notes: string | null
+          plot_number: string
+          site_id: string
+          status: Database["public"]["Enums"]["plot_status"]
+          surface_area: number
+          updated_at: string
+        }
+        Insert: {
+          base_price: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plot_number: string
+          site_id: string
+          status?: Database["public"]["Enums"]["plot_status"]
+          surface_area: number
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plot_number?: string
+          site_id?: string
+          status?: Database["public"]["Enums"]["plot_status"]
+          surface_area?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plots_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          name: string
+          status: Database["public"]["Enums"]["site_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          name: string
+          status?: Database["public"]["Enums"]["site_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          name?: string
+          status?: Database["public"]["Enums"]["site_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -77,6 +151,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      plot_status: "disponible" | "reserve" | "vendu" | "litige"
+      site_status: "actif" | "inactif" | "termine"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -205,6 +281,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      plot_status: ["disponible", "reserve", "vendu", "litige"],
+      site_status: ["actif", "inactif", "termine"],
     },
   },
 } as const
