@@ -567,7 +567,9 @@ export type Database = {
           created_at: string | null
           due_date: string
           id: string
+          notes: string | null
           sale_id: string
+          schedule_type: string | null
           status: string
         }
         Insert: {
@@ -576,7 +578,9 @@ export type Database = {
           created_at?: string | null
           due_date: string
           id?: string
+          notes?: string | null
           sale_id: string
+          schedule_type?: string | null
           status?: string
         }
         Update: {
@@ -585,7 +589,9 @@ export type Database = {
           created_at?: string | null
           due_date?: string
           id?: string
+          notes?: string | null
           sale_id?: string
+          schedule_type?: string | null
           status?: string
         }
         Relationships: [
@@ -1075,6 +1081,7 @@ export type Database = {
           discount_amount: number | null
           down_payment: number | null
           final_price: number | null
+          first_payment_date: string | null
           id: string
           plot_id: string
           prepared_by_id: string | null
@@ -1098,6 +1105,7 @@ export type Database = {
           discount_amount?: number | null
           down_payment?: number | null
           final_price?: number | null
+          first_payment_date?: string | null
           id?: string
           plot_id: string
           prepared_by_id?: string | null
@@ -1121,6 +1129,7 @@ export type Database = {
           discount_amount?: number | null
           down_payment?: number | null
           final_price?: number | null
+          first_payment_date?: string | null
           id?: string
           plot_id?: string
           prepared_by_id?: string | null
