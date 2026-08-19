@@ -1,14 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { Database } from "@/integrations/supabase/types";
+
+type PlotStatus = Database["public"]["Enums"]["plot_status_new"];
 
 // Schema definitions
 const lotissementSchema = z.object({
   name: z.string().min(1),
   location: z.string().min(1),
-  agence_id: z.string().uuid().optional(),
-  plan_communal: z.string().optional(),
-  superficie_totale: z.number().optional(),
+  agence_id: z.string().uuid().optional().nullable(),
+  plan_communal: z.string().optional().nullable(),
+  superficie_totale: z.number().optional().nullable(),
 });
 
 // Server functions
@@ -33,9 +36,18 @@ export const getLotissements = createServerFn({ method: "GET" })
 export const createLotissement = createServerFn({ method: "POST" })
   .validator((data: unknown) => lotissementSchema.parse(data))
   .handler(async ({ data: input }) => {
+    // Exact optional property types fix: ensure undefined becomes null for Supabase
+    const payload = {
+      name: input.name,
+      location: input.location,
+      agence_id: input.agence_id ?? null,
+      plan_communal: input.plan_communal ?? null,
+      superficie_totale: input.superficie_totale ?? null,
+    };
+
     const { data, error } = await supabaseAdmin
       .from("lotissements")
-      .insert(input)
+      .insert(payload)
       .select()
       .single();
     
@@ -68,7 +80,7 @@ export const getPlots = createServerFn({ method: "GET" })
     }
     
     if (input?.status) {
-      query = query.eq("status", input.status);
+      query = query.eq("status", input.status as PlotStatus);
     }
 
     const { data, error } = await query.order("plot_number");
@@ -81,7 +93,7 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({
     plotId: z.string().uuid(),
     newStatus: z.string(),
-    reason: z.string().optional(),
+    reason: z.string().optional().nullable(),
     userId: z.string().uuid()
   }).parse(data))
   .handler(async ({ data: input }) => {
@@ -97,21 +109,23 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
     // 2. Update plot status
     const { error: updateError } = await supabaseAdmin
       .from("plots")
-      .update({ status: input.newStatus as any })
+      .update({ status: input.newStatus as PlotStatus })
       .eq("id", input.plotId);
     
     if (updateError) throw new Error(updateError.message);
 
     // 3. Create status history entry
+    const historyPayload = {
+      plot_id: input.plotId,
+      old_status: plot.status,
+      new_status: input.newStatus as PlotStatus,
+      user_id: input.userId,
+      reason: input.reason ?? null
+    };
+
     const { error: historyError } = await supabaseAdmin
       .from("plot_status_history")
-      .insert({
-        plot_id: input.plotId,
-        old_status: plot.status as any,
-        new_status: input.newStatus as any,
-        user_id: input.userId,
-        reason: input.reason
-      });
+      .insert(historyPayload);
     
     if (historyError) throw new Error(historyError.message);
 
