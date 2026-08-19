@@ -41,7 +41,7 @@ const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
 );
 
 const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
-  <nav className="space-y-6">
+  <nav className="space-y-6 pb-20">
     <div>
       <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
         Général
@@ -81,8 +81,9 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
       </h2>
       <div className="space-y-1">
         <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
-        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
-        <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
+        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses & Charges</NavItem>
+        <NavItem to="/" icon={PieChart} onClick={onItemClick || undefined}>Analyses Financières</NavItem>
+        <NavItem to="/" icon={ClipboardList} onClick={onItemClick || undefined}>Audit & Rapprochement</NavItem>
       </div>
     </div>
 
