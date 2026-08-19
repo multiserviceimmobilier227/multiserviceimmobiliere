@@ -10,7 +10,8 @@ import {
   Wallet,
   FileText,
   User,
-  Calendar
+  Calendar,
+  PlusCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ import {
 } from '@/components/ui/card';
 import { useState } from 'react';
 import { AcquisitionFormDialog } from '@/components/foncier/AcquisitionFormDialog';
+import { AcquisitionCostDialog } from '@/components/foncier/AcquisitionCostDialog';
 
 export const Route = createFileRoute('/_authenticated/immobilier/acquisitions')({
   component: AcquisitionsPage,
