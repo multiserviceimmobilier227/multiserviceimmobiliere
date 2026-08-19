@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enforcePermission } from "./permissions.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const saleSchema = z.object({
   clientId: z.string().uuid(),
@@ -99,4 +100,48 @@ export const getSaleById = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
     return sale;
+  });
+
+export const transferSalePlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    saleId: z.string().uuid(),
+    newPlotId: z.string().uuid(),
+    reason: z.string().min(10)
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    await enforcePermission(context.userId, 'transfer_plot');
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin.rpc('handle_plot_transfer', {
+      p_sale_id: data.saleId,
+      p_new_plot_id: data.newPlotId,
+      p_reason: data.reason,
+      p_author_id: context.userId
+    });
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const getSaleTransfers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((saleId: string) => z.string().uuid().parse(saleId))
+  .handler(async ({ data: saleId, context }) => {
+    await enforcePermission(context.userId, 'view_sales');
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data, error } = await supabaseAdmin
+      .from("sale_transfers")
+      .select(`
+        *,
+        old_plot:plots!old_plot_id(plot_number),
+        new_plot:plots!new_plot_id(plot_number),
+        author:profiles(first_name, last_name)
+      `)
+      .eq("sale_id", saleId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data;
   });
