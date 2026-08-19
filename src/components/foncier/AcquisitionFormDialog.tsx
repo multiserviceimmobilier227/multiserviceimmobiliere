@@ -125,7 +125,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                       <Input 
                         type="number" 
                         {...field} 
-                        value={field.value || 0}
+                        value={field.value ?? 0}
                         onChange={(e) => field.onChange(Number(e.target.value))} 
                       />
                     </FormControl>
@@ -141,7 +141,10 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lotissement (Optionnel)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || "none"}>
+                  <Select 
+                    onValueChange={(val) => field.onChange(val === "none" ? null : val)} 
+                    value={field.value || "none"}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un lotissement" />
@@ -165,7 +168,10 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Parcelle spécifique (Optionnel)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || "none"}>
+                  <Select 
+                    onValueChange={(val) => field.onChange(val === "none" ? null : val)} 
+                    value={field.value || "none"}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner une parcelle" />
