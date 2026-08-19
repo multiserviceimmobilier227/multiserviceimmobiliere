@@ -76,9 +76,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
                   Clients & Ventes
                 </h2>
                 <div className="space-y-1">
-                  <NavItem to="/" icon={Users}>Clients</NavItem>
-                  <NavItem to="/" icon={FileText}>Contrats & Ventes</NavItem>
-                  <NavItem to="/" icon={History}>Réservations</NavItem>
+                  <NavItem to="/crm" icon={Users}>Clients</NavItem>
+                  <NavItem to="/crm" icon={FileText}>Contrats & Ventes</NavItem>
+                  <NavItem to="/crm" icon={History}>Réservations</NavItem>
                 </div>
               </div>
 
