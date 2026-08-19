@@ -391,6 +391,30 @@ function SaleDetailsComponent() {
               </CardContent>
             </Card>
           )}
+
+          {(sale as any).payments && (sale as any).payments.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <History className="h-4 w-4" />
+                  Historique des Paiements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(sale as any).payments.map((p: any) => (
+                    <div key={p.id} className="text-xs p-2 border-l-2 border-green-400 bg-green-50/30 flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold">{new Intl.NumberFormat('fr-FR').format(p.amount)} FCFA</p>
+                        <p className="text-muted-foreground">{format(new Date(p.payment_date), 'dd/MM/yyyy')} - {p.method}</p>
+                        {p.reference && <p className="text-[10px] text-muted-foreground">Réf: {p.reference}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
