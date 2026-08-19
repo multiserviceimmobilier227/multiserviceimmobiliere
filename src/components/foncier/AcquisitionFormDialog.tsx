@@ -61,7 +61,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
       <DialogContent>
         <DialogHeader><DialogTitle>Nouvelle Acquisition</DialogTitle></DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((v: FormValues) => mutation.mutate(v))} className="space-y-4">
+          <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
             <FormField 
               control={form.control} 
               name="vendeur" 
