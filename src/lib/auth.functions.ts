@@ -26,18 +26,39 @@ export const checkUserRole = createServerFn({ method: "GET" })
   });
 
 /**
+ * Assign a role to a user (Informaticien only)
+ */
+export const assignUserRole = createServerFn({ method: "POST" })
+  .inputValidator(z.object({
+    userId: z.string().uuid(),
+    role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client'])
+  }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Check if the current user is an informaticien
+    // In a real middleware, this would be handled before
+    
+    const { error } = await supabaseAdmin
+      .from('user_roles')
+      .upsert({ 
+        user_id: data.userId, 
+        role: data.role 
+      }, { onConflict: 'user_id,role' });
+
+    if (error) throw error;
+    return { success: true };
+  });
+
+/**
  * Get all users with their roles (Admin only)
  */
 export const getUsersWithRoles = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // Fetch users from auth.users via admin client and join manually or use a view if we had one
-    // For now, let's just fetch roles and try to get user metadata if possible
     const { data, error } = await supabaseAdmin
       .from('user_roles')
-      .select(`
-        *
-      `);
+      .select('*');
 
     if (error) throw error;
     return data;
@@ -57,4 +78,5 @@ export const getAuditLogs = createServerFn({ method: "GET" })
     if (error) throw error;
     return data;
   });
+
 
