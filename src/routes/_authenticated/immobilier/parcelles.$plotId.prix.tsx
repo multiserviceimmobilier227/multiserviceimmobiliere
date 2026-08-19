@@ -7,10 +7,9 @@ import {
   ArrowLeft, 
   ShieldCheck, 
   AlertTriangle,
-  FileText,
+  Calculator,
   Calendar,
   User,
-  Calculator
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,29 +39,29 @@ function PlotPricingPage() {
 
   const { data: history, isLoading } = useQuery({
     queryKey: ['plotPricing', plotId],
-    queryFn: () => getPlotPricingHistory({ plotId }),
+    queryFn: () => getPlotPricingHistory({ data: { plotId } }),
   });
 
   const prepareMutation = useMutation({
     mutationFn: (data: { plot_id: string; base_price: number; notes: string }) => 
-      preparePlotPricing(data),
+      preparePlotPricing({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plotPricing', plotId] });
       setNewPrice('');
       setNotes('');
       toast.success("Proposition de prix enregistrée");
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: any) => toast.error(error.message),
   });
 
   const validateMutation = useMutation({
     mutationFn: (data: { pricingId: string; plotId: string; basePrice: number }) => 
-      validatePlotPricing(data),
+      validatePlotPricing({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plotPricing', plotId] });
       toast.success("Prix validé et activé");
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: any) => toast.error(error.message),
   });
 
   const handlePrepare = (e: React.FormEvent) => {
@@ -174,7 +173,7 @@ function PlotPricingPage() {
                     {isLoading ? (
                       <TableRow><TableCell colSpan={5} className="text-center py-8">Chargement...</TableCell></TableRow>
                     ) : (
-                      history?.map((entry) => (
+                      history?.map((entry: any) => (
                         <TableRow key={entry.id} className={entry.validated_by_id ? "" : "bg-orange-50/30"}>
                           <TableCell className="font-sans whitespace-nowrap">
                             <div className="flex flex-col">
@@ -201,11 +200,11 @@ function PlotPricingPage() {
                           <TableCell className="font-sans">
                             <div className="flex flex-col text-xs text-muted-foreground">
                               <span className="flex items-center gap-1">
-                                <User className="h-3 w-3" /> Prep: {entry.preparer?.email?.split('@')[0]}
+                                <User className="h-3 w-3" /> Prep: {entry.preparer?.email?.split('@')[0] || 'Système'}
                               </span>
-                              {entry.validator && (
+                              {entry.validated_by_id && (
                                 <span className="flex items-center gap-1">
-                                  <ShieldCheck className="h-3 w-3" /> Val: {entry.validator?.email?.split('@')[0]}
+                                  <ShieldCheck className="h-3 w-3" /> Val: {entry.validator?.email?.split('@')[0] || 'PDG'}
                                 </span>
                               )}
                             </div>
