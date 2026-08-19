@@ -1,27 +1,7 @@
-import { createFileRoute, Outlet, redirect, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
 import { AppShell } from '@/components/AppShell'
-import { useEffect, useState, createContext, useContext } from 'react'
-import { getCurrentUserRole } from '@/lib/auth.functions'
-import { getRolePermissions } from '@/lib/permissions.functions'
-import { AppRole, Permission, hasPermission } from '@/lib/permissions'
-import { toast } from 'sonner'
-
-type UserRoleContextType = {
-  role: AppRole | null;
-  agenceId: string | null;
-  isLoading: boolean;
-  checkPermission: (permission: Permission) => boolean;
-}
-
-const UserRoleContext = createContext<UserRoleContextType>({
-  role: null,
-  agenceId: null,
-  isLoading: true,
-  checkPermission: () => false,
-})
-
-export const useUserRole = () => useContext(UserRoleContext)
+import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
@@ -40,77 +20,19 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedLayout() {
   const [mounted, setMounted] = useState(false)
-  const [userRole, setUserRole] = useState<{ 
-    role: AppRole | null; 
-    agenceId: string | null; 
-    isLoading: boolean;
-    dynamicPermissions: any[];
-  }>({
-    role: null,
-    agenceId: null,
-    isLoading: true,
-    dynamicPermissions: [],
-  })
-  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
-    
-    const fetchRoleAndPermissions = async () => {
-      try {
-        console.log("Fetching user role and permissions...");
-        // Run fetches in parallel for speed
-        const [roleData, permissionsData] = await Promise.all([
-          getCurrentUserRole().catch(err => {
-            console.error("Error fetching role:", err);
-            return null;
-          }),
-          getRolePermissions().catch(err => {
-            console.error("Error fetching permissions:", err);
-            return [];
-          })
-        ])
-
-        console.log("Role data received:", roleData);
-        
-        setUserRole({
-          role: (roleData?.role as AppRole) || null,
-          agenceId: roleData?.agence_id || null,
-          isLoading: false,
-          dynamicPermissions: Array.isArray(permissionsData) ? permissionsData : [],
-        })
-      } catch (error) {
-        console.error("Failed to fetch user role or permissions:", error)
-        setUserRole(prev => ({ ...prev, isLoading: false }))
-      }
-    }
-    
-    fetchRoleAndPermissions()
   }, [])
-
-  const checkPermission = (permission: Permission) => {
-    // Immediate override for PDG/Informaticien inside the component for UI responsiveness
-    if (userRole.role === 'pdg' || userRole.role === 'informaticien') return true;
-    return hasPermission(userRole.role, permission, userRole.dynamicPermissions)
-  }
 
   if (!mounted) {
     return null
   }
 
   return (
-    <UserRoleContext.Provider value={{ ...userRole, checkPermission }}>
-      <AppShell>
-        {userRole.isLoading ? (
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <Outlet />
-        )}
-      </AppShell>
-    </UserRoleContext.Provider>
+    <AppShell>
+      <Outlet />
+    </AppShell>
   )
 }
-
 

@@ -1,210 +1,181 @@
+import { type ReactNode, useState } from "react";
+import { Link, Outlet } from "@tanstack/react-router";
 import { 
-  Shield, 
-  History, 
+  LayoutDashboard, 
   Building2, 
-  Settings, 
-  Lock, 
-  Calendar, 
-  FileText,
-  Users,
-  Wallet,
-  ArrowUpRight,
-  ArrowDownLeft,
-  PieChart,
-  LayoutDashboard,
+  Users, 
+  Wallet, 
+  FileText, 
+  Settings as SettingsIcon,
+  LogOut,
   Map,
-  Tag
+  CreditCard,
+  History,
+  Menu,
+  X
 } from "lucide-react";
-import { useUserRole } from "@/routes/_authenticated";
-import { Link } from "@tanstack/react-router";
-import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavItemProps {
   to: string;
-  icon: LucideIcon;
-  label: string;
-  onClick: (() => void) | undefined;
+  icon: React.ElementType;
+  children: ReactNode;
+  onClick?: (() => void) | undefined;
 }
 
-function NavItem({ to, icon: Icon, label, onClick }: NavItemProps) {
-  return (
-    <Link
-      to={to}
-      onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-sm font-medium font-sans [&.active]:bg-primary [&.active]:text-primary-foreground"
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </Link>
-  );
-}
+const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
+  >
+    <Icon className="h-4 w-4" />
+    {children}
+  </Link>
+);
 
-export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, checkPermission } = useUserRole();
+const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
+  <nav className="space-y-6">
+    <div>
+      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+        Général
+      </h2>
+      <div className="space-y-1">
+        <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick || undefined}>Tableau de bord</NavItem>
+      </div>
+    </div>
+
+    <div>
+      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+        Immobilier
+      </h2>
+      <div className="space-y-1">
+        <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
+        <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
+        <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
+        <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
+      </div>
+    </div>
+
+    <div>
+      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+        Clients & Ventes
+      </h2>
+      <div className="space-y-1">
+        <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
+        <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
+        <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
+      </div>
+    </div>
+
+    <div>
+      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+        Finance
+      </h2>
+      <div className="space-y-1">
+        <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
+        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
+        <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
+      </div>
+    </div>
+
+    <div>
+      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+        Administration
+      </h2>
+      <div className="space-y-1">
+        <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
+        <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
+        <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
+        <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
+      </div>
+    </div>
+  </nav>
+);
+
+export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
-    <div className="flex flex-col gap-6 py-6 overflow-y-auto max-h-[calc(100vh-12rem)]">
-      <div className="px-3">
-        <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground uppercase font-sans">
-          Général
-        </h2>
-        <div className="space-y-1">
-          <NavItem to="/" icon={LayoutDashboard} label="Tableau de bord" onClick={onItemClick} />
-        </div>
+  const Logo = () => (
+    <div className="flex items-center gap-2 font-bold text-primary">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-sans">
+        MSI
       </div>
-
-      <div className="px-3">
-        <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground uppercase font-sans">
-          Immobilier
-        </h2>
-        <div className="space-y-1">
-          {checkPermission('view_lotissements') && (
-            <NavItem to="/immobilier/parcelles" icon={Building2} label="Parcelles & Lotissements" onClick={onItemClick} />
-          )}
-          {checkPermission('manage_plots') && (
-            <NavItem to="/immobilier/suivi" icon={Map} label="Suivi Parcelles" onClick={onItemClick} />
-          )}
-          {checkPermission('view_tarifs') && (
-            <NavItem to="/immobilier/tarifs" icon={Tag} label="Tarifs & Offres" onClick={onItemClick} />
-          )}
-          {checkPermission('view_acquisitions') && (
-            <NavItem to="/immobilier/acquisitions" icon={History} label="Acquisitions & Coûts" onClick={onItemClick} />
-          )}
-        </div>
-      </div>
-
-      <div className="px-3">
-        <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground uppercase font-sans">
-          Clients & Ventes
-        </h2>
-        <div className="space-y-1">
-          {checkPermission('view_clients') && (
-            <NavItem to="/crm/clients" icon={Users} label="Clients" onClick={onItemClick} />
-          )}
-          {checkPermission('view_sales') && (
-            <NavItem to="/crm/ventes" icon={FileText} label="Contrats & Ventes" onClick={onItemClick} />
-          )}
-          {checkPermission('view_reservations') && (
-            <NavItem to="/immobilier/reservations" icon={Calendar} label="Réservations" onClick={onItemClick} />
-          )}
-        </div>
-      </div>
-
-      <div className="px-3">
-        <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground uppercase font-sans">
-          Finance
-        </h2>
-        <div className="space-y-1">
-          {checkPermission('validate_payments') && (
-            <NavItem to="/finance/encaissements" icon={ArrowDownLeft} label="Encaissements" onClick={onItemClick} />
-          )}
-          {checkPermission('view_expenses') && (
-            <NavItem to="/finance/depenses" icon={ArrowUpRight} label="Dépenses" onClick={onItemClick} />
-          )}
-          {checkPermission('view_finance') && (
-            <NavItem to="/finance/comptabilite" icon={PieChart} label="Comptabilité" onClick={onItemClick} />
-          )}
-        </div>
-      </div>
-
-      <div className="px-3 pb-8">
-        <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground uppercase font-sans">
-          Administration
-        </h2>
-        <div className="space-y-1">
-          {checkPermission('manage_users') && (
-            <NavItem to="/admin/users" icon={Users} label="Utilisateurs" onClick={onItemClick} />
-          )}
-          {checkPermission('manage_agences') && (
-            <NavItem to="/admin/agences" icon={Building2} label="Agences" onClick={onItemClick} />
-          )}
-          {checkPermission('manage_users') || role === 'pdg' ? (
-            <NavItem to="/admin/permissions" icon={Lock} label="Matrice Permissions" onClick={onItemClick} />
-          ) : null}
-          {checkPermission('view_audit_logs') && (
-            <NavItem to="/admin/audit" icon={History} label="Audit & Logs" onClick={onItemClick} />
-          )}
-          {checkPermission('manage_settings') && (
-            <NavItem to="/admin/settings" icon={Settings} label="Paramètres" onClick={onItemClick} />
-          )}
-        </div>
-      </div>
+      <span className="text-xl tracking-tight font-sans">MSI 2.0</span>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen w-full flex-col md:flex-row bg-background">
-      {/* Mobile Header */}
-      <div className="flex h-16 w-full items-center justify-between border-b px-4 md:hidden">
-        <div className="flex items-center gap-2 text-[#D1127B]">
-          <div className="bg-[#D1127B] text-white p-1 rounded">
-            <Shield className="h-5 w-5" />
-          </div>
-          <span className="font-bold font-sans">MSI 2.0</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
-              <SheetHeader className="border-b p-4">
-                <SheetTitle className="flex items-center gap-2 font-sans text-[#D1127B]">
-                  <div className="bg-[#D1127B] text-white p-1 rounded">
-                    <Shield className="h-5 w-5" />
-                  </div>
-                  MSI 2.0
-                </SheetTitle>
-              </SheetHeader>
-              <Navigation onItemClick={() => setIsMobileMenuOpen(false)} />
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-
+    <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 border-r bg-card md:block shrink-0 h-screen sticky top-0">
-        <div className="flex h-16 items-center gap-2 border-b px-6 text-[#D1127B]">
-          <div className="bg-[#D1127B] text-white p-1 rounded">
-            <Shield className="h-5 w-5" />
+      <aside className="hidden md:block fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card">
+        <div className="flex h-full flex-col">
+          <div className="flex h-16 items-center border-b px-6">
+            <Logo />
           </div>
-          <span className="font-bold font-sans">MSI 2.0</span>
+          <ScrollArea className="flex-1 px-4 py-4">
+            <Navigation />
+          </ScrollArea>
+          <div className="border-t p-4">
+            <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
+              <LogOut className="h-4 w-4" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
-        <Navigation />
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b flex items-center justify-between px-6 bg-white sticky top-0 z-10">
-          <div className="text-sm text-muted-foreground font-medium hidden md:block">
-            MSI 2.0 — Gestion Immobilière
-          </div>
+      <main className="flex-1 md:ml-64 w-full overflow-x-hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 md:px-8 backdrop-blur">
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <div className="text-sm font-bold capitalize">{role?.replace('_', ' ') || 'Utilisateur'}</div>
-              <div className="text-[10px] text-muted-foreground">Maradi, Niger</div>
+            {/* Mobile Menu Trigger */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0">
+                <div className="flex h-full flex-col">
+                  <div className="flex h-16 items-center border-b px-6">
+                    <Logo />
+                  </div>
+                  <ScrollArea className="flex-1 px-4 py-4">
+                    <Navigation onItemClick={() => setIsMobileMenuOpen(false)} />
+                  </ScrollArea>
+                  <div className="border-t p-4">
+                    <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
+                      <LogOut className="h-4 w-4" />
+                      Déconnexion
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+            <h1 className="text-lg font-semibold font-sans truncate max-w-[200px] md:max-w-none">
+              MSI 2.0 — Gestion Immobilière
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden sm:block text-right font-sans">
+              <p className="text-sm font-medium">Administrateur</p>
+              <p className="text-xs text-muted-foreground">Maradi, Niger</p>
             </div>
-            <Avatar className="h-8 w-8 border border-border">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs uppercase">
-                {role?.[0] || 'U'}
-              </AvatarFallback>
-            </Avatar>
+            <Separator orientation="vertical" className="hidden sm:block h-8" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary shrink-0">
+              <Users className="h-5 w-5" />
+            </div>
           </div>
         </header>
-        <main className="flex-1 overflow-x-hidden">
-          <div className="container p-4 md:p-8 max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
-      </div>
+        <div className="p-4 md:p-8 font-sans max-w-full">
+          {children || <Outlet />}
+        </div>
+      </main>
     </div>
   );
 }

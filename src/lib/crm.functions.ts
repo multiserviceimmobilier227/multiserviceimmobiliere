@@ -63,24 +63,8 @@ export const upsertClient = createServerFn({ method: "POST" })
     id: z.string().optional(),
     client: clientSchema
   }).parse(data))
-  .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    
-    // Check permissions
-    const { data: userRole } = await supabaseAdmin
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', context.userId)
-      .maybeSingle();
-
-    const { hasPermission } = await import("@/lib/permissions");
-    if (!hasPermission(userRole?.role as any, 'manage_clients')) {
-      throw new Error("Unauthorized");
-    }
-
+  .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
-
-
     const updateData: any = {
       first_name: data.client.first_name,
       last_name: data.client.last_name,

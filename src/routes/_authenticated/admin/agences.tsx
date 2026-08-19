@@ -17,33 +17,16 @@ import { Building2, Plus, MapPin, Phone } from "lucide-react";
 import { useState } from 'react';
 import { toast } from "sonner";
 
-import { useUserRole } from '@/routes/_authenticated';
-
 export const Route = createFileRoute('/_authenticated/admin/agences')({
   component: AgencesPage,
 });
 
 function AgencesPage() {
-  const { role, isLoading, checkPermission } = useUserRole();
   const queryClient = useQueryClient();
   const { data: agences } = useSuspenseQuery({
     queryKey: ['agences'],
     queryFn: () => getAgences(),
   });
-
-  if (isLoading) return null;
-
-  if (!checkPermission('manage_agences')) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
-        </div>
-      </div>
-    );
-  }
-
-
 
   const [isAdding, setIsAdding] = useState(false);
   const [newAgence, setNewAgence] = useState({ name: '', city: 'Maradi', address: '', phone: '' });

@@ -13,30 +13,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History, User, Database, Clock } from "lucide-react";
 
-import { useUserRole } from '@/routes/_authenticated';
-
 export const Route = createFileRoute('/_authenticated/admin/audit')({
   component: AuditPage,
 });
 
 function AuditPage() {
-  const { role, isLoading, checkPermission } = useUserRole();
   const { data: logs } = useSuspenseQuery({
     queryKey: ['audit-logs'],
     queryFn: () => getAuditLogs(),
   });
-
-  if (isLoading) return null;
-
-  if (!checkPermission('view_audit_logs')) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
-      </div>
-    );
-  }
-
-
 
   const getActionColor = (action: string) => {
     switch (action) {
