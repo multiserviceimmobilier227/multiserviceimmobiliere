@@ -68,7 +68,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
     resolver: zodResolver(acquisitionSchema) as any,
     defaultValues: { 
       vendeur: "", 
-      date_achat: new Date().toISOString().split('T')[0], 
+      date_achat: new Date().toISOString().split('T')[0] as string, 
       prix_principal: 0,
       lotissement_id: null,
       plot_id: null,
