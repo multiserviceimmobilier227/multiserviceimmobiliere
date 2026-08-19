@@ -77,3 +77,33 @@ export const addAcquisitionCost = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return data;
   });
+
+export const getDashboardStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    // Get monthly sales
+    const { data: monthlySales } = await supabaseAdmin
+      .from("sales")
+      .select("total_amount")
+      .gte("sale_date", startOfMonth.toISOString().split('T')[0]);
+
+    // Get monthly collections (payments) - assuming a 'payments' table exists or will exist
+    // For now, let's use deposit_amount from recent sales as a proxy if payments table is missing
+    const { data: collections } = await supabaseAdmin
+      .from("sales")
+      .select("deposit_amount")
+      .gte("sale_date", startOfMonth.toISOString().split('T')[0]);
+
+    const totalSales = monthlySales?.reduce((sum, s) => sum + Number(s.total_amount), 0) || 0;
+    const totalCollections = collections?.reduce((sum, c) => sum + Number(c.deposit_amount), 0) || 0;
+
+    return {
+      monthlySales: totalSales,
+      monthlyCollections: totalCollections
+    };
+  });

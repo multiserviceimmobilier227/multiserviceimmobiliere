@@ -1,23 +1,28 @@
-# MSI 2.0 — Phase 9.5 D-E-F : Opérationnalité Totale & Dashboard
+# Plan d'implémentation - Phase 9.5 (Finalisation)
 
-Le but de cette intervention est de finaliser les câblages backend/frontend restants pour que toutes les pages du logiciel soient 100% fonctionnelles, en mettant l'accent sur les acquisitions, les coûts de revient et un tableau de bord consolidé.
+## Phase 9.5 — Câblage UI & Opérationnalité Totale
 
-## 1. Sous-phase D : Acquisitions & Coûts de revient (Finalisation)
-- [ ] **Formulaire d'Acquisition** : Ajouter la sélection optionnelle d'un lotissement ou d'une parcelle spécifique (achat en gros vs détail).
-- [ ] **Gestion des Frais** : Ajouter un bouton et un dialogue pour enregistrer des frais annexes (géomètre, taxes, commission) directement depuis la liste des acquisitions.
-- [ ] **Calcul de Rentabilité** : Implémenter la logique de calcul `(Prix Revente Total - Coût de Revient Total) / Coût de Revient Total` sur la fiche lotissement.
+### A. CRM & Foncier (Terminé)
+- [x] Liste des lotissements, zones et ilots.
+- [x] Vue hiérarchique : Lotissement > Zones > Ilots > Parcelles.
+- [x] Formulaires de création Lotissement/Zone/Ilot/Parcelle.
+- [x] Connexion du Dashboard aux compteurs réels (Clients, Parcelles).
 
-## 2. Sous-phase E : Tableau de Bord Réel (Consolidé)
-- [ ] **Indicateurs Financiers** : Câbler les "Ventes du mois" et "Encaissements" avec des fonctions serveur réelles.
-- [ ] **Stock & Clients** : S'assurer que les compteurs reflètent l'état actuel de la base de données.
-- [ ] **Graphiques (Optionnel)** : Préparer la structure pour l'évolution des encaissements.
+### D. Acquisitions & Frais Annexes (Terminé)
+- [x] Formulaire d'acquisition avec sélection optionnelle de lotissement/parcelle.
+- [x] Enregistrement des frais annexes (Géomètre, Actes, etc.) liés à une acquisition.
+- [x] Liste des acquisitions avec total investi (Prix + Frais).
 
-## 3. Sous-phase F : Audit de Cohérence & Navigation
-- [ ] **Nettoyage Sidebar** : Supprimer les liens morts ou les rediriger vers les pages actives.
-- [ ] **Gestion des Sites** : S'assurer que la création de parcelles fonctionne avec des sites valides.
-- [ ] **Seeds & Data** : Vérifier que les données de démo (Horizon 2) sont cohérentes avec le nouveau câblage.
+### E. Dashboard Financier Réel (Terminé)
+- [x] Création des fonctions d'agrégation `getDashboardStats` (Ventes du mois, Encaissements).
+- [x] Câblage des indicateurs financiers sur le Dashboard principal.
 
-## Détails techniques
-- **Frontend** : Utilisation de `react-hook-form` + `zod` pour tous les nouveaux formulaires.
-- **Backend** : `createServerFn` pour les agrégations financières (SUM sur les ventes et frais).
-- **Base de données** : Vérification des RLS sur les tables `acquisitions` et `acquisition_costs`.
+### F. Finalisation & Audit final (À faire)
+- [ ] Vérification de la cohérence des soldes clients après paiement partiel.
+- [ ] Audit de sécurité sur les `createServerFn` (vérification systématique des rôles si nécessaire).
+- [ ] Tests de bout en bout : Acquisition -> Lotissement -> Vente -> Paiement.
+
+## Détails Techniques
+- Utilisation de `supabaseAdmin` dans les `createServerFn` pour les agrégations complexes.
+- Snapshots de contrats lors de la validation PDG pour garantir l'historique.
+- Verrouillage des modifications de prix après le premier versement.

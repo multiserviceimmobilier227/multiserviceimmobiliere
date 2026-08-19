@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from "@tanstack/react-start";
 import { getClients } from "@/lib/crm.functions";
 import { getPlots, getLotissements } from "@/lib/real-estate.functions";
+import { getDashboardStats } from "@/lib/acquisitions.functions";
 import { formatFCFA } from "@/lib/utils";
 import { createFileRoute } from '@tanstack/react-router';
 
@@ -12,7 +13,7 @@ export const Route = createFileRoute('/_authenticated/')({
 function Dashboard() {
   const fetchClients = useServerFn(getClients);
   const fetchPlots = useServerFn(getPlots);
-  const fetchLotissements = useServerFn(getLotissements);
+  const fetchStats = useServerFn(getDashboardStats);
 
   const { data: clients } = useQuery({
     queryKey: ["clients", ""],
@@ -24,20 +25,21 @@ function Dashboard() {
     queryFn: () => fetchPlots({ data: { status: "Disponible" } }),
   });
 
-  // For "Ventes du mois" and "Encaissements", we would normally have a specific function,
-  // but for now let's use what we have or placeholder until Phase 10.
-  // Actually, Phase 9.5 Sous-phase E explicitly asks for this.
-  
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: () => fetchStats(),
+  });
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Ventes du mois</h3>
-          <p className="mt-2 text-2xl font-bold text-[#D1127B]">0 FCFA</p>
+          <p className="mt-2 text-2xl font-bold text-[#D1127B]">{formatFCFA(stats?.monthlySales || 0)}</p>
         </div>
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Encaissements</h3>
-          <p className="mt-2 text-2xl font-bold text-[#D1127B]">0 FCFA</p>
+          <p className="mt-2 text-2xl font-bold text-[#D1127B]">{formatFCFA(stats?.monthlyCollections || 0)}</p>
         </div>
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Parcelles disponibles</h3>

@@ -10,7 +10,8 @@ import {
   Wallet,
   FileText,
   User,
-  Calendar
+  Calendar,
+  PlusCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ import {
 } from '@/components/ui/card';
 import { useState } from 'react';
 import { AcquisitionFormDialog } from '@/components/foncier/AcquisitionFormDialog';
+import { AcquisitionCostDialog } from '@/components/foncier/AcquisitionCostDialog';
 
 export const Route = createFileRoute('/_authenticated/immobilier/acquisitions')({
   component: AcquisitionsPage,
@@ -38,6 +40,7 @@ export const Route = createFileRoute('/_authenticated/immobilier/acquisitions')(
 
 function AcquisitionsPage() {
   const [isNewOpen, setIsNewOpen] = useState(false);
+  const [selectedAcquisitionId, setSelectedAcquisitionId] = useState<string | null>(null);
   const { data: acquisitions, isLoading } = useQuery({
     queryKey: ['acquisitions'],
     queryFn: () => getAcquisitions(),
@@ -169,9 +172,20 @@ function AcquisitionsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                        <History className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          title="Ajouter des frais"
+                          onClick={() => setSelectedAcquisitionId(acq.id)}
+                        >
+                          <PlusCircle className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                          <History className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -190,6 +204,14 @@ function AcquisitionsPage() {
       </div>
 
       <AcquisitionFormDialog open={isNewOpen} onOpenChange={setIsNewOpen} />
+      
+      {selectedAcquisitionId && (
+        <AcquisitionCostDialog 
+          open={!!selectedAcquisitionId} 
+          onOpenChange={(open) => !open && setSelectedAcquisitionId(null)} 
+          acquisitionId={selectedAcquisitionId} 
+        />
+      )}
     </div>
   );
 }
