@@ -91,6 +91,18 @@ export function AppShell() {
                   <NavItem to="/" icon={FileText}>Comptabilité</NavItem>
                 </div>
               </div>
+
+              <div>
+                <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+                  Administration
+                </h2>
+                <div className="space-y-1">
+                  <NavItem to="/admin/users" icon={Users}>Utilisateurs</NavItem>
+                  <NavItem to="/admin/audit" icon={History}>Journal d'Audit</NavItem>
+                  <NavItem to="/" icon={SettingsIcon}>Paramètres</NavItem>
+                </div>
+              </div>
+
             </nav>
           </ScrollArea>
 
