@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getClients, upsertClient } from "@/lib/crm.functions";
+import { getClients } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, UserPlus, FileText, Phone, MapPin, Eye } from "lucide-react";
+import { Search, UserPlus, Phone, MapPin, Eye } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { ClientFormDialog } from "@/components/crm/ClientFormDialog";
 
 export const Route = createFileRoute("/_authenticated/crm/")({
   component: CRMIndex,
@@ -19,8 +18,8 @@ export const Route = createFileRoute("/_authenticated/crm/")({
 
 function CRMIndex() {
   const [search, setSearch] = useState("");
+  const [isNewClientOpen, setIsNewClientOpen] = useState(false);
   const fetchClients = useServerFn(getClients);
-  const queryClient = useQueryClient();
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients", search],
@@ -35,7 +34,10 @@ function CRMIndex() {
           <p className="text-gray-500">Gérez vos prospects et clients Multi Services Immobilière.</p>
         </div>
         <div className="flex gap-2">
-          <Button className="bg-[#D1127B] hover:bg-[#b00e68]">
+          <Button 
+            className="bg-[#D1127B] hover:bg-[#b00e68]"
+            onClick={() => setIsNewClientOpen(true)}
+          >
             <UserPlus className="mr-2 h-4 w-4" /> Nouveau Client
           </Button>
         </div>
@@ -121,6 +123,11 @@ function CRMIndex() {
           </Table>
         </CardContent>
       </Card>
+
+      <ClientFormDialog 
+        open={isNewClientOpen} 
+        onOpenChange={setIsNewClientOpen} 
+      />
     </div>
   );
 }

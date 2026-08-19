@@ -5,13 +5,17 @@ import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Calendar, Briefcase, Plus } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye } from "lucide-react";
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ClientFormDialog } from "@/components/crm/ClientFormDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/crm/client/$clientId")({
   component: ClientDetails,
@@ -22,8 +26,16 @@ function ClientDetails() {
   const fetchClientDetails = useServerFn(getClientDetails);
   const queryClient = useQueryClient();
   const [isAddingInteraction, setIsAddingInteraction] = useState(false);
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [interactionNotes, setInteractionNotes] = useState("");
   const [interactionType, setInteractionType] = useState("Appel");
+
+  // Document upload state
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docName, setDocName] = useState("");
+  const [docType, setDocType] = useState("CNI");
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: client, isLoading } = useQuery({
     queryKey: ["client", clientId],
@@ -43,6 +55,51 @@ function ClientDetails() {
   if (isLoading) return <div>Chargement du dossier...</div>;
   if (!client) return <div>Client introuvable</div>;
 
+  const handleUploadDocument = async () => {
+    if (!docFile || !docName) {
+      toast.error("Veuillez sélectionner un fichier et donner un nom.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const fileExt = docFile.name.split('.').pop();
+      const filePath = `${clientId}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('client_documents')
+        .upload(filePath, docFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('client_documents')
+        .getPublicUrl(filePath);
+
+      const { error: dbError } = await supabase
+        .from('client_documents')
+        .insert({
+          client_id: clientId,
+          name: docName,
+          document_type: docType,
+          file_url: publicUrl,
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success("Document ajouté avec succès");
+      setIsAddingDocument(false);
+      setDocFile(null);
+      setDocName("");
+      queryClient.invalidateQueries({ queryKey: ["client", clientId] });
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de l'upload.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -58,7 +115,7 @@ function ClientDetails() {
             </div>
           </div>
         </div>
-        <Button variant="outline">Modifier la fiche</Button>
+        <Button variant="outline" onClick={() => setIsEditingClient(true)}>Modifier la fiche</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -119,7 +176,9 @@ function ClientDetails() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Archivage Numérique</CardTitle>
-                  <Button size="sm" variant="outline"><Plus className="mr-2 h-4 w-4" /> Ajouter</Button>
+                  <Button size="sm" variant="outline" onClick={() => setIsAddingDocument(true)}>
+                    <Plus className="mr-2 h-4 w-4" /> Ajouter
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   {client.documents?.length === 0 ? (
@@ -245,5 +304,61 @@ function ClientDetails() {
         </div>
       </div>
     </div>
+    
+    <ClientFormDialog 
+      open={isEditingClient} 
+      onOpenChange={setIsEditingClient} 
+      client={client}
+    />
+
+    <Dialog open={isAddingDocument} onOpenChange={setIsAddingDocument}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Ajouter un document</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Nom du document</label>
+            <Input 
+              placeholder="Ex: Scan CNI recto" 
+              value={docName}
+              onChange={(e) => setDocName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Type</label>
+            <Select value={docType} onValueChange={setDocType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CNI">CNI</SelectItem>
+                <SelectItem value="Passeport">Passeport</SelectItem>
+                <SelectItem value="Permis">Permis</SelectItem>
+                <SelectItem value="Autre">Autre</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Fichier</label>
+            <Input 
+              type="file" 
+              onChange={(e) => setDocFile(e.target.files?.[0] || null)}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsAddingDocument(false)}>Annuler</Button>
+            <Button 
+              className="bg-[#D1127B]" 
+              onClick={handleUploadDocument}
+              disabled={isUploading}
+            >
+              {isUploading ? "Upload en cours..." : "Enregistrer"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>
   );
 }
