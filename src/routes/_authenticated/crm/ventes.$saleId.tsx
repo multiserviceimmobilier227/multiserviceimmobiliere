@@ -301,7 +301,7 @@ function SaleDetailsPage() {
             </div>
           )}
         </TabsContent>
-          <Card>
+        <TabsContent value="details" className="mt-6">
             <CardHeader>
               <CardTitle className="text-lg font-sans">Conditions du Contrat</CardTitle>
             </CardHeader>
