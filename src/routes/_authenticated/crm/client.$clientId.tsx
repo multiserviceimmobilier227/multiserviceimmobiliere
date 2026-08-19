@@ -27,7 +27,7 @@ function ClientDetails() {
 
   const { data: client, isLoading } = useQuery({
     queryKey: ["client", clientId],
-    queryFn: () => fetchClientDetails({ id: clientId }),
+    queryFn: () => fetchClientDetails({ data: { id: clientId } }),
   });
 
   const mutation = useMutation({
@@ -186,9 +186,11 @@ function ClientDetails() {
                           className="bg-[#D1127B]" 
                           disabled={!interactionNotes || mutation.isPending}
                           onClick={() => mutation.mutate({ 
-                            client_id: clientId, 
-                            interaction_type: interactionType, 
-                            notes: interactionNotes 
+                            data: {
+                              client_id: clientId, 
+                              interaction_type: interactionType, 
+                              notes: interactionNotes 
+                            }
                           })}
                         >
                           Enregistrer

@@ -8,7 +8,7 @@ const clientSchema = z.object({
   email: z.string().email().optional().nullable(),
   phone: z.string().min(1),
   address: z.string().optional().nullable(),
-  id_type: z.enum(["CNI", "PASSEPORT", "PERMIS", "AUTRE"]),
+  id_type: z.enum(["cni", "passeport", "permis", "autre"]),
   id_number: z.string().optional().nullable(),
   occupation: z.string().optional().nullable(),
   date_naissance: z.string().optional().nullable(),

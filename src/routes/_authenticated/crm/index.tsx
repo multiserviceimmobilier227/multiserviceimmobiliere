@@ -24,7 +24,7 @@ function CRMIndex() {
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients", search],
-    queryFn: () => fetchClients({ search }),
+    queryFn: () => fetchClients({ data: { search } }),
   });
 
   return (
