@@ -93,10 +93,11 @@ export function hasPermission(role: AppRole | null, permission: Permission, dyna
   if (!role) return false;
   
   // Master Switch for PDG and Informaticien - they always have access to everything
+  // We check this FIRST to bypass any database issues or lag
   if (role === 'pdg' || role === 'informaticien') return true;
   
-  // Check dynamic permissions from database first
-  if (dynamicPermissions && dynamicPermissions.length > 0) {
+  // Check dynamic permissions from database
+  if (Array.isArray(dynamicPermissions) && dynamicPermissions.length > 0) {
     const hasDynamic = dynamicPermissions.some(p => p.role === role && p.permission === permission);
     if (hasDynamic) return true;
   }
