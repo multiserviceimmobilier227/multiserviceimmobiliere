@@ -1,0 +1,1 @@
+ALTER FUNCTION public.get_plot_effective_price(_plot_id uuid) SET search_path = public;
