@@ -218,7 +218,7 @@ export const createPlot = createServerFn({ method: "POST" })
         ilot_id: input.ilot_id,
         surface_area: input.surface_area,
         base_price: input.base_price,
-        site_id: input.site_id ?? null,
+        site_id: input.site_id as string,
         status: (input.status || "Disponible") as PlotStatus
       })
       .select()
