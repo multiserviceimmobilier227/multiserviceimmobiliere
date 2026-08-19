@@ -47,13 +47,12 @@ export const createSale = createServerFn({ method: "POST" })
 
     if (plotError || !plot) throw new Error("Parcelle introuvable");
     
-    // Check using standard string because enum types might hydration mismatch in build
     const status = plot.status as string;
     if (status !== 'Disponible' && status !== 'Réservée') {
       throw new Error("La parcelle n'est pas disponible pour la vente");
     }
 
-    // 2. Create the sale using untyped insert to bypass strict enum checks during build cache
+    // 2. Create the sale
     const { data: sale, error: saleError } = await (supabaseAdmin
       .from("sales")
       .insert({
@@ -82,12 +81,12 @@ export const createSale = createServerFn({ method: "POST" })
 
 export const getSaleById = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((id: unknown) => z.string().uuid().parse(id))
-  .handler(async ({ data: id, context }) => {
+  .validator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
     await enforcePermission(context.userId, 'view_sales');
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin
+    const { data: sale, error } = await supabaseAdmin
       .from("sales")
       .select(`
         *,
@@ -95,9 +94,9 @@ export const getSaleById = createServerFn({ method: "GET" })
         plot:plots(*, ilot:ilots(*, zone:zones(*, lotissement:lotissements(*)))),
         adjustments:sale_adjustments(*)
       `)
-      .eq("id", id)
+      .eq("id", data.id)
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    return sale;
   });

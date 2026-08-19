@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getSaleById } from '@/lib/sales.functions';
 import { 
   FileText, 
@@ -7,9 +7,7 @@ import {
   MapPin, 
   Calendar,
   CreditCard,
-  History,
   AlertCircle,
-  CheckCircle2,
   ArrowRightLeft,
   Settings2,
   Download
@@ -37,14 +35,16 @@ function SaleDetailsPage() {
   const { saleId } = Route.useParams();
   const { data: sale } = useSuspenseQuery({
     queryKey: ['sale', saleId],
-    queryFn: () => getSaleById(saleId),
+    queryFn: () => getSaleById({ id: saleId }),
   });
 
   if (!sale) return null;
 
   const style = statusStyles[sale.status as string] || statusStyles['en_cours'];
-  const progress = sale.total_price > 0 
-    ? ((sale.total_price - sale.balance) / sale.total_price) * 100 
+  const totalPrice = sale.total_price || 0;
+  const balance = sale.balance || 0;
+  const progress = totalPrice > 0 
+    ? ((totalPrice - balance) / totalPrice) * 100 
     : 0;
 
   return (
@@ -55,8 +55,8 @@ function SaleDetailsPage() {
             <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">
               Dossier Vente #{sale.id.slice(0, 8).toUpperCase()}
             </h1>
-            <Badge variant="outline" className={`font-sans text-[10px] uppercase tracking-tighter ${style.color}`}>
-              {style.label}
+            <Badge variant="outline" className={`font-sans text-[10px] uppercase tracking-tighter ${style?.color || ''}`}>
+              {style?.label || sale.status}
             </Badge>
           </div>
           <p className="text-muted-foreground font-sans">
@@ -76,7 +76,6 @@ function SaleDetailsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Résumé Financier */}
         <Card className="md:col-span-2 border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -88,18 +87,18 @@ function SaleDetailsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground font-sans">Prix de vente</p>
-                <p className="text-xl font-bold font-sans">{formatFCFA(sale.total_price)}</p>
+                <p className="text-xl font-bold font-sans">{formatFCFA(totalPrice)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground font-sans">Déjà payé</p>
                 <p className="text-xl font-bold font-sans text-green-600">
-                  {formatFCFA(sale.total_price - sale.balance)}
+                  {formatFCFA(totalPrice - balance)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground font-sans">Reste à payer</p>
                 <p className="text-xl font-bold font-sans text-destructive">
-                  {formatFCFA(sale.balance)}
+                  {formatFCFA(balance)}
                 </p>
               </div>
             </div>
@@ -119,7 +118,6 @@ function SaleDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Client & Parcelle */}
         <div className="space-y-6">
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
@@ -129,8 +127,12 @@ function SaleDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-bold font-sans text-lg">{sale.client?.first_name} {sale.client?.last_name}</p>
-              <p className="text-sm text-muted-foreground font-sans">{sale.client?.phone}</p>
+              <p className="font-bold font-sans text-lg">
+                {(sale.client as any)?.first_name} {(sale.client as any)?.last_name}
+              </p>
+              <p className="text-sm text-muted-foreground font-sans">
+                {(sale.client as any)?.phone}
+              </p>
             </CardContent>
           </Card>
 
@@ -142,9 +144,9 @@ function SaleDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-bold font-sans text-lg">Lot {sale.plot?.plot_number}</p>
+              <p className="font-bold font-sans text-lg">Lot {(sale.plot as any)?.plot_number}</p>
               <p className="text-sm text-muted-foreground font-sans">
-                {sale.plot?.ilot?.zone?.lotissement?.name}
+                {(sale.plot as any)?.ilot?.zone?.lotissement?.name}
               </p>
             </CardContent>
           </Card>
@@ -168,12 +170,12 @@ function SaleDetailsPage() {
                 <div className="space-y-1">
                   <span className="text-sm text-muted-foreground font-sans">Mode de paiement</span>
                   <p className="font-sans font-medium">
-                    {sale.payment_plan_type === 'comptant' ? 'Paiement Comptant' : 'Vente à tempérament (Échelonné)'}
+                    {(sale as any).payment_plan_type === 'comptant' ? 'Paiement Comptant' : 'Vente à tempérament (Échelonné)'}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <span className="text-sm text-muted-foreground font-sans">Apport initial (Down Payment)</span>
-                  <p className="font-sans font-medium">{formatFCFA(sale.down_payment)}</p>
+                  <p className="font-sans font-medium">{formatFCFA(sale.down_payment || 0)}</p>
                 </div>
               </div>
               <Separator />
@@ -218,7 +220,7 @@ function SaleDetailsPage() {
             </Card>
           </div>
           
-          {sale.adjustments && sale.adjustments.length > 0 && (
+          {(sale as any).adjustments && (sale as any).adjustments.length > 0 && (
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle className="text-sm font-sans uppercase text-muted-foreground">Historique des Ajustements</CardTitle>
