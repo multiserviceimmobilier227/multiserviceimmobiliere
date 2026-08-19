@@ -38,7 +38,13 @@ const acquisitionSchema = z.object({
   plot_id: z.string().uuid().nullable().optional(),
 });
 
-type FormValues = z.infer<typeof acquisitionSchema>;
+type FormValues = {
+  vendeur: string;
+  date_achat: string;
+  prix_principal: number;
+  lotissement_id?: string | null;
+  plot_id?: string | null;
+};
 
 export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const queryClient = useQueryClient();
