@@ -26,11 +26,13 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         client_id: data.clientId,
         plot_id: data.plotId,
         total_amount: data.totalAmount,
+        total_price: data.totalAmount, // Map to existing schema if needed
+        balance: data.totalAmount - data.depositAmount,
         deposit_amount: data.depositAmount,
-        payment_plan_type: data.paymentPlanType,
         agency_id: data.agencyId,
-        created_by: userId,
-        status: "Brouillon",
+        prepared_by_id: userId,
+        status: "reservation", // Map to sale_status enum
+        sale_date: format(new Date(), "yyyy-MM-dd"),
       })
       .select()
       .single();
@@ -80,7 +82,7 @@ export const validateSale = createServerFn({ method: "POST" })
     const { data: sale, error: saleError } = await supabase
       .from("sales")
       .update({
-        status: "Validée",
+        status: "en_cours", // Map to sale_status enum
         validated_by_id: userId,
         validation_date: new Date().toISOString(),
       })
@@ -113,4 +115,5 @@ export const getSaleDetails = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return sale;
   });
+
 
