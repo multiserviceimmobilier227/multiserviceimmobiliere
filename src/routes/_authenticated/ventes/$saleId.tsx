@@ -302,10 +302,11 @@ function SaleDetailsComponent() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Mois</TableHead>
                   <TableHead>Échéance</TableHead>
-                  <TableHead>Dû</TableHead>
+                  <TableHead>Dû (FCFA)</TableHead>
                   <TableHead>Payé</TableHead>
-                  <TableHead>Solde</TableHead>
+                  <TableHead>Reste</TableHead>
                   <TableHead>Statut</TableHead>
                 </TableRow>
               </TableHeader>
