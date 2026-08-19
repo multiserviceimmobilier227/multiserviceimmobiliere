@@ -25,7 +25,7 @@ export const getSales = createServerFn({ method: "GET" })
         client:clients(first_name, last_name, phone),
         plot:plots(plot_number, ilot:ilots(numero, zone:zones(name, lotissement:lotissements(name))))
       `)
-      .order("created_at", { ascending: false });
+      .order("sale_date", { ascending: false });
 
     if (error) throw new Error(error.message);
     return data;
