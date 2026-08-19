@@ -103,9 +103,15 @@ export const createAgence = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: agence, error } = await supabaseAdmin
       .from('agences')
-      .insert(data)
+      .insert({
+        name: data.name,
+        city: data.city,
+        address: data.address ?? null,
+        phone: data.phone ?? null
+      })
       .select()
       .single();
+
     if (error) throw error;
     return agence;
   });
