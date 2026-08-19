@@ -73,6 +73,28 @@ function SaleDetailsComponent() {
       toast.error(`Erreur : ${error.message}`)
     }
   })
+  
+  const paymentMutation = useMutation({
+    mutationFn: () => registerPaymentFn({
+      data: {
+        saleId,
+        amount: parseFloat(payAmount),
+        paymentDate: payDate,
+        method: payMethod,
+        reference: payRef || null,
+      }
+    }),
+    onSuccess: () => {
+      toast.success('Paiement enregistré avec succès')
+      setIsPaymentOpen(false)
+      setPayAmount('')
+      setPayRef('')
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur : ${error.message}`)
+    }
+  })
 
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
