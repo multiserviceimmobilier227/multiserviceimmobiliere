@@ -818,34 +818,46 @@ export type Database = {
       }
       sale_adjustments: {
         Row: {
-          authorized_by: string | null
+          amount: number
           created_at: string | null
           id: string
-          new_data: Json
-          previous_data: Json
+          new_total_price: number | null
+          previous_total_price: number | null
           reason: string
+          requested_by: string
           sale_id: string
+          status: Database["public"]["Enums"]["adjustment_status"]
           type: Database["public"]["Enums"]["adjustment_type"]
+          validated_at: string | null
+          validated_by: string | null
         }
         Insert: {
-          authorized_by?: string | null
+          amount: number
           created_at?: string | null
           id?: string
-          new_data: Json
-          previous_data: Json
+          new_total_price?: number | null
+          previous_total_price?: number | null
           reason: string
+          requested_by: string
           sale_id: string
+          status?: Database["public"]["Enums"]["adjustment_status"]
           type: Database["public"]["Enums"]["adjustment_type"]
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Update: {
-          authorized_by?: string | null
+          amount?: number
           created_at?: string | null
           id?: string
-          new_data?: Json
-          previous_data?: Json
+          new_total_price?: number | null
+          previous_total_price?: number | null
           reason?: string
+          requested_by?: string
           sale_id?: string
+          status?: Database["public"]["Enums"]["adjustment_status"]
           type?: Database["public"]["Enums"]["adjustment_type"]
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Relationships: [
           {
@@ -1132,6 +1144,7 @@ export type Database = {
         | "Commission"
         | "Taxe"
         | "Autre"
+      adjustment_status: "pending" | "approved" | "rejected"
       adjustment_type: "change_plot" | "price_adjustment"
       app_role:
         | "admin"
@@ -1295,6 +1308,7 @@ export const Constants = {
         "Taxe",
         "Autre",
       ],
+      adjustment_status: ["pending", "approved", "rejected"],
       adjustment_type: ["change_plot", "price_adjustment"],
       app_role: [
         "admin",

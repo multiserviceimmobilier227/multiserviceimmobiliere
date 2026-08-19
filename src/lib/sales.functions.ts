@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { enforcePermission } from "./permissions.server";
+import { enforcePermission, hasPermission } from "./permissions.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const saleSchema = z.object({
@@ -100,4 +100,61 @@ export const getSaleById = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
     return sale;
+  });
+
+export const requestSaleAdjustment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: any) => z.object({
+    saleId: z.string().uuid(),
+    amount: z.number(),
+    reason: z.string().min(5),
+    type: z.enum(['price_adjustment', 'change_plot'])
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    await enforcePermission(context.userId, 'manage_sales');
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: adjustment, error } = await supabaseAdmin
+      .from("sale_adjustments")
+      .insert({
+        sale_id: data.saleId,
+        amount: data.amount,
+        reason: data.reason,
+        type: data.type,
+        status: 'pending',
+        requested_by: context.userId
+      } as any)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return adjustment;
+  });
+
+export const validateSaleAdjustment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: any) => z.object({
+    adjustmentId: z.string().uuid(),
+    approve: z.boolean()
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    // Vérification stricte du rôle PDG ou Admin pour la validation
+    const canValidate = await hasPermission(context.userId, 'validate_sensitive_op');
+    if (!canValidate) throw new Error("Seul le PDG ou un Administrateur peut valider cette opération");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: adjustment, error } = await supabaseAdmin
+      .from("sale_adjustments")
+      .update({
+        status: data.approve ? 'approved' : 'rejected',
+        validated_by: context.userId,
+        validated_at: new Date().toISOString()
+      } as any)
+      .eq("id", data.adjustmentId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return adjustment;
   });
