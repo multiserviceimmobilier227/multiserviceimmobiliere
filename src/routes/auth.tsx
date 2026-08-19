@@ -6,8 +6,14 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { z } from 'zod'
+
+const authSearchSchema = z.object({
+  redirect: z.string().optional(),
+})
 
 export const Route = createFileRoute('/auth')({
+  validateSearch: (search) => authSearchSchema.parse(search),
   component: AuthComponent,
 })
 
@@ -16,7 +22,7 @@ function AuthComponent() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const search = useSearch({ from: '/auth' }) as { redirect?: string }
+  const search = useSearch({ from: '/auth' })
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
