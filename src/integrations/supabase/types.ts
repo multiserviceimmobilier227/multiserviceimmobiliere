@@ -342,6 +342,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_snapshots: {
+        Row: {
+          client_data: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          plot_data: Json
+          sale_data: Json
+          sale_id: string
+        }
+        Insert: {
+          client_data: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          plot_data: Json
+          sale_data: Json
+          sale_id: string
+        }
+        Update: {
+          client_data?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          plot_data?: Json
+          sale_data?: Json
+          sale_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_snapshots_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           content_url: string | null
@@ -900,6 +938,70 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "sale_adjustments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sale_mutations: {
+        Row: {
+          created_at: string | null
+          id: string
+          new_plot_id: string
+          old_plot_id: string
+          price_difference: number
+          reason: string
+          requested_by: string
+          sale_id: string
+          status: string
+          validated_by: string | null
+          validation_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          new_plot_id: string
+          old_plot_id: string
+          price_difference: number
+          reason: string
+          requested_by: string
+          sale_id: string
+          status?: string
+          validated_by?: string | null
+          validation_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          new_plot_id?: string
+          old_plot_id?: string
+          price_difference?: number
+          reason?: string
+          requested_by?: string
+          sale_id?: string
+          status?: string
+          validated_by?: string | null
+          validation_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_mutations_new_plot_id_fkey"
+            columns: ["new_plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_mutations_old_plot_id_fkey"
+            columns: ["old_plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_mutations_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
             referencedRelation: "sales"
