@@ -32,6 +32,13 @@ function SaleDetailsComponent() {
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
   const [isAdjustOpen, setIsAdjustOpen] = useState(false)
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false)
+  const [payAmount, setPayAmount] = useState('')
+  const [payMethod, setPayMethod] = useState<'espece' | 'virement' | 'cheque' | 'mobile_money'>('espece')
+  const [payRef, setPayRef] = useState('')
+  const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  
+  const registerPaymentFn = useServerFn(registerPayment)
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
