@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { getSaleById } from '@/lib/sales.functions';
+import { getSaleById, requestSaleAdjustment, validateSaleAdjustment } from '@/lib/sales.functions';
 import { getSaleTransfers, transferSalePlot } from '@/lib/transfers.functions';
 import { getContractBySaleId, generateContract, signContract } from '@/lib/contracts.functions';
 import { getPlots } from '@/lib/real-estate.functions';
@@ -63,8 +63,12 @@ function SaleDetailsPage() {
   const queryClient = useQueryClient();
   const { role } = useUserRole();
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [isAdjustmentDialogOpen, setIsAdjustmentDialogOpen] = useState(false);
   const [selectedPlotId, setSelectedPlotId] = useState<string>('');
   const [transferReason, setTransferReason] = useState('');
+  const [adjAmount, setAdjAmount] = useState<string>('0');
+  const [adjReason, setAdjReason] = useState('');
+  const [adjType, setAdjType] = useState<'price_adjustment' | 'change_plot'>('price_adjustment');
 
   const { data: sale } = useSuspenseQuery({
     queryKey: ['sale', saleId],
@@ -113,6 +117,33 @@ function SaleDetailsPage() {
       setTransferReason('');
       setSelectedPlotId('');
       toast.success("Mutation de parcelle effectuée avec succès");
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur: ${error.message}`);
+    }
+  });
+
+  const requestAdjMutation = useMutation({
+    mutationFn: (variables: { saleId: string; amount: number; reason: string; type: any }) => 
+      (requestSaleAdjustment as any)(variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+      setIsAdjustmentDialogOpen(false);
+      setAdjAmount('0');
+      setAdjReason('');
+      toast.success("Demande d'ajustement envoyée");
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur: ${error.message}`);
+    }
+  });
+
+  const validateAdjMutation = useMutation({
+    mutationFn: (variables: { adjustmentId: string; approve: boolean }) => 
+      (validateSaleAdjustment as any)(variables),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+      toast.success(data.status === 'approved' ? "Ajustement validé et appliqué" : "Ajustement refusé");
     },
     onError: (error: any) => {
       toast.error(`Erreur: ${error.message}`);
@@ -418,10 +449,81 @@ function SaleDetailsPage() {
                 <CardDescription>Appliquer une remise ou ajuster le solde</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full font-sans">Ajuster le prix</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full font-sans"
+                  onClick={() => setIsAdjustmentDialogOpen(true)}
+                >
+                  Ajuster le prix
+                </Button>
               </CardContent>
             </Card>
           </div>
+          
+          {(sale.adjustments && (sale.adjustments as any[]).length > 0) && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-sm font-sans uppercase text-muted-foreground flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Historique des Ajustements Financiers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {(sale.adjustments as any[]).map((adj: any) => (
+                    <div key={adj.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg bg-muted/20 gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge 
+                            variant={adj.amount < 0 ? "destructive" : "default"}
+                            className="font-mono text-[10px]"
+                          >
+                            {adj.amount < 0 ? 'REMISE' : 'SURPLUS'}
+                          </Badge>
+                          <span className="font-bold">{formatFCFA(adj.amount)}</span>
+                          <span className="text-muted-foreground text-xs">— {adj.reason}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="outline" className={`text-[9px] uppercase ${
+                            adj.status === 'approved' ? 'bg-green-100 text-green-800 border-green-200' :
+                            adj.status === 'rejected' ? 'bg-red-100 text-red-800 border-red-200' :
+                            'bg-orange-100 text-orange-800 border-orange-200'
+                          }`}>
+                            {adj.status === 'approved' ? 'Validé' : adj.status === 'rejected' ? 'Refusé' : 'En attente PDG'}
+                          </Badge>
+                          <p className="text-[10px] text-muted-foreground italic">
+                            Demandé le {format(new Date(adj.created_at), 'Pp', { locale: fr })}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {adj.status === 'pending' && (role === 'pdg' || role === 'admin' || role === 'informaticien') && (
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs h-8 text-destructive"
+                            onClick={() => validateAdjMutation.mutate({ adjustmentId: adj.id, approve: false })}
+                            disabled={validateAdjMutation.isPending}
+                          >
+                            Refuser
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="text-xs h-8 bg-green-600 hover:bg-green-700"
+                            onClick={() => validateAdjMutation.mutate({ adjustmentId: adj.id, approve: true })}
+                            disabled={validateAdjMutation.isPending}
+                          >
+                            Approuver
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
           
           {transfers && transfers.length > 0 && (
             <Card className="mt-6">
@@ -536,6 +638,88 @@ function SaleDetailsPage() {
                   className="gap-2"
                 >
                   {transferMutation.isPending ? "Traitement..." : "Confirmer la mutation"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isAdjustmentDialogOpen} onOpenChange={setIsAdjustmentDialogOpen}>
+            <DialogContent className="sm:max-w-[450px]">
+              <DialogHeader>
+                <DialogTitle className="font-sans flex items-center gap-2">
+                  <Settings2 className="h-5 w-5 text-primary" />
+                  Demande d'ajustement financier
+                </DialogTitle>
+                <DialogDescription className="font-sans">
+                  Toute modification de prix nécessite une validation de la Direction Générale.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="space-y-2">
+                  <Label className="font-sans">Type d'ajustement</Label>
+                  <Select value={adjType} onValueChange={(v: any) => setAdjType(v)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="price_adjustment">Révision de prix / Remise</SelectItem>
+                      <SelectItem value="change_plot">Mutation de parcelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-sans">Montant (FCFA)</Label>
+                  <div className="relative">
+                    <input 
+                      type="number"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={adjAmount}
+                      onChange={(e) => setAdjAmount(e.target.value)}
+                    />
+                    <div className="absolute right-3 top-2.5 text-[10px] text-muted-foreground font-bold">
+                      {Number(adjAmount) < 0 ? 'REMISE' : 'SURPLUS'}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Utilisez un montant négatif (ex: -50000) pour accorder une remise.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-sans">Justification de la demande (requis)</Label>
+                  <Textarea 
+                    placeholder="Détaillez le motif commercial ou l'erreur à corriger..." 
+                    value={adjReason}
+                    onChange={(e) => setAdjReason(e.target.value)}
+                    className="h-24"
+                  />
+                </div>
+
+                <div className="bg-muted/50 p-3 rounded-lg border border-border/50 text-[11px] space-y-1">
+                  <div className="flex justify-between">
+                    <span>Nouveau prix prévisionnel :</span>
+                    <span className="font-bold">{formatFCFA(sale.total_price + Number(adjAmount))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Nouveau solde prévisionnel :</span>
+                    <span className="font-bold text-primary">{formatFCFA(sale.balance + Number(adjAmount))}</span>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAdjustmentDialogOpen(false)}>Annuler</Button>
+                <Button 
+                  onClick={() => requestAdjMutation.mutate({ 
+                    saleId: sale.id, 
+                    amount: Number(adjAmount), 
+                    reason: adjReason,
+                    type: adjType
+                  })}
+                  disabled={Number(adjAmount) === 0 || adjReason.length < 5 || requestAdjMutation.isPending}
+                  className="gap-2"
+                >
+                  {requestAdjMutation.isPending ? "Envoi..." : "Envoyer pour validation"}
                 </Button>
               </DialogFooter>
             </DialogContent>

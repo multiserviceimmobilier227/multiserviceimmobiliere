@@ -28,31 +28,36 @@ export type Permission =
   | 'manage_reservations'
   | 'manage_contracts'
   | 'sign_contract'
-  | 'transfer_plot';
+  | 'transfer_plot'
+  | 'request_price_adjustment'
+  | 'validate_price_adjustment'
+  | 'validate_sensitive_op';
 
 export const ROLE_PERMISSIONS: Partial<Record<AppRole, Permission[]>> = {
   pdg: [
     'view_dashboard', 'manage_users', 'manage_agences', 'view_audit_logs', 
     'manage_settings', 'view_lotissements', 'create_lotissement', 'manage_plots',
     'view_tarifs', 'manage_tarifs', 'view_acquisitions', 'manage_acquisitions',
-    'view_clients', 'manage_clients', 'manage_sales', 'view_finance', 'manage_finance'
+    'view_clients', 'manage_clients', 'manage_sales', 'view_finance', 'manage_finance',
+    'request_price_adjustment', 'validate_price_adjustment', 'validate_sensitive_op'
   ],
   informaticien: [
     'view_dashboard', 'manage_users', 'manage_agences', 'view_audit_logs', 
     'manage_settings', 'view_lotissements', 'create_lotissement', 'manage_plots',
     'view_tarifs', 'manage_tarifs', 'view_acquisitions', 'manage_acquisitions',
-    'view_clients', 'manage_clients', 'manage_sales', 'view_finance', 'manage_finance'
+    'view_clients', 'manage_clients', 'manage_sales', 'view_finance', 'manage_finance',
+    'request_price_adjustment', 'validate_price_adjustment', 'validate_sensitive_op'
   ],
   secretaire: [
     'view_dashboard', 'view_lotissements', 'create_lotissement', 'manage_plots',
-    'view_tarifs', 'view_clients', 'manage_clients', 'manage_sales'
+    'view_tarifs', 'view_clients', 'manage_clients', 'manage_sales', 'request_price_adjustment'
   ],
   commercial: [
     'view_dashboard', 'view_lotissements', 'manage_plots', 'view_tarifs', 
     'view_clients', 'manage_clients', 'manage_sales'
   ],
   comptable: [
-    'view_dashboard', 'view_finance', 'manage_finance', 'view_clients', 'manage_sales'
+    'view_dashboard', 'view_finance', 'manage_finance', 'view_clients', 'manage_sales', 'request_price_adjustment'
   ],
   responsable_agence: [
     'view_dashboard', 'view_lotissements', 'manage_plots', 'view_clients', 'manage_sales', 'view_finance'
@@ -73,4 +78,3 @@ export function hasPermission(role: AppRole | null, permission: Permission, dyna
   
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 }
-

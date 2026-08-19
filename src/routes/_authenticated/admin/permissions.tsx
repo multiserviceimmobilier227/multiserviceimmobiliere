@@ -50,7 +50,10 @@ const PERMISSION_LABELS: Record<Permission, string> = {
   manage_reservations: 'Gérer Réservations',
   manage_contracts: 'Gérer Contrats',
   sign_contract: 'Signer Contrat (Critique)',
-  transfer_plot: 'Transférer Parcelle'
+  transfer_plot: 'Transférer Parcelle',
+  request_price_adjustment: 'Demander Révision Prix',
+  validate_price_adjustment: 'Valider Révision Prix',
+  validate_sensitive_op: 'Valider Opérations Sensibles'
 };
 
 const ALL_PERMISSIONS = Object.keys(PERMISSION_LABELS) as Permission[];
