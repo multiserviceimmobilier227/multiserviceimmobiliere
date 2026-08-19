@@ -89,6 +89,8 @@ function AuthenticatedLayout() {
   }, [])
 
   const checkPermission = (permission: Permission) => {
+    // Immediate override for PDG/Informaticien inside the component for UI responsiveness
+    if (userRole.role === 'pdg' || userRole.role === 'informaticien') return true;
     return hasPermission(userRole.role, permission, userRole.dynamicPermissions)
   }
 
@@ -99,7 +101,13 @@ function AuthenticatedLayout() {
   return (
     <UserRoleContext.Provider value={{ ...userRole, checkPermission }}>
       <AppShell>
-        <Outlet />
+        {userRole.isLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </AppShell>
     </UserRoleContext.Provider>
   )

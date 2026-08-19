@@ -45,7 +45,7 @@ function NavItem({ to, icon: Icon, label, onClick }: NavItemProps) {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, checkPermission, isLoading } = useUserRole();
+  const { role, checkPermission } = useUserRole();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
