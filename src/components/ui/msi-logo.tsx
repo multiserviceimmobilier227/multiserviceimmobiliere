@@ -1,28 +1,24 @@
-import { supabase } from "@/integrations/supabase/client";
-
 /**
  * Composant Logo MSI Officiel
  * @param className Classes CSS optionnelles pour le dimensionnement
  */
 export function MsiLogo({ className = "h-12 w-12" }: { className?: string }) {
-  // Utilisation de l'URL directe du logo stocké dans Lovable Cloud
-  const logoUrl = "/logo.png"; // Changed from storage URL to local public path if available, or keep as placeholder if needed
-  
-  // Re-evaluating based on user feedback: "Il faut utiliser le vrai logo officiel que je t'ai soumis"
-  // If the user uploaded an image in this turn, it might be in /mnt/user-uploads/
+  // Le logo officiel a été copié dans /public/logo_msi_official.png
   const logoPath = "/logo_msi_official.png"; 
-
   
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       <img 
-        src={logoUrl} 
+        src={logoPath} 
         alt="MSI Logo" 
         className="h-full w-auto object-contain"
         onError={(e) => {
-          // Fallback en cas d'erreur de chargement de l'image
+          // Fallback avec l'ancien style si le fichier est manquant
           e.currentTarget.style.display = 'none';
-          e.currentTarget.parentElement?.insertAdjacentHTML('afterbegin', '<div class="bg-primary text-white font-bold p-2 rounded">MSI</div>');
+          const parent = e.currentTarget.parentElement;
+          if (parent && !parent.querySelector('.msi-fallback')) {
+             parent.insertAdjacentHTML('afterbegin', '<div class="msi-fallback bg-primary text-white font-bold p-2 rounded text-xs flex items-center justify-center min-w-[40px]">MSI</div>');
+          }
         }}
       />
     </div>
