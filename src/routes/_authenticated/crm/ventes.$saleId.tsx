@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery, useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { getSaleById, transferSalePlot } from '@/lib/sales.functions';
-import { getSaleTransfers } from '@/lib/transfers.functions';
+import { getSaleById } from '@/lib/sales.functions';
+import { getSaleTransfers, transferSalePlot } from '@/lib/transfers.functions';
 import { getContractBySaleId, generateContract, signContract } from '@/lib/contracts.functions';
 import { getPlots } from '@/lib/real-estate.functions';
 import { 
