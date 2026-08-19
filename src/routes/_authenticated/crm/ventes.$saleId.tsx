@@ -39,9 +39,32 @@ const statusStyles: Record<string, { label: string, color: string }> = {
 
 function SaleDetailsPage() {
   const { saleId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const { role } = useUserRole();
   const { data: sale } = useSuspenseQuery({
     queryKey: ['sale', saleId],
     queryFn: () => (getSaleById as any)(saleId),
+  });
+
+  const { data: contract } = useSuspenseQuery({
+    queryKey: ['contract', saleId],
+    queryFn: () => (getContractBySaleId as any)(saleId),
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: () => (generateContract as any)(saleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contract', saleId] });
+      toast.success("Brouillon de contrat généré");
+    }
+  });
+
+  const signMutation = useMutation({
+    mutationFn: (contractId: string) => (signContract as any)(contractId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contract', saleId] });
+      toast.success("Contrat signé officiellement");
+    }
   });
 
   if (!sale) return null;
@@ -52,6 +75,8 @@ function SaleDetailsPage() {
   const progress = totalPrice > 0 
     ? ((totalPrice - balance) / totalPrice) * 100 
     : 0;
+
+  const canSign = role === 'pdg' || role === 'informaticien' || role === 'admin';
 
   return (
     <div className="space-y-6 pb-20">
