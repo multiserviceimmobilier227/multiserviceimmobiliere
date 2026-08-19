@@ -27,6 +27,27 @@ export const checkUserRole = createServerFn({ method: "GET" })
   });
 
 /**
+ * Get the current user's role
+ */
+export const getCurrentUserRole = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from('user_roles')
+      .select('role, agence_id')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching user role:", error);
+      return null;
+    }
+
+    return data;
+  });
+
+/**
  * Assign a role and optionally an agence to a user (Informaticien only)
  */
 export const assignUserRole = createServerFn({ method: "POST" })
@@ -36,8 +57,28 @@ export const assignUserRole = createServerFn({ method: "POST" })
     role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client']),
     agenceId: z.string().uuid().optional()
   }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Check if the caller is an admin
+    const { data: callerRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .eq('role', 'pdg')
+      .maybeSingle();
+
+    if (!callerRole && context.userId !== 'd2a66474-30df-4d82-9b98-9dc39a8ec045') { // Bypass for the initial PDG
+        const { data: callerInf } = await supabaseAdmin
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', context.userId)
+          .eq('role', 'informaticien')
+          .maybeSingle();
+        
+        if (!callerInf) throw new Error("Unauthorized: Only PDG or Informaticien can assign roles");
+    }
+
     
     const { error } = await supabaseAdmin
       .from('user_roles')
@@ -57,8 +98,20 @@ export const assignUserRole = createServerFn({ method: "POST" })
  */
 export const getUsersWithRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Check permissions
+    const { data: callerRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+    
+    if (callerRole?.role !== 'pdg' && callerRole?.role !== 'informaticien') {
+      throw new Error("Unauthorized");
+    }
+
     const { data, error } = await supabaseAdmin
       .from('user_roles')
       .select('*, agences(name)');
@@ -106,9 +159,22 @@ export const createAgence = createServerFn({ method: "POST" })
     address: z.string().optional(),
     phone: z.string().optional()
   }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Check permissions
+    const { data: callerRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+    
+    if (callerRole?.role !== 'pdg' && callerRole?.role !== 'informaticien') {
+      throw new Error("Unauthorized");
+    }
+
     const { data: agence, error } = await supabaseAdmin
+
       .from('agences')
       .insert({
         name: data.name,
@@ -148,9 +214,22 @@ export const updateBusinessRules = createServerFn({ method: "POST" })
       currency: z.string()
     })
   }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Check permissions
+    const { data: callerRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+    
+    if (callerRole?.role !== 'pdg' && callerRole?.role !== 'informaticien') {
+      throw new Error("Unauthorized");
+    }
+
     const { error } = await supabaseAdmin
+
       .from('app_settings')
       .update({ value: data.rules })
       .eq('key', 'business_rules');

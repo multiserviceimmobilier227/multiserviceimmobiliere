@@ -39,8 +39,20 @@ export const getLotissements = createServerFn({ method: "GET" })
 export const createLotissement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => lotissementSchema.parse(data))
-  .handler(async ({ data: input }) => {
+  .handler(async ({ data: input, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Check permissions
+    const { data: userRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+
+    if (!userRole || !['pdg', 'informaticien', 'secretaire'].includes(userRole.role)) {
+      throw new Error("Unauthorized: Only PDG, Informaticien or Secretaire can create lotissements");
+    }
+
     // Exact optional property types fix: ensure undefined becomes null for Supabase
     const payload = {
       name: input.name,
@@ -104,8 +116,21 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
     reason: z.string().optional().nullable(),
     userId: z.string().uuid()
   }).parse(data))
-  .handler(async ({ data: input }) => {
+  .handler(async ({ data: input, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Check permissions
+    const { data: userRole } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+
+    const allowedRoles = ['pdg', 'informaticien', 'secretaire', 'commercial', 'comptable'];
+    if (!userRole || !allowedRoles.includes(userRole.role)) {
+      throw new Error("Unauthorized");
+    }
+
     // 1. Get old status
     const { data: plot, error: fetchError } = await supabaseAdmin
       .from("plots")

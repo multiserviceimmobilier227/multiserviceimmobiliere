@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useUserRole } from "@/routes/_authenticated";
 
 interface NavItemProps {
   to: string;
@@ -37,67 +38,97 @@ const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
   </Link>
 );
 
-const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
-  <nav className="space-y-6">
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Général
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick || undefined}>Tableau de bord</NavItem>
-      </div>
-    </div>
+const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
+  const { role } = useUserRole();
+  const isAdmin = role === 'pdg' || role === 'informaticien';
+  const isComptable = role === 'comptable';
+  const isSecretaire = role === 'secretaire';
+  const isCommercial = role === 'commercial';
+  const isClient = role === 'client';
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Immobilier
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
-        <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
-        <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
-        <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
+  return (
+    <nav className="space-y-6">
+      <div>
+        <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+          Général
+        </h2>
+        <div className="space-y-1">
+          <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick || undefined}>Tableau de bord</NavItem>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Clients & Ventes
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
-        <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
-        <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
-      </div>
-    </div>
+      {(isAdmin || isSecretaire || isCommercial) && (
+        <div>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            Immobilier
+          </h2>
+          <div className="space-y-1">
+            <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
+            <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
+            <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
+            <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
+          </div>
+        </div>
+      )}
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Finance
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
-        <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
-        <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
-      </div>
-    </div>
+      {(isAdmin || isSecretaire || isCommercial) && (
+        <div>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            Clients & Ventes
+          </h2>
+          <div className="space-y-1">
+            <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
+            <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
+            <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
+          </div>
+        </div>
+      )}
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Administration
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
-        <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
-        <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
-        <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
-      </div>
-    </div>
-  </nav>
-);
+      {(isAdmin || isComptable) && (
+        <div>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            Finance
+          </h2>
+          <div className="space-y-1">
+            <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Encaissements</NavItem>
+            <NavItem to="/" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses</NavItem>
+            <NavItem to="/" icon={FileText} onClick={onItemClick || undefined}>Comptabilité</NavItem>
+          </div>
+        </div>
+      )}
+
+      {isClient && (
+        <div>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            Mes Paiements
+          </h2>
+          <div className="space-y-1">
+            <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Suivi Paiements</NavItem>
+            <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Mes Contrats</NavItem>
+          </div>
+        </div>
+      )}
+
+      {isAdmin && (
+        <div>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            Administration
+          </h2>
+          <div className="space-y-1">
+            <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
+            <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
+            <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
+            <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
 
 export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { role } = useUserRole();
 
   const Logo = () => (
     <div className="flex items-center gap-2 font-bold text-primary">
@@ -163,7 +194,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <div className="hidden sm:block text-right font-sans">
-              <p className="text-sm font-medium">Administrateur</p>
+              <p className="text-sm font-medium uppercase">{role || 'Utilisateur'}</p>
               <p className="text-xs text-muted-foreground">Maradi, Niger</p>
             </div>
             <Separator orientation="vertical" className="hidden sm:block h-8" />

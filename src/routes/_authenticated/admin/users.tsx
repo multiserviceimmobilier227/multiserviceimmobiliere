@@ -13,15 +13,34 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 
+import { useUserRole } from '@/routes/_authenticated';
+import { redirect } from '@tanstack/react-router';
+
 export const Route = createFileRoute('/_authenticated/admin/users')({
+  beforeLoad: ({ context }) => {
+    // Note: server-side context might not have the role yet during SSR
+    // But we check client-side in the component as well
+  },
   component: UsersPage,
 });
 
 function UsersPage() {
+  const { role, isLoading } = useUserRole();
   const { data: users } = useSuspenseQuery({
     queryKey: ['users'],
     queryFn: () => getUsersWithRoles(),
   });
+
+  if (isLoading) return null;
+
+  if (role !== 'pdg' && role !== 'informaticien') {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <p className="text-muted-foreground">Accès non autorisé.</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6">

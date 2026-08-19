@@ -9,16 +9,30 @@ import { Settings, Percent, Calendar, Wallet, Check } from "lucide-react";
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
+import { useUserRole } from '@/routes/_authenticated';
+
 export const Route = createFileRoute('/_authenticated/admin/settings')({
   component: SettingsPage,
 });
 
 function SettingsPage() {
+  const { role, isLoading } = useUserRole();
   const queryClient = useQueryClient();
   const { data: settings } = useSuspenseQuery({
     queryKey: ['settings'],
     queryFn: () => getAppSettings(),
   });
+
+  if (isLoading) return null;
+
+  if (role !== 'pdg' && role !== 'informaticien') {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
+      </div>
+    );
+  }
+
 
   const businessRules = settings?.find(s => s.key === 'business_rules')?.value as any;
 
