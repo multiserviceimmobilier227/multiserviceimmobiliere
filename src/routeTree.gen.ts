@@ -21,6 +21,7 @@ import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
 import { Route as AuthenticatedImmobilierParcellesRouteImport } from './routes/_authenticated/immobilier/parcelles'
+import { Route as AuthenticatedImmobilierReservationsRouteImport } from './routes/_authenticated/immobilier/reservations'
 import { Route as AuthenticatedImmobilierTarifsRouteImport } from './routes/_authenticated/immobilier/tarifs'
 import { Route as AuthenticatedCrmClientClientIdRouteImport } from './routes/_authenticated/crm/client.$clientId'
 import { Route as AuthenticatedImmobilierParcellesPlotIdPrixRouteImport } from './routes/_authenticated/immobilier/parcelles.$plotId.prix'
@@ -90,6 +91,12 @@ const AuthenticatedImmobilierParcellesRoute =
     path: '/immobilier/parcelles',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedImmobilierReservationsRoute =
+  AuthenticatedImmobilierReservationsRouteImport.update({
+    id: '/immobilier/reservations',
+    path: '/immobilier/reservations',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImmobilierTarifsRoute =
   AuthenticatedImmobilierTarifsRouteImport.update({
     id: '/immobilier/tarifs',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
+  '/immobilier/reservations': typeof AuthenticatedImmobilierReservationsRoute
   '/immobilier/tarifs': typeof AuthenticatedImmobilierTarifsRoute
   '/crm/': typeof AuthenticatedCrmIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
+  '/immobilier/reservations': typeof AuthenticatedImmobilierReservationsRoute
   '/immobilier/tarifs': typeof AuthenticatedImmobilierTarifsRoute
   '/crm': typeof AuthenticatedCrmIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/_authenticated/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
+  '/_authenticated/immobilier/reservations': typeof AuthenticatedImmobilierReservationsRoute
   '/_authenticated/immobilier/tarifs': typeof AuthenticatedImmobilierTarifsRoute
   '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
   '/_authenticated/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
+    | '/immobilier/reservations'
     | '/immobilier/tarifs'
     | '/crm/'
     | '/crm/client/$clientId'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
+    | '/immobilier/reservations'
     | '/immobilier/tarifs'
     | '/crm'
     | '/crm/client/$clientId'
@@ -205,6 +217,7 @@ export interface FileRouteTypes {
     | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/lotissements'
     | '/_authenticated/immobilier/parcelles'
+    | '/_authenticated/immobilier/reservations'
     | '/_authenticated/immobilier/tarifs'
     | '/_authenticated/crm/'
     | '/_authenticated/crm/client/$clientId'
@@ -302,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImmobilierParcellesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/immobilier/reservations': {
+      id: '/_authenticated/immobilier/reservations'
+      path: '/immobilier/reservations'
+      fullPath: '/immobilier/reservations'
+      preLoaderRoute: typeof AuthenticatedImmobilierReservationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/immobilier/tarifs': {
       id: '/_authenticated/immobilier/tarifs'
       path: '/immobilier/tarifs'
@@ -351,6 +371,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
   AuthenticatedImmobilierParcellesRoute: typeof AuthenticatedImmobilierParcellesRouteWithChildren
+  AuthenticatedImmobilierReservationsRoute: typeof AuthenticatedImmobilierReservationsRoute
   AuthenticatedImmobilierTarifsRoute: typeof AuthenticatedImmobilierTarifsRoute
   AuthenticatedCrmIndexRoute: typeof AuthenticatedCrmIndexRoute
   AuthenticatedCrmClientClientIdRoute: typeof AuthenticatedCrmClientClientIdRoute
@@ -369,6 +390,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedImmobilierLotissementsRoute,
   AuthenticatedImmobilierParcellesRoute:
     AuthenticatedImmobilierParcellesRouteWithChildren,
+  AuthenticatedImmobilierReservationsRoute:
+    AuthenticatedImmobilierReservationsRoute,
   AuthenticatedImmobilierTarifsRoute: AuthenticatedImmobilierTarifsRoute,
   AuthenticatedCrmIndexRoute: AuthenticatedCrmIndexRoute,
   AuthenticatedCrmClientClientIdRoute: AuthenticatedCrmClientClientIdRoute,

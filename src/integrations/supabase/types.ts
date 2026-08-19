@@ -700,6 +700,57 @@ export type Database = {
         }
         Relationships: []
       }
+      reservations: {
+        Row: {
+          cancellation_reason: string | null
+          client_id: string
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          plot_id: string
+          reminder_sent_at: string | null
+          status: Database["public"]["Enums"]["reservation_status"]
+        }
+        Insert: {
+          cancellation_reason?: string | null
+          client_id: string
+          created_at?: string
+          created_by: string
+          expires_at: string
+          id?: string
+          plot_id: string
+          reminder_sent_at?: string | null
+          status?: Database["public"]["Enums"]["reservation_status"]
+        }
+        Update: {
+          cancellation_reason?: string | null
+          client_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          plot_id?: string
+          reminder_sent_at?: string | null
+          status?: Database["public"]["Enums"]["reservation_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string | null
@@ -958,6 +1009,7 @@ export type Database = {
         | "Vendue"
         | "Bloquée"
         | "Annulée"
+      reservation_status: "active" | "converted" | "expired" | "cancelled"
       sale_status: "reservation" | "en_cours" | "termine" | "annule"
       site_status: "actif" | "inactif" | "termine"
     }
@@ -1120,6 +1172,7 @@ export const Constants = {
         "Bloquée",
         "Annulée",
       ],
+      reservation_status: ["active", "converted", "expired", "cancelled"],
       sale_status: ["reservation", "en_cours", "termine", "annule"],
       site_status: ["actif", "inactif", "termine"],
     },

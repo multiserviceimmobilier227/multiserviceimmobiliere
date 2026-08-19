@@ -7,7 +7,8 @@ import {
   Filter, 
   History,
   Info,
-  ChevronDown
+  ChevronDown,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { useState } from 'react';
+import { ReservationDialog } from '@/components/immobilier/ReservationDialog';
+
 export const Route = createFileRoute('/_authenticated/immobilier/parcelles')({
   component: ParcellesPage,
 });
@@ -43,6 +47,8 @@ const statusColors: Record<string, string> = {
 };
 
 function ParcellesPage() {
+  const [selectedPlot, setSelectedPlot] = useState<{ id: string; number: string } | null>(null);
+
   const { data: plots, isLoading } = useQuery({
     queryKey: ['plots'],
     queryFn: () => getPlots(),
@@ -141,6 +147,17 @@ function ParcellesPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {plot.status === 'Disponible' && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => setSelectedPlot({ id: plot.id, number: plot.plot_number })}
+                          title="Réserver"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
                         <Info className="h-4 w-4" />
                       </Button>
@@ -165,6 +182,14 @@ function ParcellesPage() {
           </TableBody>
         </Table>
       </div>
+      {selectedPlot && (
+        <ReservationDialog
+          isOpen={!!selectedPlot}
+          onClose={() => setSelectedPlot(null)}
+          plotId={selectedPlot.id}
+          plotNumber={selectedPlot.number}
+        />
+      )}
     </div>
   );
 }
