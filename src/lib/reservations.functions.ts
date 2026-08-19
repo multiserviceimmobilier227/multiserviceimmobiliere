@@ -7,7 +7,7 @@ export const getReservations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await enforcePermission(context.userId, 'view_reservations');
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
     
     const { data, error } = await supabase
       .from("reservations")
@@ -45,7 +45,7 @@ export const createReservation = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await enforcePermission(context.userId, 'create_reservation');
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
 
     // Check if plot is available
     const { data: plot, error: plotError } = await supabase
@@ -84,7 +84,7 @@ export const cancelReservation = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await enforcePermission(context.userId, 'manage_reservations');
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
 
     const { error } = await supabase
       .from("reservations")
@@ -103,7 +103,7 @@ export const checkAndExpireReservations = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     // This could be called by an admin or a cron job route
     await enforcePermission(context.userId, 'manage_settings');
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
 
     const now = new Date().toISOString();
     
