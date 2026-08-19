@@ -212,42 +212,130 @@ export type Database = {
         }
         Relationships: []
       }
+      client_documents: {
+        Row: {
+          client_id: string
+          created_at: string
+          created_by: string | null
+          document_type: string
+          file_url: string
+          id: string
+          name: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          document_type: string
+          file_url: string
+          id?: string
+          name: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          document_type?: string
+          file_url?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_interactions: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          interaction_date: string
+          interaction_type: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_interactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
+          civilite: string | null
           created_at: string
+          date_naissance: string | null
           email: string | null
           first_name: string
           id: string
           id_number: string | null
           id_type: Database["public"]["Enums"]["id_type"]
           last_name: string
+          lieu_naissance: string | null
+          nationalite: string | null
           occupation: string | null
           phone: string
           updated_at: string
         }
         Insert: {
           address?: string | null
+          civilite?: string | null
           created_at?: string
+          date_naissance?: string | null
           email?: string | null
           first_name: string
           id?: string
           id_number?: string | null
           id_type?: Database["public"]["Enums"]["id_type"]
           last_name: string
+          lieu_naissance?: string | null
+          nationalite?: string | null
           occupation?: string | null
           phone: string
           updated_at?: string
         }
         Update: {
           address?: string | null
+          civilite?: string | null
           created_at?: string
+          date_naissance?: string | null
           email?: string | null
           first_name?: string
           id?: string
           id_number?: string | null
           id_type?: Database["public"]["Enums"]["id_type"]
           last_name?: string
+          lieu_naissance?: string | null
+          nationalite?: string | null
           occupation?: string | null
           phone?: string
           updated_at?: string
