@@ -16,9 +16,11 @@ import { Route as AuthenticatedAdminAgencesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
 import { Route as AuthenticatedImmobilierParcellesRouteImport } from './routes/_authenticated/immobilier/parcelles'
+import { Route as AuthenticatedCrmClientClientIdRouteImport } from './routes/_authenticated/crm/client.$clientId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -56,6 +58,11 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCrmIndexRoute = AuthenticatedCrmIndexRouteImport.update({
+  id: '/crm/',
+  path: '/crm/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedImmobilierAcquisitionsRoute =
   AuthenticatedImmobilierAcquisitionsRouteImport.update({
     id: '/immobilier/acquisitions',
@@ -74,6 +81,12 @@ const AuthenticatedImmobilierParcellesRoute =
     path: '/immobilier/parcelles',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCrmClientClientIdRoute =
+  AuthenticatedCrmClientClientIdRouteImport.update({
+    id: '/crm/client/$clientId',
+    path: '/crm/client/$clientId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -85,6 +98,8 @@ export interface FileRoutesByFullPath {
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
+  '/crm/': typeof AuthenticatedCrmIndexRoute
+  '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -96,6 +111,8 @@ export interface FileRoutesByTo {
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
+  '/crm': typeof AuthenticatedCrmIndexRoute
+  '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,6 +126,8 @@ export interface FileRoutesById {
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/_authenticated/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
+  '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
+  '/_authenticated/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -122,6 +141,8 @@ export interface FileRouteTypes {
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
+    | '/crm/'
+    | '/crm/client/$clientId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -133,6 +154,8 @@ export interface FileRouteTypes {
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
+    | '/crm'
+    | '/crm/client/$clientId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -145,6 +168,8 @@ export interface FileRouteTypes {
     | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/lotissements'
     | '/_authenticated/immobilier/parcelles'
+    | '/_authenticated/crm/'
+    | '/_authenticated/crm/client/$clientId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -203,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/crm/': {
+      id: '/_authenticated/crm/'
+      path: '/crm'
+      fullPath: '/crm/'
+      preLoaderRoute: typeof AuthenticatedCrmIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/immobilier/acquisitions': {
       id: '/_authenticated/immobilier/acquisitions'
       path: '/immobilier/acquisitions'
@@ -224,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImmobilierParcellesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/crm/client/$clientId': {
+      id: '/_authenticated/crm/client/$clientId'
+      path: '/crm/client/$clientId'
+      fullPath: '/crm/client/$clientId'
+      preLoaderRoute: typeof AuthenticatedCrmClientClientIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -236,6 +275,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
   AuthenticatedImmobilierParcellesRoute: typeof AuthenticatedImmobilierParcellesRoute
+  AuthenticatedCrmIndexRoute: typeof AuthenticatedCrmIndexRoute
+  AuthenticatedCrmClientClientIdRoute: typeof AuthenticatedCrmClientClientIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -249,6 +290,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedImmobilierLotissementsRoute:
     AuthenticatedImmobilierLotissementsRoute,
   AuthenticatedImmobilierParcellesRoute: AuthenticatedImmobilierParcellesRoute,
+  AuthenticatedCrmIndexRoute: AuthenticatedCrmIndexRoute,
+  AuthenticatedCrmClientClientIdRoute: AuthenticatedCrmClientClientIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
