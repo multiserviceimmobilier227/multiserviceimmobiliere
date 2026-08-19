@@ -106,7 +106,9 @@ export const addClientInteraction = createServerFn({ method: "POST" })
     interaction_date: z.string().optional(),
   }).parse(data))
   .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const { data: userRes } = await supabase.auth.getUser();
     const { data: interaction, error } = await supabase
       .from("client_interactions")
