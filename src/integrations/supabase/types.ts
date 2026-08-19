@@ -284,10 +284,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "pdg"
+        | "comptable"
+        | "secretaire"
+        | "commercial"
+        | "responsable_agence"
+        | "informaticien"
+        | "client"
       id_type: "cni" | "passeport" | "permis" | "autre"
       payment_method: "espece" | "virement" | "cheque" | "mobile_money"
       plot_status: "disponible" | "reserve" | "vendu" | "litige"
@@ -420,7 +436,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "pdg",
+        "comptable",
+        "secretaire",
+        "commercial",
+        "responsable_agence",
+        "informaticien",
+        "client",
+      ],
       id_type: ["cni", "passeport", "permis", "autre"],
       payment_method: ["espece", "virement", "cheque", "mobile_money"],
       plot_status: ["disponible", "reserve", "vendu", "litige"],
