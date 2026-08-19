@@ -108,8 +108,8 @@ export function AppShell() {
 
           {/* Bottom section */}
           <div className="border-t p-4">
-            <NavItem to="/" icon={SettingsIcon}>Paramètres</NavItem>
-            <Button variant="ghost" className="mt-2 w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
+            <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
+
               <LogOut className="h-4 w-4" />
               Déconnexion
             </Button>
