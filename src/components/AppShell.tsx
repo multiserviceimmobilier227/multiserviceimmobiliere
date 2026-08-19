@@ -54,6 +54,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {checkPermission('view_lotissements') && (
             <NavItem to="/immobilier/parcelles" icon={Building2} label="Parcelles & Lots" onClick={onItemClick} />
           )}
+          {checkPermission('view_reservations') && (
+            <NavItem to="/immobilier/reservations" icon={Calendar} label="Réservations" onClick={onItemClick} />
+          )}
           {checkPermission('view_tarifs') && (
             <NavItem to="/immobilier/tarifs" icon={Settings} label="Tarifs & Prix" onClick={onItemClick} />
           )}
