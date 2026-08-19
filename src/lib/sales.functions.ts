@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { enforcePermission, hasPermission } from "./permissions.server";
+import { enforcePermission, verifyPermission } from "./permissions.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const saleSchema = z.object({
@@ -139,7 +139,7 @@ export const validateSaleAdjustment = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data, context }) => {
     // Vérification stricte du rôle PDG ou Admin pour la validation
-    const canValidate = await hasPermission(context.userId, 'validate_sensitive_op');
+    const canValidate = await verifyPermission(context.userId, 'validate_sensitive_op');
     if (!canValidate) throw new Error("Seul le PDG ou un Administrateur peut valider cette opération");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
