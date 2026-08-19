@@ -49,7 +49,11 @@ export function PaymentScheduleEditor({
       // Adjust last installment for rounding
       const sum = newSchedules.reduce((acc, curr) => acc + curr.amount_due, 0);
       if (sum !== remainingAmount && newSchedules.length > 0) {
-        newSchedules[newSchedules.length - 1].amount_due += (remainingAmount - sum);
+        const lastIndex = newSchedules.length - 1;
+        const lastInstallment = newSchedules[lastIndex];
+        if (lastInstallment) {
+          lastInstallment.amount_due += (remainingAmount - sum);
+        }
       }
       
       setSchedules(newSchedules);
@@ -60,7 +64,10 @@ export function PaymentScheduleEditor({
   const handleAmountChange = (index: number, value: number) => {
     setIsManual(true);
     const newSchedules = [...schedules];
-    newSchedules[index].amount_due = value;
+    const schedule = newSchedules[index];
+    if (schedule) {
+      schedule.amount_due = value;
+    }
     setSchedules(newSchedules);
     onChange(newSchedules);
   };
@@ -68,15 +75,19 @@ export function PaymentScheduleEditor({
   const handleDateChange = (index: number, value: string) => {
     setIsManual(true);
     const newSchedules = [...schedules];
-    newSchedules[index].due_date = value;
+    const schedule = newSchedules[index];
+    if (schedule) {
+      schedule.due_date = value;
+    }
     setSchedules(newSchedules);
     onChange(newSchedules);
   };
 
   const addInstallment = () => {
     setIsManual(true);
-    const lastDate = schedules.length > 0 
-      ? new Date(schedules[schedules.length - 1].due_date)
+    const lastSchedule = schedules[schedules.length - 1];
+    const lastDate = (schedules.length > 0 && lastSchedule)
+      ? new Date(lastSchedule.due_date)
       : (firstPaymentDate ? new Date(firstPaymentDate) : new Date());
     
     const newSchedules = [
