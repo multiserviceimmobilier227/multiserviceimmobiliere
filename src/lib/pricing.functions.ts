@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getPriceTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const { data, error } = await supabase
       .from("price_templates")
       .select("*")
@@ -30,6 +31,7 @@ export const upsertPriceTemplate = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     // Exact optional property types fix
     const payload = {
       name: data.name,
@@ -49,6 +51,7 @@ export const getPlotPricingHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ plotId: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const { data: history, error } = await supabase
       .from("plot_pricing")
       .select(`
@@ -76,6 +79,7 @@ export const preparePlotPricing = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data, context }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     // Exact optional property types fix
     const payload = {
       plot_id: data.plot_id,
@@ -104,6 +108,7 @@ export const validatePlotPricing = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data, context }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const { error: validationError } = await supabase
       .from("plot_pricing")
       .update({

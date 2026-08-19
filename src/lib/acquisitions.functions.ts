@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
 import { Database } from "@/integrations/supabase/types";
 
 type AcquisitionCostCategory = Database["public"]["Enums"]["acquisition_cost_category"];
@@ -25,6 +25,7 @@ const costSchema = z.object({
 
 export const getAcquisitions = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("acquisitions")
       .select(`
@@ -42,6 +43,7 @@ export const getAcquisitions = createServerFn({ method: "GET" })
 export const createAcquisition = createServerFn({ method: "POST" })
   .validator((data: unknown) => acquisitionSchema.parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = {
       lotissement_id: input.lotissement_id ?? null,
       plot_id: input.plot_id ?? null,
@@ -64,6 +66,7 @@ export const createAcquisition = createServerFn({ method: "POST" })
 export const addAcquisitionCost = createServerFn({ method: "POST" })
   .validator((data: unknown) => costSchema.parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = {
       acquisition_id: input.acquisition_id,
       category: input.category as AcquisitionCostCategory,
@@ -85,6 +88,7 @@ export const addAcquisitionCost = createServerFn({ method: "POST" })
 
 export const getProfitabilityReport = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("lotissement_profitability")
       .select("*");
