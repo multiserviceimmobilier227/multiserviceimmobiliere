@@ -60,14 +60,14 @@ export const generateContract = createServerFn({ method: "POST" })
       ilot_number: sale.plot.ilot?.numero,
       zone_name: sale.plot.ilot?.zone?.name,
       lotissement_name: sale.plot.ilot?.zone?.lotissement?.name,
-      surface: sale.plot.surface
+      surface: sale.plot.surface_area
     };
 
     const frozenPrice = {
       total_price: sale.total_price,
       down_payment: sale.down_payment,
       balance: sale.balance,
-      payment_plan_type: sale.payment_plan_type
+      payment_plan_type: (sale as any).payment_plan_type || 'comptant'
     };
 
     // Create contract draft
