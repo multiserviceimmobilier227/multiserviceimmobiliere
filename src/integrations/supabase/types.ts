@@ -89,6 +89,47 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          payment_date: string
+          reference: string | null
+          sale_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          payment_date?: string
+          reference?: string | null
+          sale_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          payment_date?: string
+          reference?: string | null
+          sale_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plots: {
         Row: {
           base_price: number
@@ -129,6 +170,60 @@ export type Database = {
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          balance: number
+          client_id: string
+          created_at: string
+          down_payment: number | null
+          id: string
+          plot_id: string
+          sale_date: string
+          status: Database["public"]["Enums"]["sale_status"]
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          balance: number
+          client_id: string
+          created_at?: string
+          down_payment?: number | null
+          id?: string
+          plot_id: string
+          sale_date?: string
+          status?: Database["public"]["Enums"]["sale_status"]
+          total_price: number
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          client_id?: string
+          created_at?: string
+          down_payment?: number | null
+          id?: string
+          plot_id?: string
+          sale_date?: string
+          status?: Database["public"]["Enums"]["sale_status"]
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
             referencedColumns: ["id"]
           },
         ]
@@ -194,7 +289,9 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       id_type: "cni" | "passeport" | "permis" | "autre"
+      payment_method: "espece" | "virement" | "cheque" | "mobile_money"
       plot_status: "disponible" | "reserve" | "vendu" | "litige"
+      sale_status: "reservation" | "en_cours" | "termine" | "annule"
       site_status: "actif" | "inactif" | "termine"
     }
     CompositeTypes: {
@@ -325,7 +422,9 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       id_type: ["cni", "passeport", "permis", "autre"],
+      payment_method: ["espece", "virement", "cheque", "mobile_money"],
       plot_status: ["disponible", "reserve", "vendu", "litige"],
+      sale_status: ["reservation", "en_cours", "termine", "annule"],
       site_status: ["actif", "inactif", "termine"],
     },
   },
