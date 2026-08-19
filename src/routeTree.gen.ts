@@ -16,6 +16,7 @@ import { Route as AuthenticatedAdminAgencesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
 import { Route as AuthenticatedImmobilierParcellesRouteImport } from './routes/_authenticated/immobilier/parcelles'
 
@@ -55,6 +56,12 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedImmobilierAcquisitionsRoute =
+  AuthenticatedImmobilierAcquisitionsRouteImport.update({
+    id: '/immobilier/acquisitions',
+    path: '/immobilier/acquisitions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImmobilierLotissementsRoute =
   AuthenticatedImmobilierLotissementsRouteImport.update({
     id: '/immobilier/lotissements',
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
 }
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/_authenticated/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRoute
 }
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
   fileRoutesByTo: FileRoutesByTo
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
   id:
@@ -130,6 +142,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/lotissements'
     | '/_authenticated/immobilier/parcelles'
   fileRoutesById: FileRoutesById
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/immobilier/acquisitions': {
+      id: '/_authenticated/immobilier/acquisitions'
+      path: '/immobilier/acquisitions'
+      fullPath: '/immobilier/acquisitions'
+      preLoaderRoute: typeof AuthenticatedImmobilierAcquisitionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/immobilier/lotissements': {
       id: '/_authenticated/immobilier/lotissements'
       path: '/immobilier/lotissements'
@@ -213,6 +233,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
   AuthenticatedImmobilierParcellesRoute: typeof AuthenticatedImmobilierParcellesRoute
 }
@@ -223,6 +244,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedImmobilierAcquisitionsRoute:
+    AuthenticatedImmobilierAcquisitionsRoute,
   AuthenticatedImmobilierLotissementsRoute:
     AuthenticatedImmobilierLotissementsRoute,
   AuthenticatedImmobilierParcellesRoute: AuthenticatedImmobilierParcellesRoute,
