@@ -215,25 +215,68 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
     // Get current sale to calculate new balance
     const { data: sale } = await supabase
       .from("sales")
-      .select("deposit_amount, total_amount")
+      .select("deposit_amount, total_amount, balance")
       .eq("id", data.saleId)
       .single();
-
+    
     if (!sale) throw new Error("Vente non trouvée");
 
-    // We assume the total_price/total_amount logic
+    const newBalance = data.newTotalAmount - (sale.deposit_amount || 0);
+
+    // 1. Update the sale
     const { error: updateError } = await supabase
       .from("sales")
       .update({
         total_amount: data.newTotalAmount,
         total_price: data.newTotalAmount,
         final_price: data.newTotalAmount,
-        balance: data.newTotalAmount - (sale.deposit_amount || 0),
+        balance: newBalance,
         updated_at: new Date().toISOString()
       })
       .eq("id", data.saleId);
 
     if (updateError) throw new Error(updateError.message);
+
+    // 2. MSI 2.0 Phase 10: Recalculate unpaid schedules
+    // Find unpaid schedules
+    const { data: unpaidSchedules } = await supabase
+      .from("payment_schedules")
+      .select("*")
+      .eq("sale_id", data.saleId)
+      .neq("status", "Payé")
+      .order("due_date", { ascending: true });
+
+    if (unpaidSchedules && unpaidSchedules.length > 0) {
+      // Calculate how much is already paid across all schedules
+      const { data: allSchedules } = await supabase
+        .from("payment_schedules")
+        .select("amount_paid")
+        .eq("sale_id", data.saleId);
+      
+      const totalAlreadyPaid = allSchedules?.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
+      const remainingToSchedule = data.newTotalAmount - (sale.deposit_amount || 0) - totalAlreadyPaid;
+      
+      if (remainingToSchedule > 0) {
+        const monthlyAmount = Math.round(remainingToSchedule / unpaidSchedules.length);
+        let distributed = 0;
+        
+        for (let i = 0; i < unpaidSchedules.length; i++) {
+          const schedule = unpaidSchedules[i];
+          const isLast = i === unpaidSchedules.length - 1;
+          const newAmount = isLast ? (remainingToSchedule - distributed) : monthlyAmount;
+          
+          await supabase
+            .from("payment_schedules")
+            .update({ 
+              amount_due: newAmount + (Number(schedule.amount_paid) || 0),
+              status: (Number(schedule.amount_paid) || 0) >= (newAmount + (Number(schedule.amount_paid) || 0)) ? "Payé" : (Number(schedule.amount_paid) > 0 ? "Partiel" : "En attente")
+            })
+            .eq("id", schedule.id);
+          
+          distributed += monthlyAmount;
+        }
+      }
+    }
 
     return { success: true };
   });
