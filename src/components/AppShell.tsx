@@ -66,8 +66,9 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
       </h2>
       <div className="space-y-1">
         <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
-        <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
+        <NavItem to="/ventes/liste" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
         <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
+
       </div>
     </div>
 
