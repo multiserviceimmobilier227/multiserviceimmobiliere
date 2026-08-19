@@ -98,8 +98,10 @@ export function AppShell({ children }: { children?: ReactNode }) {
                 </h2>
                 <div className="space-y-1">
                   <NavItem to="/admin/users" icon={Users}>Utilisateurs</NavItem>
+                  <NavItem to="/admin/agences" icon={Building2}>Agences</NavItem>
                   <NavItem to="/admin/audit" icon={History}>Journal d'Audit</NavItem>
-                  <NavItem to="/" icon={SettingsIcon}>Paramètres</NavItem>
+                  <NavItem to="/admin/settings" icon={SettingsIcon}>Paramètres</NavItem>
+
                 </div>
               </div>
 
