@@ -24,6 +24,17 @@ function AuthComponent() {
   const navigate = useNavigate()
   const search = useSearch({ from: '/auth' })
 
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        navigate({ to: search.redirect || '/' })
+      }
+    }
+    checkSession()
+  }, [navigate, search.redirect])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
