@@ -135,7 +135,7 @@ export function LotissementFormDialog({ open, onOpenChange }: LotissementFormDia
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {agences?.map((agence) => (
+                      {agences?.map((agence: any) => (
                         <SelectItem key={agence.id} value={agence.id}>
                           {agence.name} ({agence.city})
                         </SelectItem>

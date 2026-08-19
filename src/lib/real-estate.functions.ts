@@ -166,7 +166,11 @@ export const createZone = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("zones")
-      .insert(input)
+      .insert({
+        name: input.name,
+        lotissement_id: input.lotissement_id,
+        description: input.description ?? null,
+      })
       .select()
       .single();
     
@@ -207,7 +211,7 @@ export const createPlot = createServerFn({ method: "POST" })
       .from("plots")
       .insert({
         ...input,
-        status: input.status || "Disponible"
+        status: (input.status || "Disponible") as PlotStatus
       })
       .select()
       .single();
