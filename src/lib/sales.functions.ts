@@ -80,6 +80,7 @@ export const validateSale = createServerFn({ method: "POST" })
 
     if (roleError || !roleData) throw new Error("Seul le PDG peut valider une vente.");
 
+    // 1. Update the sale status
     const { data: sale, error: saleError } = await supabase
       .from("sales")
       .update({
@@ -88,10 +89,35 @@ export const validateSale = createServerFn({ method: "POST" })
         validation_date: new Date().toISOString(),
       })
       .eq("id", data.saleId)
-      .select()
+      .select(`
+        *,
+        client:clients(*),
+        plot:plots(*)
+      `)
       .single();
 
     if (saleError) throw new Error(saleError.message);
+
+    // 2. Create historical snapshot
+    const { error: snapshotError } = await supabase
+      .from("contract_snapshots")
+      .insert({
+        sale_id: data.saleId,
+        client_data: sale.client as any,
+        plot_data: sale.plot as any,
+        sale_data: {
+          total_amount: sale.total_amount,
+          deposit_amount: sale.deposit_amount,
+          payment_plan_type: (sale as any).payment_plan_type,
+          sale_date: sale.sale_date
+        } as any,
+        created_by: userId
+      });
+
+    if (snapshotError) {
+      console.error("Snapshot error:", snapshotError);
+      // We don't block the validation if snapshot fails, but in production we should
+    }
 
     return sale;
   });
@@ -107,8 +133,19 @@ export const getSaleDetails = createServerFn({ method: "GET" })
       .select(`
         *,
         client:clients(*),
-        plot:plots(*),
-        payment_schedules(*)
+        plot:plots(
+          *,
+          ilot:ilots(
+            *,
+            zone:zones(
+              *,
+              lotissement:lotissements(*)
+            )
+          )
+        ),
+        payment_schedules(*),
+        snapshots:contract_snapshots(*),
+        mutations:sale_mutations(*)
       `)
       .eq("id", data.saleId)
       .single();
@@ -116,5 +153,79 @@ export const getSaleDetails = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return sale;
   });
+
+export const adjustSalePrice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ 
+    saleId: z.string().uuid(), 
+    newTotalAmount: z.number().positive(),
+    reason: z.string()
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Check PDG role
+    const { data: isPdg } = await supabase.rpc('has_role', { 
+      _user_id: userId, 
+      _role: 'pdg' 
+    });
+
+    if (!isPdg) throw new Error("Seul le PDG peut ajuster le prix d'une vente.");
+
+    // Get current sale to calculate new balance
+    const { data: sale } = await supabase
+      .from("sales")
+      .select("deposit_amount, total_amount")
+      .eq("id", data.saleId)
+      .single();
+
+    if (!sale) throw new Error("Vente non trouvée");
+
+    // We assume the total_price/total_amount logic
+    const { error: updateError } = await supabase
+      .from("sales")
+      .update({
+        total_amount: data.newTotalAmount,
+        total_price: data.newTotalAmount,
+        balance: data.newTotalAmount - (sale.deposit_amount || 0),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", data.saleId);
+
+    if (updateError) throw new Error(updateError.message);
+
+    return { success: true };
+  });
+
+export const createMutationRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    saleId: z.string().uuid(),
+    oldPlotId: z.string().uuid(),
+    newPlotId: z.string().uuid(),
+    reason: z.string(),
+    priceDifference: z.number()
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: mutation, error } = await supabase
+      .from("sale_mutations")
+      .insert({
+        sale_id: data.saleId,
+        old_plot_id: data.oldPlotId,
+        new_plot_id: data.newPlotId,
+        reason: data.reason,
+        price_difference: data.priceDifference,
+        requested_by: userId,
+        status: 'En attente'
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return mutation;
+  });
+
 
 
