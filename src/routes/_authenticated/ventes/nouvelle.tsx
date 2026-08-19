@@ -40,6 +40,7 @@ function NewSaleComponent() {
     durationMonths: 15, // Default for MSI 2.0 Phase 10
     firstPaymentDate: format(new Date(), 'yyyy-MM-dd'),
     customSchedules: [] as any[],
+    justification: '',
   })
 
   useEffect(() => {
