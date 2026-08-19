@@ -172,7 +172,7 @@ export function PaymentScheduleEditor({
           <TableBody>
             {schedules.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
+                <TableCell className="font-bold text-muted-foreground">M{index + 1}</TableCell>
                 <TableCell>
                   <Input 
                     type="date" 

@@ -15,6 +15,7 @@ import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, UserPlus, Calendar } from
 import { PaymentScheduleEditor } from '@/components/ventes/PaymentScheduleEditor'
 import { ClientFormDialog } from '@/components/crm/ClientFormDialog'
 import { z } from 'zod'
+import { Check, AlertCircle } from 'lucide-react'
 
 const searchSchema = z.object({
   clientId: z.string().uuid().optional(),
@@ -314,7 +315,10 @@ function NewSaleComponent() {
                   onClick={() => mutation.mutate({ data: formData })}
                 >
 
-                  {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
+                    formData.paymentPlanType === 'Échéancier' && formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount) ? 
+                    <AlertCircle className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />
+                  )}
                   Valider le brouillon
                 </Button>
               </div>
