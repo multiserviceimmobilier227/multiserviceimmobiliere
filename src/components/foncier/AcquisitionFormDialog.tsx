@@ -51,8 +51,8 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
       onOpenChange(false);
       form.reset();
     },
-    onError: (error) => {
-      toast.error("Erreur : " + (error as Error).message);
+    onError: (error: any) => {
+      toast.error("Erreur : " + error.message);
     }
   });
 
