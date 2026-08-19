@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const clientSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
-  email: z.string().email().optional().nullable(),
+  email: z.string().email().optional().nullable().or(z.literal("")),
   phone: z.string().min(1),
   address: z.string().optional().nullable(),
   id_type: z.enum(["cni", "passeport", "permis", "autre"]),
