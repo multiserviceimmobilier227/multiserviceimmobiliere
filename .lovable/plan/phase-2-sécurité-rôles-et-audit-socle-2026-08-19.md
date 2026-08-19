@@ -13,17 +13,19 @@ Mise en place du système de gestion des accès et de la traçabilité des opér
    - [x] Table `user_roles` avec contraintes.
    - [x] Table `audit_logs` universelle.
    - [x] Fonctions de sécurité (`has_role`, `process_audit_log`).
-   - [ ] Mise à jour des permissions (seul l'informaticien gère les rôles).
+   - [x] Mise à jour des permissions (seul l'informaticien gère les rôles).
+   - [x] Sécurisation des fonctions DB et restriction des droits d'exécution.
 
 2. **Backend : Server Functions**
-   - [ ] Gestion des utilisateurs (liste, attribution de rôle).
-   - [ ] Lecture du journal d'audit.
-   - [ ] Middleware de vérification de rôle.
+   - [x] Gestion des utilisateurs (liste, attribution de rôle).
+   - [x] Lecture du journal d'audit.
+   - [x] Vérification de rôle (RPC sécurisée via admin client).
 
 3. **Frontend : Interface Admin**
-   - [ ] Page `/admin/users` : Gestion des profils et rôles.
-   - [ ] Page `/admin/audit` : Visualisation chronologique des actions.
-   - [ ] Intégration dans `AppShell`.
+   - [x] Page `/admin/users` : Gestion des profils et rôles.
+   - [x] Page `/admin/audit` : Visualisation chronologique des actions.
+   - [x] Intégration dans `AppShell`.
+
 
 ## Détails Techniques
 - Les rôles sont gérés via une table séparée pour éviter les escalades de privilèges.
