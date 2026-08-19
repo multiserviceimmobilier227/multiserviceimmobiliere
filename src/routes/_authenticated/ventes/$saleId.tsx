@@ -83,7 +83,7 @@ function SaleDetailsComponent() {
             <div className="text-xl font-bold">{sale.client?.first_name} {sale.client?.last_name}</div>
             <p className="text-xs text-muted-foreground mt-1">{sale.client?.phone}</p>
             <Button variant="link" className="p-0 h-auto text-xs mt-2" asChild>
-              <Link to={`/crm/client/${sale.client?.id}`}>Voir profil 360°</Link>
+              <Link to="/crm/client/$clientId" params={{ clientId: sale.client?.id || '' }}>Voir profil 360°</Link>
             </Button>
           </CardContent>
         </Card>
