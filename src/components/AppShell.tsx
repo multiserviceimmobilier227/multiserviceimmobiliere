@@ -123,8 +123,8 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
         </div>
       </div>
     )}
-  </nav>
-);
+  )
+}
 
 
 export function AppShell({ children }: { children?: ReactNode }) {
