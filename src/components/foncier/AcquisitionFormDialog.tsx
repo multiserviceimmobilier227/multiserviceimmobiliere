@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-
 const acquisitionSchema = z.object({
   vendeur: z.string().min(1, "Vendeur requis"),
   date_achat: z.string().min(1, "Date requise"),
@@ -65,11 +64,10 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
       vendeur: "", 
       date_achat: new Date().toISOString().split('T')[0], 
       prix_principal: 0,
-      lotissement_id: null as any,
-      plot_id: null as any,
+      lotissement_id: null,
+      plot_id: null,
     },
   });
-
 
   const mutation = useMutation({
     mutationFn: (values: FormValues) => createAcq({ data: { ...values, status: 'En attente' } }),
@@ -97,7 +95,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,7 +109,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                   <FormItem>
                     <FormLabel>Date d'achat</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,6 +125,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                       <Input 
                         type="number" 
                         {...field} 
+                        value={field.value || 0}
                         onChange={(e) => field.onChange(Number(e.target.value))} 
                       />
                     </FormControl>
