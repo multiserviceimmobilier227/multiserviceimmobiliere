@@ -1083,6 +1083,7 @@ export type Database = {
           final_price: number | null
           first_payment_date: string | null
           id: string
+          notes: string | null
           plot_id: string
           prepared_by_id: string | null
           price_validated_by_id: string | null
@@ -1107,6 +1108,7 @@ export type Database = {
           final_price?: number | null
           first_payment_date?: string | null
           id?: string
+          notes?: string | null
           plot_id: string
           prepared_by_id?: string | null
           price_validated_by_id?: string | null
@@ -1131,6 +1133,7 @@ export type Database = {
           final_price?: number | null
           first_payment_date?: string | null
           id?: string
+          notes?: string | null
           plot_id?: string
           prepared_by_id?: string | null
           price_validated_by_id?: string | null

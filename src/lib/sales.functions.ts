@@ -9,15 +9,16 @@ const createSaleSchema = z.object({
   totalAmount: z.number().positive(),
   depositAmount: z.number().nonnegative(),
   paymentPlanType: z.enum(["Comptant", "Échéancier"]),
-  durationMonths: z.number().int().min(1).max(120).optional(),
-  agencyId: z.string().uuid().optional(),
-  firstPaymentDate: z.string().optional(),
-  customSchedules: z.array(z.object({
-    due_date: z.string(),
-    amount_due: z.number().positive(),
-    notes: z.string().optional()
-  })).optional()
-});
+   durationMonths: z.number().int().min(0).max(120).optional(),
+   agencyId: z.string().uuid().optional(),
+   firstPaymentDate: z.string().optional(),
+   justification: z.string().optional(),
+   customSchedules: z.array(z.object({
+     due_date: z.string(),
+     amount_due: z.number().positive(),
+     notes: z.string().optional()
+   })).optional()
+ });
 
 export const createSaleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -37,21 +38,22 @@ export const createSaleDraft = createServerFn({ method: "POST" })
       throw new Error("Client invalide ou inexistant.");
     }
 
-    const { data: sale, error: saleError } = await supabase
-      .from("sales")
-      .insert({
-        client_id: data.clientId,
-        plot_id: data.plotId,
-        total_amount: data.totalAmount,
-        total_price: data.totalAmount,
-        balance: data.totalAmount - data.depositAmount,
-        deposit_amount: data.depositAmount,
-        agency_id: data.agencyId ?? null,
-        prepared_by_id: userId,
-        status: "reservation",
-        sale_date: format(new Date(), "yyyy-MM-dd"),
-        first_payment_date: data.firstPaymentDate || null,
-      })
+     const { data: sale, error: saleError } = await supabase
+       .from("sales")
+       .insert({
+         client_id: data.clientId,
+         plot_id: data.plotId,
+         total_amount: data.totalAmount,
+         total_price: data.totalAmount,
+         balance: data.totalAmount - data.depositAmount,
+         deposit_amount: data.depositAmount,
+         agency_id: data.agencyId ?? null,
+         prepared_by_id: userId,
+         status: "reservation",
+         sale_date: format(new Date(), "yyyy-MM-dd"),
+         first_payment_date: data.firstPaymentDate || null,
+         notes: data.justification || null
+       })
 
       .select()
       .single();
@@ -213,25 +215,71 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
     // Get current sale to calculate new balance
     const { data: sale } = await supabase
       .from("sales")
-      .select("deposit_amount, total_amount")
+      .select("deposit_amount, total_amount, balance")
       .eq("id", data.saleId)
       .single();
-
+    
     if (!sale) throw new Error("Vente non trouvée");
 
-    // We assume the total_price/total_amount logic
+    const newBalance = data.newTotalAmount - (sale.deposit_amount || 0);
+
+    // 1. Update the sale
     const { error: updateError } = await supabase
       .from("sales")
       .update({
         total_amount: data.newTotalAmount,
         total_price: data.newTotalAmount,
         final_price: data.newTotalAmount,
-        balance: data.newTotalAmount - (sale.deposit_amount || 0),
+        balance: newBalance,
         updated_at: new Date().toISOString()
       })
       .eq("id", data.saleId);
 
     if (updateError) throw new Error(updateError.message);
+
+    // 2. MSI 2.0 Phase 10: Recalculate unpaid schedules
+    // Find unpaid schedules
+    const { data: unpaidSchedules } = await supabase
+      .from("payment_schedules")
+      .select("*")
+      .eq("sale_id", data.saleId)
+      .neq("status", "Payé")
+      .order("due_date", { ascending: true });
+
+    if (unpaidSchedules && unpaidSchedules.length > 0) {
+      // Calculate how much is already paid across all schedules
+      const { data: allSchedules } = await supabase
+        .from("payment_schedules")
+        .select("amount_paid")
+        .eq("sale_id", data.saleId);
+      
+      const totalAlreadyPaid = allSchedules?.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
+      const remainingToSchedule = data.newTotalAmount - (sale.deposit_amount || 0) - totalAlreadyPaid;
+      
+      if (remainingToSchedule > 0) {
+        const monthlyAmount = Math.round(remainingToSchedule / unpaidSchedules.length);
+        let distributed = 0;
+        
+        for (let i = 0; i < unpaidSchedules.length; i++) {
+          const schedule = unpaidSchedules[i];
+          if (!schedule) continue;
+          
+          const isLast = i === unpaidSchedules.length - 1;
+          const currentPaid = Number(schedule.amount_paid) || 0;
+          const newAmountDue = isLast ? (remainingToSchedule - distributed) + currentPaid : monthlyAmount + currentPaid;
+          
+          await supabase
+            .from("payment_schedules")
+            .update({ 
+              amount_due: newAmountDue,
+              status: currentPaid >= newAmountDue ? "Payé" : (currentPaid > 0 ? "Partiel" : "En attente")
+            })
+            .eq("id", schedule.id);
+          
+          distributed += monthlyAmount;
+        }
+      }
+    }
 
     return { success: true };
   });

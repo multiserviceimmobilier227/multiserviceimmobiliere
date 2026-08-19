@@ -15,6 +15,7 @@ import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, UserPlus, Calendar } from
 import { PaymentScheduleEditor } from '@/components/ventes/PaymentScheduleEditor'
 import { ClientFormDialog } from '@/components/crm/ClientFormDialog'
 import { z } from 'zod'
+import { Check, AlertCircle } from 'lucide-react'
 
 const searchSchema = z.object({
   clientId: z.string().uuid().optional(),
@@ -40,6 +41,7 @@ function NewSaleComponent() {
     durationMonths: 15, // Default for MSI 2.0 Phase 10
     firstPaymentDate: format(new Date(), 'yyyy-MM-dd'),
     customSchedules: [] as any[],
+    justification: '',
   })
 
   useEffect(() => {
@@ -257,8 +259,8 @@ function NewSaleComponent() {
                     <div className="space-y-2">
                       <Label>Durée de l'échéancier (mois)</Label>
                       <Select 
-                        value={formData.durationMonths.toString()} 
-                        onValueChange={(val) => setFormData(prev => ({ ...prev, durationMonths: Number(val) }))}
+                        value={formData.durationMonths === 0 ? "custom" : formData.durationMonths.toString()} 
+                        onValueChange={(val) => setFormData(prev => ({ ...prev, durationMonths: val === "custom" ? 0 : Number(val) }))}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -268,10 +270,24 @@ function NewSaleComponent() {
                           <SelectItem value="20">Étendu (20 mois)</SelectItem>
                           <SelectItem value="12">Court (12 mois)</SelectItem>
                           <SelectItem value="24">Long (24 mois)</SelectItem>
+                          <SelectItem value="custom">Exceptionnel (Justification requise)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
+
+                  {formData.durationMonths === 0 && (
+                    <div className="space-y-2 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                      <Label htmlFor="justification" className="text-orange-800">Note de justification (Exceptionnel)</Label>
+                      <Input 
+                        id="justification"
+                        placeholder="Expliquez pourquoi cette durée ou ce plan est exceptionnel..."
+                        value={formData.justification}
+                        onChange={(e) => setFormData(prev => ({ ...prev, justification: e.target.value }))}
+                        className="border-orange-300 focus-visible:ring-orange-500"
+                      />
+                    </div>
+                  )}
 
                   <PaymentScheduleEditor 
                     totalAmount={formData.totalAmount}
@@ -289,11 +305,20 @@ function NewSaleComponent() {
                 </Button>
                 <Button 
                   className="flex-1 bg-green-600 hover:bg-green-700" 
-                  disabled={mutation.isPending || (formData.paymentPlanType === 'Échéancier' && formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount))} 
+                  disabled={
+                    mutation.isPending || 
+                    (formData.paymentPlanType === 'Échéancier' && (
+                      formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount) ||
+                      (formData.durationMonths === 0 && !formData.justification)
+                    ))
+                  } 
                   onClick={() => mutation.mutate({ data: formData })}
                 >
 
-                  {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
+                    formData.paymentPlanType === 'Échéancier' && formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount) ? 
+                    <AlertCircle className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />
+                  )}
                   Valider le brouillon
                 </Button>
               </div>

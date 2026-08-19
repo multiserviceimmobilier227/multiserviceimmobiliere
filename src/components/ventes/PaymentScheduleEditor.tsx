@@ -66,7 +66,31 @@ export function PaymentScheduleEditor({
     const newSchedules = [...schedules];
     const schedule = newSchedules[index];
     if (schedule) {
+      const oldAmount = schedule.amount_due;
       schedule.amount_due = value;
+      
+      // MSI 2.0 Phase 10: Logic to recalculate remaining months
+      if (index < newSchedules.length - 1) {
+        const remainingToDistribute = remainingAmount - newSchedules.slice(0, index + 1).reduce((acc, curr) => acc + curr.amount_due, 0);
+        const remainingMonths = newSchedules.length - (index + 1);
+        
+        if (remainingMonths > 0) {
+          const newMonthlyAmount = Math.max(0, Math.round(remainingToDistribute / remainingMonths));
+          let distributed = 0;
+          
+          for (let i = index + 1; i < newSchedules.length; i++) {
+            const currentItem = newSchedules[i];
+            if (currentItem) {
+              if (i === newSchedules.length - 1) {
+                currentItem.amount_due = remainingToDistribute - distributed;
+              } else {
+                currentItem.amount_due = newMonthlyAmount;
+                distributed += newMonthlyAmount;
+              }
+            }
+          }
+        }
+      }
     }
     setSchedules(newSchedules);
     onChange(newSchedules);
@@ -139,7 +163,7 @@ export function PaymentScheduleEditor({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">#</TableHead>
+              <TableHead className="w-12">Mois</TableHead>
               <TableHead>Date d'échéance</TableHead>
               <TableHead>Montant (FCFA)</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -148,7 +172,7 @@ export function PaymentScheduleEditor({
           <TableBody>
             {schedules.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
+                <TableCell className="font-bold text-muted-foreground">M{index + 1}</TableCell>
                 <TableCell>
                   <Input 
                     type="date" 
