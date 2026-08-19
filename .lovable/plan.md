@@ -8,26 +8,27 @@ Logiciel de gestion immobilière (ERP + PWA client) pour Multi Services Immobili
 - [x] Navigation Back-office (Sidebar métier)
 - [x] Paramètres globaux (FCFA, Timezone Niamey)
 
-## Phase 2 - Sécurité, Rôles et Audit (Next)
-- [ ] Création du schéma `user_roles` et fonction `has_role`.
-- [ ] Attribution des rôles : PDG (Admin), Comptable, Secrétaire, Admin Technique.
-- [ ] Table de Journal d'Audit (Audit Log) universelle et write-only.
-- [ ] Déclencheurs (Triggers) pour historisation automatique.
+## Phase 2 - Sécurité, Rôles et Audit (In Progress)
+- [x] Création du schéma `user_roles` et fonction `has_role` (privée).
+- [x] Table de Journal d'Audit (Audit Log) universelle et write-only.
+- [x] Déclencheurs (Triggers) pour historisation automatique.
+- [ ] Interface d'administration des rôles (PDG, Comptable, Secrétaire).
+- [ ] Protection des routes et server functions par rôle.
 
-## Phase 3 - Référentiel Immobilier
-- [ ] Gestion des Sites/Cités (ex: Cité Djiralaowa).
-- [ ] Inventaire des parcelles (200m², 300m², 400m²).
-- [ ] États des parcelles : Disponible, Réservée, Vendue, Litige.
+## Phase 3 - Référentiel Immobilier (Schema Ready)
+- [x] Gestion des Sites/Cités (Table `sites`).
+- [x] Inventaire des parcelles (Table `plots`).
+- [x] États des parcelles : Disponible, Réservée, Vendue, Litige.
 
-## Phase 4 - CRM et Gestion Client
-- [ ] Fiche client complète (Pièces d'identité, coordonnées).
-- [ ] Historique des interactions et documents attachés.
+## Phase 4 - CRM et Gestion Client (Schema Ready)
+- [x] Fiche client complète (Table `clients`).
+- [ ] Interface de gestion des clients.
 
-## Phase 5 - Ventes et Moteur Financier
-- [ ] Gestion des Réservations et Contrats.
-- [ ] Échéanciers de paiement personnalisables.
-- [ ] Moteur d'imputation des paiements (Encaissements).
-- [ ] Gestion des retards et annulations (Règle des 20% de pénalité).
+## Phase 5 - Ventes et Moteur Financier (Schema Ready)
+- [x] Gestion des Réservations et Contrats (Table `sales`).
+- [x] Moteur d'imputation des paiements (Table `payments`).
+- [ ] Échéanciers de paiement et relances.
+- [ ] Gestion des retards et annulations.
 
 ## Détails Techniques
 - **Stack**: TanStack Start, React 19, Tailwind v4.
