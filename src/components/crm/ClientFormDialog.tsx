@@ -51,9 +51,10 @@ interface ClientFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   client?: any; // For editing
+  onSuccess?: (client: any) => void;
 }
 
-export function ClientFormDialog({ open, onOpenChange, client }: ClientFormDialogProps) {
+export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: ClientFormDialogProps) {
   const queryClient = useQueryClient();
   const upsertClientFn = useServerFn(upsertClient);
 
@@ -78,12 +79,13 @@ export function ClientFormDialog({ open, onOpenChange, client }: ClientFormDialo
   const mutation = useMutation({
     mutationFn: (values: ClientFormValues) => 
       upsertClientFn({ data: { id: client?.id, client: values as any } }),
-    onSuccess: () => {
+    onSuccess: (newClient) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       if (client?.id) {
         queryClient.invalidateQueries({ queryKey: ["client", client.id] });
       }
       toast.success(client ? "Client mis à jour" : "Client créé avec succès");
+      if (onSuccess) onSuccess(newClient);
       onOpenChange(false);
       form.reset();
     },

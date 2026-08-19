@@ -20,6 +20,17 @@ export const createSaleDraft = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Start a transaction-like process
+    // Verify client exists
+    const { data: clientCheck, error: clientCheckError } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("id", data.clientId)
+      .single();
+
+    if (clientCheckError || !clientCheck) {
+      throw new Error("Client invalide ou inexistant.");
+    }
+
     const { data: sale, error: saleError } = await supabase
       .from("sales")
       .insert({
