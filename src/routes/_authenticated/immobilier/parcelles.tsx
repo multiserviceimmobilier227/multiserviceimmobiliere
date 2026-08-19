@@ -144,9 +144,11 @@ function ParcellesPage() {
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
                         <Info className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                        <History className="h-4 w-4" />
-                      </Button>
+                      <Link to="/immobilier/parcelles/$plotId/prix" params={{ plotId: plot.id }}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                          <History className="h-4 w-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </TableCell>
                 </TableRow>
