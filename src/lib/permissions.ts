@@ -53,10 +53,15 @@ export const ROLE_PERMISSIONS: Partial<Record<AppRole, Permission[]>> = {
   ]
 };
 
-export function hasPermission(role: AppRole | null, permission: Permission): boolean {
+export function hasPermission(role: AppRole | null, permission: Permission, dynamicPermissions?: any[]): boolean {
   if (!role) return false;
   // PDG and Informaticien have all permissions
   if (role === 'pdg' || role === 'informaticien') return true;
+  
+  if (dynamicPermissions) {
+    return dynamicPermissions.some(p => p.role === role && p.permission === permission);
+  }
+  
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 }
 
