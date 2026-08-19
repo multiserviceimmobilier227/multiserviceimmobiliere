@@ -60,9 +60,16 @@ function AuthenticatedLayout() {
       try {
         // Run fetches in parallel for speed
         const [roleData, permissionsData] = await Promise.all([
-          getCurrentUserRole(),
-          getRolePermissions()
+          getCurrentUserRole().catch(err => {
+            console.error("Error fetching role:", err);
+            return null;
+          }),
+          getRolePermissions().catch(err => {
+            console.error("Error fetching permissions:", err);
+            return [];
+          })
         ])
+
         
         setUserRole({
           role: (roleData?.role as AppRole) || null,
