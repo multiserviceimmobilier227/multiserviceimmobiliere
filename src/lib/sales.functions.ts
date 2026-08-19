@@ -161,7 +161,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
       .update({
         total_amount: data.newTotalAmount,
         total_price: data.newTotalAmount,
-        balance: data.newTotalAmount - sale.deposit_amount,
+        balance: data.newTotalAmount - (sale.deposit_amount || 0),
         updated_at: new Date().toISOString()
       })
       .eq("id", data.saleId);
