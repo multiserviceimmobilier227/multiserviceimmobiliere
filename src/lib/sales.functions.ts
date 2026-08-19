@@ -23,8 +23,7 @@ export const getSales = createServerFn({ method: "GET" })
       .select(`
         *,
         client:clients(first_name, last_name, phone),
-        plot:plots(plot_number, ilot:ilots(numero, zone:zones(name, lotissement:lotissements(name)))),
-        agency:agences(name)
+        plot:plots(plot_number, ilot:ilots(numero, zone:zones(name, lotissement:lotissements(name))))
       `)
       .order("created_at", { ascending: false });
 
@@ -47,7 +46,10 @@ export const createSale = createServerFn({ method: "POST" })
       .single();
 
     if (plotError || !plot) throw new Error("Parcelle introuvable");
-    if (plot.status !== 'Disponible' && plot.status !== 'Réservée') {
+    
+    // Check using standard string because enum types might hydration mismatch in build
+    const status = plot.status as string;
+    if (status !== 'Disponible' && status !== 'Réservée') {
       throw new Error("La parcelle n'est pas disponible pour la vente");
     }
 
@@ -57,11 +59,11 @@ export const createSale = createServerFn({ method: "POST" })
       .insert({
         client_id: data.clientId,
         plot_id: data.plotId,
-        payment_plan_type: data.paymentPlanType,
+        payment_plan_type: data.paymentPlanType as any,
         total_price: data.totalPrice,
         balance: data.totalPrice - data.downPaymentAmount,
         down_payment: data.downPaymentAmount,
-        status: 'en_cours',
+        status: 'en_cours' as any,
         sale_date: new Date().toISOString()
       })
       .select()
@@ -72,7 +74,7 @@ export const createSale = createServerFn({ method: "POST" })
     // 3. Update reservation if exists
     await supabaseAdmin
       .from("reservations")
-      .update({ status: 'converted' })
+      .update({ status: 'converted' as any })
       .match({ plot_id: data.plotId, client_id: data.clientId, status: 'active' });
 
     return sale;
@@ -91,7 +93,6 @@ export const getSaleById = createServerFn({ method: "GET" })
         *,
         client:clients(*),
         plot:plots(*, ilot:ilots(*, zone:zones(*, lotissement:lotissements(*)))),
-        agency:agences(*),
         adjustments:sale_adjustments(*)
       `)
       .eq("id", id)
