@@ -318,16 +318,24 @@ function SaleDetailsComponent() {
                   
                   return (
                     <TableRow key={item.id} className={isOverdue ? "bg-red-50/50" : ""}>
+                      <TableCell className="font-bold">M{idx + 1}</TableCell>
                       <TableCell className="text-xs">
                         {format(new Date(item.due_date), 'dd/MM/yyyy', { locale: fr })}
-                        {item.schedule_type === 'manuel' && <Badge variant="outline" className="ml-2 text-[8px] h-3 px-1">Manuel</Badge>}
+                        {item.schedule_type === 'manuel' && <Badge variant="outline" className="ml-2 text-[8px] h-3 px-1 border-blue-200 text-blue-600">Manuel</Badge>}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{new Intl.NumberFormat('fr-FR').format(item.amount_due)}</TableCell>
+                      <TableCell className="font-mono text-xs font-medium">{new Intl.NumberFormat('fr-FR').format(item.amount_due)}</TableCell>
                       <TableCell className="font-mono text-xs text-green-600">{new Intl.NumberFormat('fr-FR').format(paid)}</TableCell>
-                      <TableCell className="font-mono text-xs text-red-600">{new Intl.NumberFormat('fr-FR').format(balance)}</TableCell>
+                      <TableCell className="font-mono text-xs text-red-600 font-bold">{new Intl.NumberFormat('fr-FR').format(balance)}</TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className={item.status === 'Payé' ? 'bg-green-100 text-green-800 text-[10px]' : 'text-[10px]'}>
-                          {item.status}
+                        <Badge 
+                          variant={item.status === 'Payé' ? 'outline' : 'secondary'} 
+                          className={
+                            item.status === 'Payé' ? 'bg-green-50 text-green-700 border-green-200 text-[10px]' : 
+                            isOverdue ? 'bg-red-50 text-red-700 border-red-200 text-[10px]' :
+                            'text-[10px]'
+                          }
+                        >
+                          {isOverdue && item.status !== 'Payé' ? 'En retard' : item.status}
                         </Badge>
                       </TableCell>
                     </TableRow>
