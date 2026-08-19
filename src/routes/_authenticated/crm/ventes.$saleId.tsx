@@ -185,8 +185,9 @@ function SaleDetailsPage() {
       </div>
 
       <Tabs defaultValue="details" className="w-full">
-        <TabsList className="grid w-full md:w-[400px] grid-cols-3">
+        <TabsList className="grid w-full md:w-[500px] grid-cols-4">
           <TabsTrigger value="details">Détails</TabsTrigger>
+          <TabsTrigger value="contrat">Contrat & Gel</TabsTrigger>
           <TabsTrigger value="ajustements">Ajustements</TabsTrigger>
           <TabsTrigger value="historique">Historique</TabsTrigger>
         </TabsList>
