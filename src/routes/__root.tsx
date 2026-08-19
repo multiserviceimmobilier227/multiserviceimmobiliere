@@ -2,7 +2,7 @@ import { createRootRouteWithContext, Outlet, ScrollRestoration } from '@tanstack
 import { HeadContent, Scripts } from '@tanstack/react-router'
 import { type ReactNode } from 'react'
 import { Toaster } from "@/components/ui/sonner"
-import { type QueryClient } from '@tanstack/react-query'
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '@/styles.css'
 
 export const Route = createRootRouteWithContext<{
@@ -30,11 +30,15 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
+  const { queryClient } = Route.useRouteContext()
+
   return (
-    <RootDocument>
-      <Outlet />
-      <Toaster position="top-right" richColors />
-    </RootDocument>
+    <QueryClientProvider client={queryClient}>
+      <RootDocument>
+        <Outlet />
+        <Toaster position="top-right" richColors />
+      </RootDocument>
+    </QueryClientProvider>
   )
 }
 
