@@ -79,10 +79,11 @@ export function PaymentScheduleEditor({
           let distributed = 0;
           
           for (let i = index + 1; i < newSchedules.length; i++) {
+            const currentItem = newSchedules[i];
             if (i === newSchedules.length - 1) {
-              newSchedules[i].amount_due = remainingToDistribute - distributed;
+              currentItem.amount_due = remainingToDistribute - distributed;
             } else {
-              newSchedules[i].amount_due = newMonthlyAmount;
+              currentItem.amount_due = newMonthlyAmount;
               distributed += newMonthlyAmount;
             }
           }
