@@ -10,7 +10,6 @@ export const getRolePermissions = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    // Check if caller is PDG or Informaticien
     const { data: callerRole } = await supabaseAdmin
       .from('user_roles')
       .select('role')
@@ -46,7 +45,6 @@ export const updateRolePermission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Check if caller is PDG or Informaticien
     const { data: callerRole } = await supabaseAdmin
       .from('user_roles')
       .select('role')

@@ -56,7 +56,7 @@ function PermissionsPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: updateRolePermission,
+    mutationFn: (args: { role: string; permission: string; enabled: boolean }) => updateRolePermission({ data: args }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['role_permissions'] });
       toast.success("Permission mise à jour");
@@ -81,11 +81,10 @@ function PermissionsPage() {
   }
 
   const isEnabled = (role: AppRole, permission: Permission) => {
-    return dbPermissions?.some(p => p.role === role && p.permission === permission);
+    return dbPermissions?.some((p: any) => p.role === role && p.permission === permission);
   };
 
   const handleToggle = (role: AppRole, permission: Permission, checked: boolean) => {
-    // PDG and Informaticien should always have all permissions (optional check)
     if ((role === 'pdg' || role === 'informaticien') && !checked) {
        toast.error("Impossible de retirer des permissions aux administrateurs système.");
        return;
