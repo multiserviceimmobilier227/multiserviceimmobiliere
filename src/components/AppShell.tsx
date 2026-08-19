@@ -11,13 +11,12 @@ import {
   Map,
   CreditCard,
   History,
-  Menu,
-  X
+  Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useUserRole } from "@/routes/_authenticated";
 
 interface NavItemProps {
@@ -39,12 +38,7 @@ const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
 );
 
 const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
-  const { role } = useUserRole();
-  const isAdmin = role === 'pdg' || role === 'informaticien';
-  const isComptable = role === 'comptable';
-  const isSecretaire = role === 'secretaire';
-  const isCommercial = role === 'commercial';
-  const isClient = role === 'client';
+  const { checkPermission } = useUserRole();
 
   return (
     <nav className="space-y-6">
@@ -57,7 +51,7 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
         </div>
       </div>
 
-      {(isAdmin || isSecretaire || isCommercial) && (
+      {checkPermission('view_lotissements') && (
         <div>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
             Immobilier
@@ -65,13 +59,13 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
           <div className="space-y-1">
             <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
             <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
-            <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
-            <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
+            {checkPermission('view_tarifs') && <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>}
+            {checkPermission('view_acquisitions') && <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>}
           </div>
         </div>
       )}
 
-      {(isAdmin || isSecretaire || isCommercial) && (
+      {checkPermission('view_clients') && (
         <div>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
             Clients & Ventes
@@ -84,7 +78,7 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
         </div>
       )}
 
-      {(isAdmin || isComptable) && (
+      {checkPermission('view_finance') && (
         <div>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
             Finance
@@ -97,28 +91,16 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
         </div>
       )}
 
-      {isClient && (
-        <div>
-          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-            Mes Paiements
-          </h2>
-          <div className="space-y-1">
-            <NavItem to="/" icon={Wallet} onClick={onItemClick || undefined}>Suivi Paiements</NavItem>
-            <NavItem to="/crm" icon={FileText} onClick={onItemClick || undefined}>Mes Contrats</NavItem>
-          </div>
-        </div>
-      )}
-
-      {isAdmin && (
+      {checkPermission('manage_users') && (
         <div>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
             Administration
           </h2>
           <div className="space-y-1">
             <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
-            <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
-            <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
-            <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
+            {checkPermission('manage_agences') && <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>}
+            {checkPermission('view_audit_logs') && <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>}
+            {checkPermission('manage_settings') && <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>}
           </div>
         </div>
       )}
