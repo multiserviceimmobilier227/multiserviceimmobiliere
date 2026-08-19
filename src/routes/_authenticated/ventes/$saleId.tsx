@@ -163,7 +163,7 @@ function SaleDetailsComponent() {
             <div className="text-xl font-bold">{sale.client?.first_name} {sale.client?.last_name}</div>
             <p className="text-xs text-muted-foreground mt-1">{sale.client?.phone}</p>
             <Button variant="link" className="p-0 h-auto text-xs mt-2" asChild>
-              <Link to="/crm/client/$clientId" params={{ clientId: sale.client?.id || '' }}>Voir profil 360°</Link>
+              <Link to="/crm/client/$clientId" params={{ clientId: sale.client?.id ?? '' }}>Voir profil 360°</Link>
             </Button>
           </CardContent>
         </Card>
@@ -189,7 +189,7 @@ function SaleDetailsComponent() {
           <CardContent>
             <div className="text-xl font-bold text-primary">{new Intl.NumberFormat('fr-FR').format(sale.total_price)} FCFA</div>
             <div className="text-xs text-muted-foreground mt-1 text-green-600 font-medium">Apport : {new Intl.NumberFormat('fr-FR').format(sale.deposit_amount || 0)} FCFA</div>
-            <div className="text-xs font-bold text-red-600 mt-1 border-t pt-1">Reste à payer : {new Intl.NumberFormat('fr-FR').format(sale.balance)} FCFA</div>
+            <div className="text-xs font-bold text-red-600 mt-1 border-t pt-1">Reste à payer : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</div>
           </CardContent>
         </Card>
       </div>

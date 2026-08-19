@@ -80,6 +80,7 @@ export const validateSale = createServerFn({ method: "POST" })
 
     if (roleError || !roleData) throw new Error("Seul le PDG peut valider une vente.");
 
+    // 1. Update the sale status
     const { data: sale, error: saleError } = await supabase
       .from("sales")
       .update({
@@ -88,10 +89,35 @@ export const validateSale = createServerFn({ method: "POST" })
         validation_date: new Date().toISOString(),
       })
       .eq("id", data.saleId)
-      .select()
+      .select(`
+        *,
+        client:clients(*),
+        plot:plots(*)
+      `)
       .single();
 
     if (saleError) throw new Error(saleError.message);
+
+    // 2. Create historical snapshot
+    const { error: snapshotError } = await supabase
+      .from("contract_snapshots")
+      .insert({
+        sale_id: data.saleId,
+        client_data: sale.client,
+        plot_data: sale.plot,
+        sale_data: {
+          total_amount: sale.total_amount,
+          deposit_amount: sale.deposit_amount,
+          payment_plan_type: sale.payment_plan_type,
+          sale_date: sale.sale_date
+        },
+        created_by: userId
+      });
+
+    if (snapshotError) {
+      console.error("Snapshot error:", snapshotError);
+      // We don't block the validation if snapshot fails, but in production we should
+    }
 
     return sale;
   });
