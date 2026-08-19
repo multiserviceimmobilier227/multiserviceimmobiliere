@@ -74,6 +74,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {checkPermission('view_clients') && (
             <NavItem to="/crm/clients" icon={Shield} label="Clients" onClick={onItemClick} />
           )}
+          {checkPermission('view_sales') && (
+            <NavItem to="/crm/ventes" icon={FileText} label="Ventes & Contrats" onClick={onItemClick} />
+          )}
         </div>
       </div>
 
