@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -10,24 +10,39 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { createSaleDraft } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
-import { Loader2, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, UserPlus } from 'lucide-react'
+import { ClientFormDialog } from '@/components/crm/ClientFormDialog'
+import { z } from 'zod'
+
+const searchSchema = z.object({
+  clientId: z.string().uuid().optional(),
+})
 
 export const Route = createFileRoute('/_authenticated/ventes/nouvelle')({
+  validateSearch: searchSchema,
   component: NewSaleComponent,
 })
 
 function NewSaleComponent() {
   const navigate = useNavigate()
+  const search = useSearch({ from: '/_authenticated/ventes/nouvelle' })
   const queryClient = useQueryClient()
   const [step, setStep] = useState(1)
+  const [isNewClientOpen, setIsNewClientOpen] = useState(false)
   const [formData, setFormData] = useState({
-    clientId: '',
+    clientId: search.clientId || '',
     plotId: '',
     totalAmount: 0,
     depositAmount: 0,
     paymentPlanType: 'Échéancier' as 'Comptant' | 'Échéancier',
     durationMonths: 12,
   })
+
+  useEffect(() => {
+    if (search.clientId) {
+      setFormData(prev => ({ ...prev, clientId: search.clientId! }))
+    }
+  }, [search.clientId])
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
@@ -99,19 +114,39 @@ function NewSaleComponent() {
               <CardDescription>Choisissez le client acquéreur dans la liste MSI.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Client</Label>
-                <Select onValueChange={(val) => setFormData(prev => ({ ...prev, clientId: val }))} value={formData.clientId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choisir un client..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clients?.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.last_name} {c.first_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-end gap-2">
+                <div className="space-y-2 flex-1">
+                  <Label>Sélectionner le Client</Label>
+                  <Select onValueChange={(val) => setFormData(prev => ({ ...prev, clientId: val }))} value={formData.clientId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir un client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients?.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.last_name} {c.first_name}</SelectItem>
+                      ))}
+                      {clients?.length === 0 && <div className="p-2 text-sm text-muted-foreground text-center">Aucun client trouvé</div>}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsNewClientOpen(true)}
+                  title="Créer un nouveau client"
+                >
+                  <UserPlus className="h-4 w-4" />
+                </Button>
               </div>
+              
+              <ClientFormDialog 
+                open={isNewClientOpen} 
+                onOpenChange={setIsNewClientOpen}
+                onSuccess={(client) => {
+                  setFormData(prev => ({ ...prev, clientId: client.id }));
+                  queryClient.invalidateQueries({ queryKey: ['clients'] });
+                }}
+              />
               <Button 
                 className="w-full" 
                 disabled={!formData.clientId} 

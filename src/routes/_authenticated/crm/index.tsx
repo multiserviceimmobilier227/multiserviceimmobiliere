@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, UserPlus, Phone, MapPin, Eye } from "lucide-react";
+import { Search, UserPlus, Phone, MapPin, Eye, ShoppingCart } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { ClientFormDialog } from "@/components/crm/ClientFormDialog";
@@ -66,6 +66,7 @@ function CRMIndex() {
                 <TableHead>Contact</TableHead>
                 <TableHead>Localisation</TableHead>
                 <TableHead>Pièce d'identité</TableHead>
+                <TableHead className="text-right">Vente</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -108,6 +109,13 @@ function CRMIndex() {
                       <Badge variant="outline" className="font-normal">
                         {client.id_type} : {client.id_number || "..."}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" asChild className="text-[#D1127B] border-[#D1127B] hover:bg-[#D1127B]/10">
+                        <Link to="/ventes/nouvelle" search={{ clientId: client.id }}>
+                          <ShoppingCart className="mr-2 h-4 w-4" /> Vendre
+                        </Link>
+                      </Button>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
