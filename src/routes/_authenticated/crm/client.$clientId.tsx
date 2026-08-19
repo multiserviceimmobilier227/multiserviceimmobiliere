@@ -1,11 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, createFileRoute } from "lucide-react";
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -16,8 +15,9 @@ import { ClientFormDialog } from "@/components/crm/ClientFormDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute as createTanstackRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authenticated/crm/client/$clientId")({
+export const Route = createTanstackRoute("/_authenticated/crm/client/$clientId")({
   component: ClientDetails,
 });
 
@@ -51,9 +51,6 @@ function ClientDetails() {
       setInteractionNotes("");
     },
   });
-
-  if (isLoading) return <div>Chargement du dossier...</div>;
-  if (!client) return <div>Client introuvable</div>;
 
   const handleUploadDocument = async () => {
     if (!docFile || !docName) {
@@ -99,6 +96,9 @@ function ClientDetails() {
       setIsUploading(false);
     }
   };
+
+  if (isLoading) return <div>Chargement du dossier...</div>;
+  if (!client) return <div>Client introuvable</div>;
 
   return (
     <div className="space-y-6">
@@ -194,7 +194,11 @@ function ClientDetails() {
                               <div className="text-xs text-gray-400">{doc.document_type} • Ajouté le {formatDateNiamey(doc.created_at)}</div>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm">Voir</Button>
+                          <Button variant="ghost" size="sm" asChild>
+                            <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                              <Eye className="mr-2 h-4 w-4" /> Voir
+                            </a>
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -303,62 +307,61 @@ function ClientDetails() {
           </Tabs>
         </div>
       </div>
-    </div>
-    
-    <ClientFormDialog 
-      open={isEditingClient} 
-      onOpenChange={setIsEditingClient} 
-      client={client}
-    />
 
-    <Dialog open={isAddingDocument} onOpenChange={setIsAddingDocument}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Ajouter un document</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nom du document</label>
-            <Input 
-              placeholder="Ex: Scan CNI recto" 
-              value={docName}
-              onChange={(e) => setDocName(e.target.value)}
-            />
+      <ClientFormDialog 
+        open={isEditingClient} 
+        onOpenChange={setIsEditingClient} 
+        client={client}
+      />
+
+      <Dialog open={isAddingDocument} onOpenChange={setIsAddingDocument}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter un document</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nom du document</label>
+              <Input 
+                placeholder="Ex: Scan CNI recto" 
+                value={docName}
+                onChange={(e) => setDocName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Type</label>
+              <Select value={docType} onValueChange={setDocType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CNI">CNI</SelectItem>
+                  <SelectItem value="Passeport">Passeport</SelectItem>
+                  <SelectItem value="Permis">Permis</SelectItem>
+                  <SelectItem value="Autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fichier</label>
+              <Input 
+                type="file" 
+                onChange={(e) => setDocFile(e.target.files?.[0] || null)}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIsAddingDocument(false)}>Annuler</Button>
+              <Button 
+                className="bg-[#D1127B]" 
+                onClick={handleUploadDocument}
+                disabled={isUploading}
+              >
+                {isUploading ? "Upload en cours..." : "Enregistrer"}
+              </Button>
+            </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Type</label>
-            <Select value={docType} onValueChange={setDocType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CNI">CNI</SelectItem>
-                <SelectItem value="Passeport">Passeport</SelectItem>
-                <SelectItem value="Permis">Permis</SelectItem>
-                <SelectItem value="Autre">Autre</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Fichier</label>
-            <Input 
-              type="file" 
-              onChange={(e) => setDocFile(e.target.files?.[0] || null)}
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setIsAddingDocument(false)}>Annuler</Button>
-            <Button 
-              className="bg-[#D1127B]" 
-              onClick={handleUploadDocument}
-              disabled={isUploading}
-            >
-              {isUploading ? "Upload en cours..." : "Enregistrer"}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
