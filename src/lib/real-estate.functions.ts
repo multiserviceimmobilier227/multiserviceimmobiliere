@@ -206,7 +206,7 @@ export const createPlot = createServerFn({ method: "POST" })
     ilot_id: z.string().uuid(),
     surface_area: z.number().min(0),
     base_price: z.number().min(0),
-    site_id: z.string().uuid(),
+    site_id: z.string().uuid().optional().nullable(),
     status: z.string().optional(),
   }).parse(data))
   .handler(async ({ data: input }) => {
@@ -218,11 +218,24 @@ export const createPlot = createServerFn({ method: "POST" })
         ilot_id: input.ilot_id,
         surface_area: input.surface_area,
         base_price: input.base_price,
-        site_id: input.site_id,
+        site_id: input.site_id ?? null,
         status: (input.status || "Disponible") as PlotStatus
       })
       .select()
       .single();
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+export const getSites = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("sites")
+      .select("*")
+      .order("name");
     
     if (error) throw new Error(error.message);
     return data;
