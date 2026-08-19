@@ -120,7 +120,7 @@ function ParcellesPage() {
                 </TableRow>
               ))
             ) : (
-              plots?.map((plot) => (
+              plots?.map((plot: any) => (
                 <TableRow key={plot.id} className="hover:bg-muted/20 transition-colors">
                   <TableCell className="font-medium font-sans">{plot.plot_number}</TableCell>
                   <TableCell className="font-sans">

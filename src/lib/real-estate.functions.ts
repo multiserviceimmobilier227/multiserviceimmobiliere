@@ -11,24 +11,6 @@ const lotissementSchema = z.object({
   superficie_totale: z.number().optional(),
 });
 
-const plotSchema = z.object({
-  ilot_id: z.string().uuid(),
-  plot_number: z.string().min(1),
-  surface_area: z.number().positive(),
-  base_price: z.number().positive(),
-  status: z.enum([
-    'Disponible', 
-    'Réservée', 
-    'Attribuée', 
-    'En cours de paiement', 
-    'Entièrement payée', 
-    'Vendue', 
-    'Bloquée', 
-    'Annulée'
-  ]),
-  notes: z.string().optional(),
-});
-
 // Server functions
 export const getLotissements = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -49,8 +31,8 @@ export const getLotissements = createServerFn({ method: "GET" })
   });
 
 export const createLotissement = createServerFn({ method: "POST" })
-  .input(lotissementSchema)
-  .handler(async ({ input }) => {
+  .validator((data: unknown) => lotissementSchema.parse(data))
+  .handler(async ({ data: input }) => {
     const { data, error } = await supabaseAdmin
       .from("lotissements")
       .insert(input)
@@ -62,12 +44,12 @@ export const createLotissement = createServerFn({ method: "POST" })
   });
 
 export const getPlots = createServerFn({ method: "GET" })
-  .input(z.object({ 
+  .validator((data: unknown) => z.object({ 
     lotissementId: z.string().uuid().optional(),
     ilotId: z.string().uuid().optional(),
     status: z.string().optional()
-  }).optional())
-  .handler(async ({ input }) => {
+  }).optional().parse(data))
+  .handler(async ({ data: input }) => {
     let query = supabaseAdmin
       .from("plots")
       .select(`
@@ -96,13 +78,13 @@ export const getPlots = createServerFn({ method: "GET" })
   });
 
 export const updatePlotStatus = createServerFn({ method: "POST" })
-  .input(z.object({
+  .validator((data: unknown) => z.object({
     plotId: z.string().uuid(),
     newStatus: z.string(),
     reason: z.string().optional(),
     userId: z.string().uuid()
-  }))
-  .handler(async ({ input }) => {
+  }).parse(data))
+  .handler(async ({ data: input }) => {
     // 1. Get old status
     const { data: plot, error: fetchError } = await supabaseAdmin
       .from("plots")
@@ -137,8 +119,8 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
   });
 
 export const getZonesByLotissement = createServerFn({ method: "GET" })
-  .input(z.string().uuid())
-  .handler(async ({ input }) => {
+  .validator((data: unknown) => z.string().uuid().parse(data))
+  .handler(async ({ data: input }) => {
     const { data, error } = await supabaseAdmin
       .from("zones")
       .select("*, ilots(*)")
