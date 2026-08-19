@@ -12,8 +12,11 @@ import {
   CreditCard,
   History,
   Menu,
-  X
+  X,
+  PieChart,
+  ClipboardList
 } from "lucide-react";
+import { MsiLogo } from "@/components/ui/msi-logo";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -101,12 +104,10 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const Logo = () => (
-    <div className="flex items-center gap-2 font-bold text-primary">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-sans">
-        MSI
-      </div>
-      <span className="text-xl tracking-tight font-sans">MSI 2.0</span>
-    </div>
+    <Link to="/" className="flex items-center gap-2 font-bold text-primary hover:opacity-90 transition-opacity">
+      <MsiLogo className="h-10 w-auto" />
+      <span className="text-xl tracking-tight font-sans hidden sm:inline-block">MSI 2.0</span>
+    </Link>
   );
 
   return (
