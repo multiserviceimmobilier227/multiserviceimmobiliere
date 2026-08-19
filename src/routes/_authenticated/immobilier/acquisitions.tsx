@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getAcquisitions } from '@/lib/acquisitions.functions';
+import { formatFCFA, formatDateNiamey } from '@/lib/utils';
 import { 
   History, 
   Plus, 
@@ -44,6 +45,9 @@ function AcquisitionsPage() {
     return acc + Number(acq.prix_principal) + costsTotal;
   }, 0) || 0;
 
+  
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,7 +70,7 @@ function AcquisitionsPage() {
             <Wallet className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-sans">{totalInvested.toLocaleString()} FCFA</div>
+            <div className="text-2xl font-bold font-sans">{formatFCFA(totalInvested)}</div>
             <p className="text-xs text-muted-foreground font-sans">+12% par rapport au mois dernier</p>
           </CardContent>
         </Card>
@@ -138,7 +142,7 @@ function AcquisitionsPage() {
                     <TableCell className="font-sans">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {new Date(acq.date_achat).toLocaleDateString()}
+                        {formatDateNiamey(acq.date_achat)}
                       </div>
                     </TableCell>
                     <TableCell className="font-medium font-sans">
@@ -151,10 +155,10 @@ function AcquisitionsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-sans text-right font-medium">
-                      {acq.prix_principal.toLocaleString()}
+                      {formatFCFA(acq.prix_principal)}
                     </TableCell>
                     <TableCell className="font-sans text-right text-muted-foreground">
-                      {costsTotal.toLocaleString()}
+                      {formatFCFA(costsTotal)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={acq.status === 'Validé' ? 'default' : 'outline'} className="font-sans">

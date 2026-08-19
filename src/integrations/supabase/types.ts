@@ -62,9 +62,12 @@ export type Database = {
           id: string
           lotissement_id: string | null
           plot_id: string | null
+          prepared_by_id: string | null
           prix_principal: number
           status: string
           updated_at: string
+          validated_by_id: string | null
+          validation_date: string | null
           vendeur: string
         }
         Insert: {
@@ -73,9 +76,12 @@ export type Database = {
           id?: string
           lotissement_id?: string | null
           plot_id?: string | null
+          prepared_by_id?: string | null
           prix_principal?: number
           status?: string
           updated_at?: string
+          validated_by_id?: string | null
+          validation_date?: string | null
           vendeur: string
         }
         Update: {
@@ -84,9 +90,12 @@ export type Database = {
           id?: string
           lotissement_id?: string | null
           plot_id?: string | null
+          prepared_by_id?: string | null
           prix_principal?: number
           status?: string
           updated_at?: string
+          validated_by_id?: string | null
+          validation_date?: string | null
           vendeur?: string
         }
         Relationships: [
@@ -531,10 +540,13 @@ export type Database = {
           down_payment: number | null
           id: string
           plot_id: string
+          prepared_by_id: string | null
           sale_date: string
           status: Database["public"]["Enums"]["sale_status"]
           total_price: number
           updated_at: string
+          validated_by_id: string | null
+          validation_date: string | null
         }
         Insert: {
           balance: number
@@ -543,10 +555,13 @@ export type Database = {
           down_payment?: number | null
           id?: string
           plot_id: string
+          prepared_by_id?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_price: number
           updated_at?: string
+          validated_by_id?: string | null
+          validation_date?: string | null
         }
         Update: {
           balance?: number
@@ -555,10 +570,13 @@ export type Database = {
           down_payment?: number | null
           id?: string
           plot_id?: string
+          prepared_by_id?: string | null
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_price?: number
           updated_at?: string
+          validated_by_id?: string | null
+          validation_date?: string | null
         }
         Relationships: [
           {
@@ -682,11 +700,12 @@ export type Database = {
     Views: {
       lotissement_profitability: {
         Row: {
+          location: string | null
           lotissement_id: string | null
-          lotissement_name: string | null
+          margin_percentage: number | null
+          name: string | null
           potential_revenue: number | null
           total_investment: number | null
-          total_plots: number | null
         }
         Relationships: []
       }
