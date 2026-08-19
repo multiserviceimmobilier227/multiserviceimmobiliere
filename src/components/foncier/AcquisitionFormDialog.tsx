@@ -38,7 +38,13 @@ const acquisitionSchema = z.object({
   plot_id: z.string().uuid().nullable().optional(),
 });
 
-type FormValues = z.infer<typeof acquisitionSchema>;
+type FormValues = {
+  vendeur: string;
+  date_achat: string;
+  prix_principal: number;
+  lotissement_id?: string | null;
+  plot_id?: string | null;
+};
 
 export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const queryClient = useQueryClient();
@@ -59,7 +65,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
   });
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(acquisitionSchema),
+    resolver: zodResolver(acquisitionSchema) as any,
     defaultValues: { 
       vendeur: "", 
       date_achat: new Date().toISOString().split('T')[0], 
@@ -95,7 +101,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,7 +115,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                   <FormItem>
                     <FormLabel>Date d'achat</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -125,6 +131,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                       <Input 
                         type="number" 
                         {...field} 
+                        value={field.value ?? 0}
                         onChange={(e) => field.onChange(Number(e.target.value))} 
                       />
                     </FormControl>
