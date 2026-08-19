@@ -36,7 +36,12 @@ const costSchema = z.object({
   description: z.string().optional().nullable(),
 });
 
-type FormValues = z.infer<typeof costSchema>;
+type FormValues = {
+  category: 'Prix Achat' | 'Frais Acte' | 'Géomètre' | 'Commission' | 'Taxe' | 'Autre';
+  amount: number;
+  date: string;
+  description?: string | null;
+};
 
 export function AcquisitionCostDialog({ 
   open, 
@@ -55,7 +60,7 @@ export function AcquisitionCostDialog({
     defaultValues: { 
       category: 'Frais Acte',
       amount: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0] as string,
       description: "",
     },
   });
@@ -85,7 +90,7 @@ export function AcquisitionCostDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Catégorie</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Choisir une catégorie" />
