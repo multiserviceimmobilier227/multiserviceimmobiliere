@@ -26,14 +26,15 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         client_id: data.clientId,
         plot_id: data.plotId,
         total_amount: data.totalAmount,
-        total_price: data.totalAmount, // Map to existing schema if needed
+        total_price: data.totalAmount,
         balance: data.totalAmount - data.depositAmount,
         deposit_amount: data.depositAmount,
-        agency_id: data.agencyId,
+        agency_id: data.agencyId ?? null,
         prepared_by_id: userId,
-        status: "reservation", // Map to sale_status enum
+        status: "reservation",
         sale_date: format(new Date(), "yyyy-MM-dd"),
       })
+
       .select()
       .single();
 
