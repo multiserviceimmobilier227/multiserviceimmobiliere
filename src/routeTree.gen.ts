@@ -18,6 +18,7 @@ import { Route as AuthenticatedAdminPermissionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
+import { Route as AuthenticatedCrmClientsRouteImport } from './routes/_authenticated/crm/clients'
 import { Route as AuthenticatedCrmVentesRouteImport } from './routes/_authenticated/crm/ventes'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
@@ -74,6 +75,11 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
 const AuthenticatedCrmIndexRoute = AuthenticatedCrmIndexRouteImport.update({
   id: '/crm/',
   path: '/crm/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCrmClientsRoute = AuthenticatedCrmClientsRouteImport.update({
+  id: '/crm/clients',
+  path: '/crm/clients',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCrmVentesRoute = AuthenticatedCrmVentesRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/crm/clients': typeof AuthenticatedCrmClientsRoute
   '/crm/ventes': typeof AuthenticatedCrmVentesRouteWithChildren
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/crm/clients': typeof AuthenticatedCrmClientsRoute
   '/crm/ventes': typeof AuthenticatedCrmVentesRouteWithChildren
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/crm/clients': typeof AuthenticatedCrmClientsRoute
   '/_authenticated/crm/ventes': typeof AuthenticatedCrmVentesRouteWithChildren
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/admin/permissions'
     | '/admin/settings'
     | '/admin/users'
+    | '/crm/clients'
     | '/crm/ventes'
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin/permissions'
     | '/admin/settings'
     | '/admin/users'
+    | '/crm/clients'
     | '/crm/ventes'
     | '/immobilier/acquisitions'
     | '/immobilier/lotissements'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/permissions'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/crm/clients'
     | '/_authenticated/crm/ventes'
     | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/lotissements'
@@ -330,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm/'
       preLoaderRoute: typeof AuthenticatedCrmIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/crm/clients': {
+      id: '/_authenticated/crm/clients'
+      path: '/crm/clients'
+      fullPath: '/crm/clients'
+      preLoaderRoute: typeof AuthenticatedCrmClientsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/crm/ventes': {
@@ -443,6 +462,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminPermissionsRoute: typeof AuthenticatedAdminPermissionsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedCrmClientsRoute: typeof AuthenticatedCrmClientsRoute
   AuthenticatedCrmVentesRoute: typeof AuthenticatedCrmVentesRouteWithChildren
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
@@ -460,6 +480,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminPermissionsRoute: AuthenticatedAdminPermissionsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedCrmClientsRoute: AuthenticatedCrmClientsRoute,
   AuthenticatedCrmVentesRoute: AuthenticatedCrmVentesRouteWithChildren,
   AuthenticatedImmobilierAcquisitionsRoute:
     AuthenticatedImmobilierAcquisitionsRoute,
