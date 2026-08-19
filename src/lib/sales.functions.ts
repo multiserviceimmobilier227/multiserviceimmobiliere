@@ -233,7 +233,7 @@ export const registerPayment = createServerFn({ method: "POST" })
     saleId: z.string().uuid(),
     amount: z.number().positive(),
     paymentDate: z.string(),
-    method: z.string(),
+    method: z.enum(["espece", "virement", "cheque", "mobile_money"]),
     reference: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
   }).parse(data))
@@ -273,6 +273,7 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     return payment;
   });
+
 
 
 
