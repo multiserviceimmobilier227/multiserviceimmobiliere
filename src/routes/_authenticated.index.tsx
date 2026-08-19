@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_authenticated/')({
 function Dashboard() {
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Ventes du mois</h3>
           <p className="mt-2 text-2xl font-bold text-primary">0 FCFA</p>
