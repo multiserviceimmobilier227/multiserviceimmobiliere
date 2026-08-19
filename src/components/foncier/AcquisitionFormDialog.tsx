@@ -69,7 +69,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +82,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 <FormItem>
                   <FormLabel>Date d'achat</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,6 +98,7 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                     <Input 
                       type="number" 
                       {...field} 
+                      value={field.value ?? 0}
                       onChange={(e) => field.onChange(Number(e.target.value))} 
                     />
                   </FormControl>
