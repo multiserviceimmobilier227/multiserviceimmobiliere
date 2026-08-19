@@ -30,7 +30,17 @@ export const upsertPriceTemplate = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data }) => {
-    const { error } = await supabase.from("price_templates").upsert(data);
+    // Exact optional property types fix
+    const payload = {
+      name: data.name,
+      surface_range_min: data.surface_range_min,
+      surface_range_max: data.surface_range_max,
+      price_per_m2: data.price_per_m2,
+      is_active: data.is_active,
+      ...(data.id ? { id: data.id } : {}),
+    };
+
+    const { error } = await supabase.from("price_templates").upsert(payload);
     if (error) throw new Error(error.message);
     return { success: true };
   });
@@ -66,11 +76,17 @@ export const preparePlotPricing = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data, context }) => {
-    const { error } = await supabase.from("plot_pricing").insert({
-      ...data,
+    // Exact optional property types fix
+    const payload = {
+      plot_id: data.plot_id,
+      base_price: data.base_price,
+      min_price: data.min_price ?? null,
+      notes: data.notes ?? null,
       prepared_by_id: context.userId,
       effective_date: new Date().toISOString(),
-    });
+    };
+
+    const { error } = await supabase.from("plot_pricing").insert(payload);
 
     if (error) throw new Error(error.message);
     return { success: true };
@@ -88,7 +104,6 @@ export const validatePlotPricing = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data, context }) => {
-    // pdg or informaticien check should be handled by RLS, but we can verify role here too if needed
     const { error: validationError } = await supabase
       .from("plot_pricing")
       .update({
@@ -99,7 +114,6 @@ export const validatePlotPricing = createServerFn({ method: "POST" })
 
     if (validationError) throw new Error(validationError.message);
 
-    // Sync to main plots table for fast read
     const { error: syncError } = await supabase
       .from("plots")
       .update({ base_price: data.basePrice })
