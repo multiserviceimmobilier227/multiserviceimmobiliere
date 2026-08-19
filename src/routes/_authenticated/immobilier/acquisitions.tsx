@@ -29,24 +29,24 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useState } from 'react';
+import { AcquisitionFormDialog } from '@/components/foncier/AcquisitionFormDialog';
 
 export const Route = createFileRoute('/_authenticated/immobilier/acquisitions')({
   component: AcquisitionsPage,
 });
 
 function AcquisitionsPage() {
+  const [isNewOpen, setIsNewOpen] = useState(false);
   const { data: acquisitions, isLoading } = useQuery({
     queryKey: ['acquisitions'],
     queryFn: () => getAcquisitions(),
   });
 
-  const totalInvested = acquisitions?.reduce((acc, acq) => {
+  const totalInvested = acquisitions?.reduce((acc: number, acq: any) => {
     const costsTotal = acq.costs?.reduce((sum: number, c: any) => sum + Number(c.amount), 0) || 0;
     return acc + Number(acq.prix_principal) + costsTotal;
   }, 0) || 0;
-
-  
-
 
   return (
     <div className="space-y-6">
@@ -57,7 +57,10 @@ function AcquisitionsPage() {
             Suivi des achats de lotissements et parcelles à l'unité.
           </p>
         </div>
-        <Button className="gap-2 font-sans bg-primary hover:bg-primary/90">
+        <Button 
+          className="gap-2 font-sans bg-primary hover:bg-primary/90"
+          onClick={() => setIsNewOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           Nouvelle Acquisition
         </Button>
@@ -71,7 +74,7 @@ function AcquisitionsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-sans">{formatFCFA(totalInvested)}</div>
-            <p className="text-xs text-muted-foreground font-sans">+12% par rapport au mois dernier</p>
+            <p className="text-xs text-muted-foreground font-sans">Investissement global MSI</p>
           </CardContent>
         </Card>
         <Card className="border-border/50">
@@ -81,7 +84,7 @@ function AcquisitionsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-sans">
-              {acquisitions?.filter(a => a.status === 'En attente').length || 0}
+              {acquisitions?.filter((a: any) => a.status === 'En attente').length || 0}
             </div>
             <p className="text-xs text-muted-foreground font-sans">En attente de validation PDG</p>
           </CardContent>
@@ -93,7 +96,7 @@ function AcquisitionsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-sans">24.5%</div>
-            <p className="text-xs text-muted-foreground font-sans">Potentiel basé sur les prix actuels</p>
+            <p className="text-xs text-muted-foreground font-sans">Potentiel basé sur le stock</p>
           </CardContent>
         </Card>
       </div>
@@ -135,7 +138,7 @@ function AcquisitionsPage() {
                 </TableRow>
               ))
             ) : (
-              acquisitions?.map((acq) => {
+              acquisitions?.map((acq: any) => {
                 const costsTotal = acq.costs?.reduce((sum: number, c: any) => sum + Number(c.amount), 0) || 0;
                 return (
                   <TableRow key={acq.id} className="hover:bg-muted/20 transition-colors">
@@ -146,7 +149,7 @@ function AcquisitionsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium font-sans">
-                      {acq.lotissement?.name || `Parcelle ${acq.plot?.plot_number}`}
+                      {acq.lotissement?.name || (acq.plot?.plot_number ? `Parcelle ${acq.plot.plot_number}` : 'Lot en gros')}
                     </TableCell>
                     <TableCell className="font-sans text-muted-foreground">
                       <div className="flex items-center gap-2">
@@ -185,6 +188,8 @@ function AcquisitionsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <AcquisitionFormDialog open={isNewOpen} onOpenChange={setIsNewOpen} />
     </div>
   );
 }
