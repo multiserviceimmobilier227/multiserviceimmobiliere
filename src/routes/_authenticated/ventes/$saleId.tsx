@@ -242,8 +242,8 @@ function SaleDetailsComponent() {
           </Dialog>
 
           {sale.status === 'reservation' && (
-            <Button className="bg-green-600 hover:bg-green-700" onClick={() => validateMutation.mutate()}>
-              <CheckCircle2 className="mr-2 h-4 w-4" /> Valider Contrat (PDG)
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => validateMutation.mutate()} disabled={validateMutation.isPending}>
+              <CheckCircle2 className="mr-2 h-4 w-4" /> {validateMutation.isPending ? 'Validation...' : 'Valider Contrat (PDG)'}
             </Button>
           )}
         </div>
