@@ -97,7 +97,7 @@ function SalesListComponent() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/ventes/${sale.id}`}>
+                      <Link to="/ventes/$saleId" params={{ saleId: sale.id }}>
                         <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
