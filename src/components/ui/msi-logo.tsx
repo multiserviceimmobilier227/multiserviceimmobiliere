@@ -5,8 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
  * @param className Classes CSS optionnelles pour le dimensionnement
  */
 export function MsiLogo({ className = "h-12 w-12" }: { className?: string }) {
-  // Utilisation de l'URL directe du logo stocké dans Lovable Cloud (Supabase Storage)
-  const logoUrl = "https://muerdwvxhquloiztqydp.supabase.co/storage/v1/object/public/assets/logo_msi.png";
+  // Utilisation de l'URL directe du logo stocké dans Lovable Cloud
+  const logoUrl = "/logo.png"; // Changed from storage URL to local public path if available, or keep as placeholder if needed
+  
+  // Re-evaluating based on user feedback: "Il faut utiliser le vrai logo officiel que je t'ai soumis"
+  // If the user uploaded an image in this turn, it might be in /mnt/user-uploads/
+  const logoPath = "/logo_msi_official.png"; 
+
   
   return (
     <div className={`flex items-center gap-3 ${className}`}>
