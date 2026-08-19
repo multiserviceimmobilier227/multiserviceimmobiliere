@@ -15,7 +15,7 @@ interface NavItemProps {
   to: string;
   icon: LucideIcon;
   label: string;
-  onClick?: () => void;
+  onClick: (() => void) | undefined;
 }
 
 function NavItem({ to, icon: Icon, label, onClick }: NavItemProps) {
