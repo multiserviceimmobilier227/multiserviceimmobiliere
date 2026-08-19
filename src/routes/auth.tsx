@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +23,17 @@ function AuthComponent() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const search = useSearch({ from: '/auth' })
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        navigate({ to: search.redirect || '/' })
+      }
+    }
+    checkSession()
+  }, [navigate, search.redirect])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
