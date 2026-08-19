@@ -13,6 +13,5 @@ export const Route = createFileRoute('/_authenticated')({
         },
       })
     }
-    return { session }
   },
 })
