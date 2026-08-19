@@ -57,12 +57,12 @@ export const createSale = createServerFn({ method: "POST" })
       .insert({
         client_id: data.clientId,
         plot_id: data.plotId,
-        agency_id: data.agencyId,
         payment_plan_type: data.paymentPlanType,
         total_price: data.totalPrice,
-        down_payment_amount: data.downPaymentAmount,
-        status: 'en_attente_apport',
-        created_by: context.userId
+        balance: data.totalPrice - data.downPaymentAmount,
+        down_payment: data.downPaymentAmount,
+        status: 'en_cours',
+        sale_date: new Date().toISOString()
       })
       .select()
       .single();
