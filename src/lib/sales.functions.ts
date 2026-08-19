@@ -108,7 +108,6 @@ export const validateSale = createServerFn({ method: "POST" })
         sale_data: {
           total_amount: sale.total_amount,
           deposit_amount: sale.deposit_amount,
-          payment_plan_type: (sale as any).payment_plan_type,
           sale_date: sale.sale_date
         } as any,
         created_by: userId
@@ -188,6 +187,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
       .update({
         total_amount: data.newTotalAmount,
         total_price: data.newTotalAmount,
+        final_price: data.newTotalAmount,
         balance: data.newTotalAmount - (sale.deposit_amount || 0),
         updated_at: new Date().toISOString()
       })

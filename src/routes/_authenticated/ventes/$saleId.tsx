@@ -342,7 +342,7 @@ function SaleDetailsComponent() {
                 <div>
                   <p className="font-medium">Contrat MSI 2.0</p>
                   <p className="text-xs text-muted-foreground">
-                    {(sale as any).snapshots && (sale as any).snapshots.length > 0 ? `Version figée le ${format(new Date((sale as any).snapshots[0].created_at), 'dd/MM/yyyy')}` : 'Version brouillon'}
+                    {(sale as any).snapshots && (sale as any).snapshots.length > 0 && (sale as any).snapshots[0].created_at ? `Version figée le ${format(new Date((sale as any).snapshots[0].created_at), 'dd/MM/yyyy')}` : 'Version brouillon'}
                   </p>
                 </div>
                 <Button size="sm" variant="outline" disabled={sale.status === 'reservation'}>
