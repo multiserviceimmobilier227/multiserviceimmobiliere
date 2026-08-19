@@ -27,6 +27,27 @@ export const checkUserRole = createServerFn({ method: "GET" })
   });
 
 /**
+ * Get the current user's role
+ */
+export const getCurrentUserRole = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from('user_roles')
+      .select('role, agence_id')
+      .eq('user_id', context.userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching user role:", error);
+      return null;
+    }
+
+    return data;
+  });
+
+/**
  * Assign a role and optionally an agence to a user (Informaticien only)
  */
 export const assignUserRole = createServerFn({ method: "POST" })
