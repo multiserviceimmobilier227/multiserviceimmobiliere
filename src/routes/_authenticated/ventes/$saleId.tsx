@@ -1,6 +1,6 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
