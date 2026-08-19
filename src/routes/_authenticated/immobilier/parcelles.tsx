@@ -50,36 +50,36 @@ function ParcellesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">Parcelles</h1>
           <p className="text-muted-foreground font-sans">
             Suivi individuel et cycle de vie de chaque parcelle.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 font-sans">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="flex-1 sm:flex-none gap-2 font-sans">
             <Filter className="h-4 w-4" />
             Filtres
           </Button>
-          <Button className="gap-2 font-sans bg-primary hover:bg-primary/90">
+          <Button className="flex-1 sm:flex-none gap-2 font-sans bg-primary hover:bg-primary/90">
             <Grid className="h-4 w-4" />
             Vue Grille
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 bg-card p-4 rounded-lg border border-border/50 shadow-sm">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-card p-4 rounded-lg border border-border/50 shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input 
             placeholder="Rechercher par numéro, îlot, lotissement..." 
-            className="pl-9 font-sans"
+            className="pl-9 font-sans w-full"
           />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 font-sans">
+            <Button variant="outline" className="justify-between gap-2 font-sans w-full md:w-auto">
               Statut: Tous
               <ChevronDown className="h-4 w-4" />
             </Button>
