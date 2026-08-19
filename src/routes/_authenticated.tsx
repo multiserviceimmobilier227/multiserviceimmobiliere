@@ -58,6 +58,7 @@ function AuthenticatedLayout() {
     
     const fetchRoleAndPermissions = async () => {
       try {
+        // Run fetches in parallel for speed
         const [roleData, permissionsData] = await Promise.all([
           getCurrentUserRole(),
           getRolePermissions()
@@ -67,10 +68,11 @@ function AuthenticatedLayout() {
           role: (roleData?.role as AppRole) || null,
           agenceId: roleData?.agence_id || null,
           isLoading: false,
-          dynamicPermissions: permissionsData || [],
+          dynamicPermissions: Array.isArray(permissionsData) ? permissionsData : [],
         })
       } catch (error) {
         console.error("Failed to fetch user role or permissions:", error)
+        // If fetch fails, we still stop loading so UI doesn't hang
         setUserRole(prev => ({ ...prev, isLoading: false }))
       }
     }
