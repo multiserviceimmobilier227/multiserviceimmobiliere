@@ -85,7 +85,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+    const startOfMonthStr = startOfMonth.toISOString();
 
     // 1. Monthly Sales Volume (Sum of total_amount for sales this month)
     const { data: salesVolume } = await supabaseAdmin
@@ -107,9 +107,9 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       .select("amount")
       .gte("payment_date", startOfMonthStr);
 
-    const totalSalesVolume = salesVolume?.reduce((sum, s) => sum + Number(s.total_amount), 0) || 0;
-    const totalDeposits = deposits?.reduce((sum, s) => sum + Number(s.deposit_amount), 0) || 0;
-    const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+    const totalSalesVolume = salesVolume?.reduce((sum, s) => sum + Number(s.total_amount || 0), 0) || 0;
+    const totalDeposits = deposits?.reduce((sum, s) => sum + Number(s.deposit_amount || 0), 0) || 0;
+    const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0;
 
     return {
       monthlySales: totalSalesVolume,
