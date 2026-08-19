@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { AppShell } from '@/components/AppShell'
 import { useEffect, useState, createContext, useContext } from 'react'
 import { getCurrentUserRole } from '@/lib/auth.functions'
+import { getRolePermissions } from '@/lib/permissions.functions'
 import { AppRole, Permission, hasPermission } from '@/lib/permissions'
 import { toast } from 'sonner'
 
@@ -39,35 +40,46 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedLayout() {
   const [mounted, setMounted] = useState(false)
-  const [userRole, setUserRole] = useState<{ role: AppRole | null; agenceId: string | null; isLoading: boolean }>({
+  const [userRole, setUserRole] = useState<{ 
+    role: AppRole | null; 
+    agenceId: string | null; 
+    isLoading: boolean;
+    dynamicPermissions: any[];
+  }>({
     role: null,
     agenceId: null,
     isLoading: true,
+    dynamicPermissions: [],
   })
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
     
-    const fetchRole = async () => {
+    const fetchRoleAndPermissions = async () => {
       try {
-        const roleData = await getCurrentUserRole()
+        const [roleData, permissionsData] = await Promise.all([
+          getCurrentUserRole(),
+          getRolePermissions()
+        ])
+        
         setUserRole({
           role: (roleData?.role as AppRole) || null,
           agenceId: roleData?.agence_id || null,
           isLoading: false,
+          dynamicPermissions: permissionsData || [],
         })
       } catch (error) {
-        console.error("Failed to fetch user role:", error)
+        console.error("Failed to fetch user role or permissions:", error)
         setUserRole(prev => ({ ...prev, isLoading: false }))
       }
     }
     
-    fetchRole()
+    fetchRoleAndPermissions()
   }, [])
 
   const checkPermission = (permission: Permission) => {
-    return hasPermission(userRole.role, permission)
+    return hasPermission(userRole.role, permission, userRole.dynamicPermissions)
   }
 
   if (!mounted) {
