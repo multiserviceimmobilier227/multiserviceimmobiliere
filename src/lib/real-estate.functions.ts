@@ -188,7 +188,10 @@ export const createIlot = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("ilots")
-      .insert(input)
+      .insert({
+        numero: input.numero,
+        zone_id: input.zone_id,
+      })
       .select()
       .single();
     
@@ -201,8 +204,9 @@ export const createPlot = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({
     plot_number: z.string().min(1),
     ilot_id: z.string().uuid(),
-    surface: z.number().min(0),
-    price_total: z.number().min(0),
+    surface_area: z.number().min(0),
+    base_price: z.number().min(0),
+    site_id: z.string().uuid(),
     status: z.string().optional(),
   }).parse(data))
   .handler(async ({ data: input }) => {
@@ -210,7 +214,11 @@ export const createPlot = createServerFn({ method: "POST" })
     const { data, error } = await supabaseAdmin
       .from("plots")
       .insert({
-        ...input,
+        plot_number: input.plot_number,
+        ilot_id: input.ilot_id,
+        surface_area: input.surface_area,
+        base_price: input.base_price,
+        site_id: input.site_id,
         status: (input.status || "Disponible") as PlotStatus
       })
       .select()
