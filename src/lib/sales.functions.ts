@@ -9,15 +9,16 @@ const createSaleSchema = z.object({
   totalAmount: z.number().positive(),
   depositAmount: z.number().nonnegative(),
   paymentPlanType: z.enum(["Comptant", "Échéancier"]),
-  durationMonths: z.number().int().min(1).max(120).optional(),
-  agencyId: z.string().uuid().optional(),
-  firstPaymentDate: z.string().optional(),
-  customSchedules: z.array(z.object({
-    due_date: z.string(),
-    amount_due: z.number().positive(),
-    notes: z.string().optional()
-  })).optional()
-});
+   durationMonths: z.number().int().min(0).max(120).optional(),
+   agencyId: z.string().uuid().optional(),
+   firstPaymentDate: z.string().optional(),
+   justification: z.string().optional(),
+   customSchedules: z.array(z.object({
+     due_date: z.string(),
+     amount_due: z.number().positive(),
+     notes: z.string().optional()
+   })).optional()
+ });
 
 export const createSaleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -37,21 +38,22 @@ export const createSaleDraft = createServerFn({ method: "POST" })
       throw new Error("Client invalide ou inexistant.");
     }
 
-    const { data: sale, error: saleError } = await supabase
-      .from("sales")
-      .insert({
-        client_id: data.clientId,
-        plot_id: data.plotId,
-        total_amount: data.totalAmount,
-        total_price: data.totalAmount,
-        balance: data.totalAmount - data.depositAmount,
-        deposit_amount: data.depositAmount,
-        agency_id: data.agencyId ?? null,
-        prepared_by_id: userId,
-        status: "reservation",
-        sale_date: format(new Date(), "yyyy-MM-dd"),
-        first_payment_date: data.firstPaymentDate || null,
-      })
+     const { data: sale, error: saleError } = await supabase
+       .from("sales")
+       .insert({
+         client_id: data.clientId,
+         plot_id: data.plotId,
+         total_amount: data.totalAmount,
+         total_price: data.totalAmount,
+         balance: data.totalAmount - data.depositAmount,
+         deposit_amount: data.depositAmount,
+         agency_id: data.agencyId ?? null,
+         prepared_by_id: userId,
+         status: "reservation",
+         sale_date: format(new Date(), "yyyy-MM-dd"),
+         first_payment_date: data.firstPaymentDate || null,
+         notes: data.justification || null
+       })
 
       .select()
       .single();
