@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          id_number: string | null
+          id_type: Database["public"]["Enums"]["id_type"]
+          last_name: string
+          occupation: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          id_number?: string | null
+          id_type?: Database["public"]["Enums"]["id_type"]
+          last_name: string
+          occupation?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          id_number?: string | null
+          id_type?: Database["public"]["Enums"]["id_type"]
+          last_name?: string
+          occupation?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plots: {
         Row: {
           base_price: number
@@ -151,6 +193,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      id_type: "cni" | "passeport" | "permis" | "autre"
       plot_status: "disponible" | "reserve" | "vendu" | "litige"
       site_status: "actif" | "inactif" | "termine"
     }
@@ -281,6 +324,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      id_type: ["cni", "passeport", "permis", "autre"],
       plot_status: ["disponible", "reserve", "vendu", "litige"],
       site_status: ["actif", "inactif", "termine"],
     },
