@@ -175,6 +175,72 @@ function SaleDetailsComponent() {
             </DialogContent>
           </Dialog>
 
+          {/* Enregistrement de Paiement */}
+          <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-white hover:bg-primary/90" disabled={sale.status === 'annule' || (sale.balance || 0) <= 0}>
+                <DollarSign className="mr-2 h-4 w-4" /> Encaisser Paiement
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Encaisser un Paiement</DialogTitle>
+                <DialogDescription>
+                  Enregistrez un nouveau versement pour cette vente. Le solde sera mis à jour automatiquement.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="payAmount">Montant à encaisser (FCFA)</Label>
+                  <Input 
+                    id="payAmount" 
+                    type="number" 
+                    value={payAmount} 
+                    onChange={(e) => setPayAmount(e.target.value)}
+                    placeholder="Montant du versement" 
+                  />
+                  <p className="text-xs text-muted-foreground">Solde restant : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payDate">Date du paiement</Label>
+                  <Input 
+                    id="payDate" 
+                    type="date" 
+                    value={payDate} 
+                    onChange={(e) => setPayDate(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payMethod">Mode de paiement</Label>
+                  <Select value={payMethod} onValueChange={(val: any) => setPayMethod(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir un mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="espece">Espèces</SelectItem>
+                      <SelectItem value="virement">Virement Bancaire</SelectItem>
+                      <SelectItem value="cheque">Chèque</SelectItem>
+                      <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="payRef">Référence (N° Chèque/Transaction)</Label>
+                  <Input 
+                    id="payRef" 
+                    value={payRef} 
+                    onChange={(e) => setPayRef(e.target.value)}
+                    placeholder="Ex: CHQ-123456 ou Transaction ID" 
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsPaymentOpen(false)}>Annuler</Button>
+                <Button onClick={() => paymentMutation.mutate()} disabled={!payAmount || parseFloat(payAmount) <= 0}>Confirmer l'encaissement</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {sale.status === 'reservation' && (
             <Button className="bg-green-600 hover:bg-green-700" onClick={() => validateMutation.mutate()}>
               <CheckCircle2 className="mr-2 h-4 w-4" /> Valider Contrat (PDG)
