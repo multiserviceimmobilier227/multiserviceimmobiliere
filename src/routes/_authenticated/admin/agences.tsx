@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/admin/agences')({
 });
 
 function AgencesPage() {
-  const { role, isLoading } = useUserRole();
+  const { role, isLoading, checkPermission } = useUserRole();
   const queryClient = useQueryClient();
   const { data: agences } = useSuspenseQuery({
     queryKey: ['agences'],
@@ -33,13 +33,16 @@ function AgencesPage() {
 
   if (isLoading) return null;
 
-  if (role !== 'pdg' && role !== 'informaticien') {
+  if (!checkPermission('manage_agences')) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
+        <div className="text-center space-y-4">
+          <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
+        </div>
       </div>
     );
   }
+
 
 
   const [isAdding, setIsAdding] = useState(false);

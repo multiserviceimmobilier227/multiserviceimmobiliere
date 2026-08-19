@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/admin/audit')({
 });
 
 function AuditPage() {
-  const { role, isLoading } = useUserRole();
+  const { role, isLoading, checkPermission } = useUserRole();
   const { data: logs } = useSuspenseQuery({
     queryKey: ['audit-logs'],
     queryFn: () => getAuditLogs(),
@@ -28,13 +28,14 @@ function AuditPage() {
 
   if (isLoading) return null;
 
-  if (role !== 'pdg' && role !== 'informaticien') {
+  if (!checkPermission('view_audit_logs')) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <p className="text-muted-foreground font-sans">Accès non autorisé.</p>
       </div>
     );
   }
+
 
 
   const getActionColor = (action: string) => {

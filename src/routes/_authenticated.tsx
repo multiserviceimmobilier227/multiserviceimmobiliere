@@ -1,19 +1,23 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useRouter } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
 import { AppShell } from '@/components/AppShell'
 import { useEffect, useState, createContext, useContext } from 'react'
 import { getCurrentUserRole } from '@/lib/auth.functions'
+import { AppRole, Permission, hasPermission } from '@/lib/permissions'
+import { toast } from 'sonner'
 
 type UserRoleContextType = {
-  role: string | null;
+  role: AppRole | null;
   agenceId: string | null;
   isLoading: boolean;
+  checkPermission: (permission: Permission) => boolean;
 }
 
 const UserRoleContext = createContext<UserRoleContextType>({
   role: null,
   agenceId: null,
   isLoading: true,
+  checkPermission: () => false,
 })
 
 export const useUserRole = () => useContext(UserRoleContext)
@@ -35,11 +39,12 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedLayout() {
   const [mounted, setMounted] = useState(false)
-  const [userRole, setUserRole] = useState<{ role: string | null; agenceId: string | null; isLoading: boolean }>({
+  const [userRole, setUserRole] = useState<{ role: AppRole | null; agenceId: string | null; isLoading: boolean }>({
     role: null,
     agenceId: null,
     isLoading: true,
   })
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -48,7 +53,7 @@ function AuthenticatedLayout() {
       try {
         const roleData = await getCurrentUserRole()
         setUserRole({
-          role: roleData?.role || null,
+          role: (roleData?.role as AppRole) || null,
           agenceId: roleData?.agence_id || null,
           isLoading: false,
         })
@@ -61,16 +66,21 @@ function AuthenticatedLayout() {
     fetchRole()
   }, [])
 
+  const checkPermission = (permission: Permission) => {
+    return hasPermission(userRole.role, permission)
+  }
+
   if (!mounted) {
     return null
   }
 
   return (
-    <UserRoleContext.Provider value={userRole}>
+    <UserRoleContext.Provider value={{ ...userRole, checkPermission }}>
       <AppShell>
         <Outlet />
       </AppShell>
     </UserRoleContext.Provider>
   )
 }
+
 

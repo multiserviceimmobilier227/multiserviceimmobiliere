@@ -54,44 +54,38 @@ export const assignUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({
     userId: z.string().uuid(),
-    role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client']),
-    agenceId: z.string().uuid().optional()
+    role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client', 'admin', 'moderator', 'user']),
+    agenceId: z.string().uuid().optional().nullable()
   }))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
-    // Check if the caller is an admin
+    // Check if the caller is an admin (PDG or Informaticien)
     const { data: callerRole } = await supabaseAdmin
       .from('user_roles')
       .select('role')
       .eq('user_id', context.userId)
-      .eq('role', 'pdg')
       .maybeSingle();
 
-    if (!callerRole && context.userId !== 'd2a66474-30df-4d82-9b98-9dc39a8ec045') { // Bypass for the initial PDG
-        const { data: callerInf } = await supabaseAdmin
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', context.userId)
-          .eq('role', 'informaticien')
-          .maybeSingle();
-        
-        if (!callerInf) throw new Error("Unauthorized: Only PDG or Informaticien can assign roles");
+    const isAdmin = callerRole?.role === 'pdg' || callerRole?.role === 'informaticien';
+    const isInitialPDG = context.userId === 'd2a66474-30df-4d82-9b98-9dc39a8ec045';
+
+    if (!isAdmin && !isInitialPDG) {
+      throw new Error("Unauthorized: Only PDG or Informaticien can assign roles");
     }
 
-    
     const { error } = await supabaseAdmin
       .from('user_roles')
       .upsert({ 
         user_id: data.userId, 
-        role: data.role,
+        role: data.role as any, // Cast to any to match enum
         agence_id: data.agenceId ?? null
-      }, { onConflict: 'user_id,role' });
-
+      }, { onConflict: 'user_id' }); // Conflict is on user_id as we only want one role per user here
 
     if (error) throw error;
     return { success: true };
   });
+
 
 /**
  * Get all users with their roles
