@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
 import { Database } from "@/integrations/supabase/types";
 
 type PlotStatus = Database["public"]["Enums"]["plot_status_new"];
@@ -17,6 +17,7 @@ const lotissementSchema = z.object({
 // Server functions
 export const getLotissements = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("lotissements")
       .select(`
@@ -36,6 +37,7 @@ export const getLotissements = createServerFn({ method: "GET" })
 export const createLotissement = createServerFn({ method: "POST" })
   .validator((data: unknown) => lotissementSchema.parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Exact optional property types fix: ensure undefined becomes null for Supabase
     const payload = {
       name: input.name,
@@ -62,6 +64,7 @@ export const getPlots = createServerFn({ method: "GET" })
     status: z.string().optional()
   }).optional().parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let query = supabaseAdmin
       .from("plots")
       .select(`
@@ -97,6 +100,7 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
     userId: z.string().uuid()
   }).parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // 1. Get old status
     const { data: plot, error: fetchError } = await supabaseAdmin
       .from("plots")
@@ -135,6 +139,7 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
 export const getZonesByLotissement = createServerFn({ method: "GET" })
   .validator((data: unknown) => z.string().uuid().parse(data))
   .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("zones")
       .select("*, ilots(*)")

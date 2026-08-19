@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+
 
 const clientSchema = z.object({
   first_name: z.string().min(1),
@@ -23,6 +23,7 @@ export const getClients = createServerFn({ method: "GET" })
     agenceId: z.string().optional() 
   }).parse(data))
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     let query = supabase.from("clients").select("*");
     
     if (data.search) {
@@ -37,6 +38,7 @@ export const getClients = createServerFn({ method: "GET" })
 export const getClientDetails = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const [clientRes, docsRes, interactionsRes] = await Promise.all([
       supabase.from("clients").select("*").eq("id", data.id).single(),
       supabase.from("client_documents").select("*").eq("client_id", data.id).order("created_at", { ascending: false }),
@@ -58,6 +60,7 @@ export const upsertClient = createServerFn({ method: "POST" })
     client: clientSchema
   }).parse(data))
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const updateData: any = {
       first_name: data.client.first_name,
       last_name: data.client.last_name,
@@ -96,6 +99,7 @@ export const addClientInteraction = createServerFn({ method: "POST" })
     interaction_date: z.string().optional(),
   }).parse(data))
   .handler(async ({ data }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
     const { data: userRes } = await supabase.auth.getUser();
     const { data: interaction, error } = await supabase
       .from("client_interactions")
