@@ -1,4 +1,4 @@
-import { Shield, History, Building2, Settings, Lock, Calendar } from "lucide-react";
+import { Shield, History, Building2, Settings, Lock, Calendar, FileText } from "lucide-react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { getAuditLogs, getCurrentUserRole } from "@/lib/auth.functions";
 import { useUserRole } from "@/routes/_authenticated";
@@ -73,6 +73,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="space-y-1">
           {checkPermission('view_clients') && (
             <NavItem to="/crm/clients" icon={Shield} label="Clients" onClick={onItemClick} />
+          )}
+          {checkPermission('view_sales') && (
+            <NavItem to="/crm/ventes" icon={FileText} label="Ventes & Contrats" onClick={onItemClick} />
           )}
         </div>
       </div>

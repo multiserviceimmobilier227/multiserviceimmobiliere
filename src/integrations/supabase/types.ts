@@ -342,6 +342,47 @@ export type Database = {
         }
         Relationships: []
       }
+      contracts: {
+        Row: {
+          content_url: string | null
+          contract_number: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          sale_id: string
+          signed_at: string | null
+          version: number | null
+        }
+        Insert: {
+          content_url?: string | null
+          contract_number: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          sale_id: string
+          signed_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          content_url?: string | null
+          contract_number?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          sale_id?: string
+          signed_at?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_categories: {
         Row: {
           created_at: string | null
@@ -775,6 +816,47 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_adjustments: {
+        Row: {
+          authorized_by: string | null
+          created_at: string | null
+          id: string
+          new_data: Json
+          previous_data: Json
+          reason: string
+          sale_id: string
+          type: Database["public"]["Enums"]["adjustment_type"]
+        }
+        Insert: {
+          authorized_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_data: Json
+          previous_data: Json
+          reason: string
+          sale_id: string
+          type: Database["public"]["Enums"]["adjustment_type"]
+        }
+        Update: {
+          authorized_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_data?: Json
+          previous_data?: Json
+          reason?: string
+          sale_id?: string
+          type?: Database["public"]["Enums"]["adjustment_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_adjustments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           balance: number
@@ -986,6 +1068,7 @@ export type Database = {
         | "Commission"
         | "Taxe"
         | "Autre"
+      adjustment_type: "change_plot" | "price_adjustment"
       app_role:
         | "admin"
         | "moderator"
@@ -999,6 +1082,7 @@ export type Database = {
         | "client"
       id_type: "cni" | "passeport" | "permis" | "autre"
       payment_method: "espece" | "virement" | "cheque" | "mobile_money"
+      payment_plan_type: "comptant" | "echelonne"
       plot_status: "disponible" | "reserve" | "vendu" | "litige"
       plot_status_new:
         | "Disponible"
@@ -1147,6 +1231,7 @@ export const Constants = {
         "Taxe",
         "Autre",
       ],
+      adjustment_type: ["change_plot", "price_adjustment"],
       app_role: [
         "admin",
         "moderator",
@@ -1161,6 +1246,7 @@ export const Constants = {
       ],
       id_type: ["cni", "passeport", "permis", "autre"],
       payment_method: ["espece", "virement", "cheque", "mobile_money"],
+      payment_plan_type: ["comptant", "echelonne"],
       plot_status: ["disponible", "reserve", "vendu", "litige"],
       plot_status_new: [
         "Disponible",
