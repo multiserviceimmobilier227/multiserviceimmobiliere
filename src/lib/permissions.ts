@@ -21,7 +21,7 @@ export type Permission =
   | 'view_finance'
   | 'manage_finance';
 
-export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
+export const ROLE_PERMISSIONS: Partial<Record<AppRole, Permission[]>> = {
   pdg: [
     'view_dashboard', 'manage_users', 'manage_agences', 'view_audit_logs', 
     'manage_settings', 'view_lotissements', 'create_lotissement', 'manage_plots',
@@ -55,5 +55,8 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
 
 export function hasPermission(role: AppRole | null, permission: Permission): boolean {
   if (!role) return false;
+  // PDG and Informaticien have all permissions
+  if (role === 'pdg' || role === 'informaticien') return true;
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 }
+
