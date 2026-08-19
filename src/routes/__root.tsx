@@ -1,5 +1,5 @@
 import { createRootRouteWithContext, Outlet, ScrollRestoration } from '@tanstack/react-router'
-import { Meta, Scripts } from '@tanstack/react-start'
+import { Meta, Scripts } from '@tanstack/react-router'
 import { type ReactNode } from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { type QueryClient } from '@tanstack/react-query'
