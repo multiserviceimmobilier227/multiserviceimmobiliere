@@ -119,6 +119,7 @@ function ReservationsPage() {
           <TableBody>
             {reservations?.map((res: any) => {
               const config = statusConfig[res.status as keyof typeof statusConfig] || statusConfig['active'];
+              if (!config) return null;
               const StatusIcon = config.icon;
               
               return (
