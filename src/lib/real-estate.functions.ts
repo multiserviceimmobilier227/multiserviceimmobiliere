@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 import { Database } from "@/integrations/supabase/types";
 
@@ -16,6 +17,7 @@ const lotissementSchema = z.object({
 
 // Server functions
 export const getLotissements = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -35,6 +37,7 @@ export const getLotissements = createServerFn({ method: "GET" })
   });
 
 export const createLotissement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => lotissementSchema.parse(data))
   .handler(async ({ data: input }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -58,6 +61,7 @@ export const createLotissement = createServerFn({ method: "POST" })
   });
 
 export const getPlots = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ 
     lotissementId: z.string().uuid().optional(),
     ilotId: z.string().uuid().optional(),
@@ -93,6 +97,7 @@ export const getPlots = createServerFn({ method: "GET" })
   });
 
 export const updatePlotStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({
     plotId: z.string().uuid(),
     newStatus: z.string(),
@@ -137,6 +142,7 @@ export const updatePlotStatus = createServerFn({ method: "POST" })
   });
 
 export const getZonesByLotissement = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.string().uuid().parse(data))
   .handler(async ({ data: input }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

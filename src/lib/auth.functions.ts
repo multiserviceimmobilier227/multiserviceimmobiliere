@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Check if the current authenticated user has a specific role.
  */
 export const checkUserRole = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ 
     userId: z.string().uuid(),
     role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client'])
@@ -28,6 +30,7 @@ export const checkUserRole = createServerFn({ method: "GET" })
  * Assign a role and optionally an agence to a user (Informaticien only)
  */
 export const assignUserRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(z.object({
     userId: z.string().uuid(),
     role: z.enum(['pdg', 'comptable', 'secretaire', 'commercial', 'responsable_agence', 'informaticien', 'client']),
@@ -53,6 +56,7 @@ export const assignUserRole = createServerFn({ method: "POST" })
  * Get all users with their roles
  */
 export const getUsersWithRoles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -67,6 +71,7 @@ export const getUsersWithRoles = createServerFn({ method: "GET" })
  * Get audit logs
  */
 export const getAuditLogs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -82,6 +87,7 @@ export const getAuditLogs = createServerFn({ method: "GET" })
  * CRUD Agences
  */
 export const getAgences = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -93,6 +99,7 @@ export const getAgences = createServerFn({ method: "GET" })
   });
 
 export const createAgence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(z.object({
     name: z.string(),
     city: z.string(),
@@ -120,6 +127,7 @@ export const createAgence = createServerFn({ method: "POST" })
  * Business Settings
  */
 export const getAppSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -130,6 +138,7 @@ export const getAppSettings = createServerFn({ method: "GET" })
   });
 
 export const updateBusinessRules = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(z.object({
     rules: z.object({
       recommended_down_payment_pct: z.number(),
