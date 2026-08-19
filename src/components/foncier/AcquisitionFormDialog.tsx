@@ -68,7 +68,9 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vendeur</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} 
@@ -79,7 +81,9 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Date d'achat</FormLabel>
-                  <FormControl><Input type="date" {...field} /></FormControl>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} 
@@ -101,9 +105,14 @@ export function AcquisitionFormDialog({ open, onOpenChange }: { open: boolean; o
                 </FormItem>
               )} 
             />
-            <Button type="submit" className="w-full bg-[#D1127B]" disabled={mutation.isPending}>
-              {mutation.isPending ? "Enregistrement..." : "Enregistrer"}
-            </Button>
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" className="bg-[#D1127B] hover:bg-[#b00e68]" disabled={mutation.isPending}>
+                {mutation.isPending ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>
