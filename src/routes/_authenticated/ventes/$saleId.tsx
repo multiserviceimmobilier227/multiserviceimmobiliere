@@ -187,7 +187,7 @@ function SaleDetailsComponent() {
             <CardTitle className="text-sm font-medium">Finances</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-primary">{new Intl.NumberFormat('fr-FR').format(sale.total_price)} FCFA</div>
+            <div className="text-xl font-bold text-primary">{new Intl.NumberFormat('fr-FR').format(sale.total_price ?? 0)} FCFA</div>
             <div className="text-xs text-muted-foreground mt-1 text-green-600 font-medium">Apport : {new Intl.NumberFormat('fr-FR').format(sale.deposit_amount || 0)} FCFA</div>
             <div className="text-xs font-bold text-red-600 mt-1 border-t pt-1">Reste à payer : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</div>
           </CardContent>

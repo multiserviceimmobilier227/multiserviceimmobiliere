@@ -108,7 +108,7 @@ export const validateSale = createServerFn({ method: "POST" })
         sale_data: {
           total_amount: sale.total_amount,
           deposit_amount: sale.deposit_amount,
-          payment_plan_type: sale.payment_plan_type,
+          payment_plan_type: (sale as any).payment_plan_type,
           sale_date: sale.sale_date
         },
         created_by: userId
