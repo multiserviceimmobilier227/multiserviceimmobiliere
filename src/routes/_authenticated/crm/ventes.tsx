@@ -33,10 +33,10 @@ export const Route = createFileRoute('/_authenticated/crm/ventes')({
 });
 
 const statusStyles: Record<string, { label: string, color: string }> = {
-  en_cours: { label: 'En cours', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  termine: { label: 'Terminée', color: 'bg-green-100 text-green-800 border-green-200' },
-  reservation: { label: 'Réservation', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  annule: { label: 'Annulée', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+  'en_cours': { label: 'En cours', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+  'termine': { label: 'Terminée', color: 'bg-green-100 text-green-800 border-green-200' },
+  'reservation': { label: 'Réservation', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+  'annule': { label: 'Annulée', color: 'bg-gray-100 text-gray-800 border-gray-200' },
 };
 
 function SalesListPage() {
@@ -127,7 +127,7 @@ function SalesListPage() {
           </TableHeader>
           <TableBody>
             {sales?.map((sale: any) => {
-              const style = statusStyles[sale.status as string] || statusStyles.en_cours;
+              const style = statusStyles[sale.status as string] || statusStyles['en_cours'];
               
               return (
                 <TableRow key={sale.id} className="hover:bg-muted/20 transition-colors">

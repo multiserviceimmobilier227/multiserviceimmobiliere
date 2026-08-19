@@ -26,6 +26,7 @@ import { Route as AuthenticatedImmobilierReservationsRouteImport } from './route
 import { Route as AuthenticatedImmobilierTarifsRouteImport } from './routes/_authenticated/immobilier/tarifs'
 import { Route as AuthenticatedCrmClientClientIdRouteImport } from './routes/_authenticated/crm/client.$clientId'
 import { Route as AuthenticatedCrmVentesSaleIdRouteImport } from './routes/_authenticated/crm/ventes.$saleId'
+import { Route as AuthenticatedCrmVentesNouveauRouteImport } from './routes/_authenticated/crm/ventes.nouveau'
 import { Route as AuthenticatedImmobilierParcellesPlotIdPrixRouteImport } from './routes/_authenticated/immobilier/parcelles.$plotId.prix'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -122,6 +123,12 @@ const AuthenticatedCrmVentesSaleIdRoute =
     path: '/$saleId',
     getParentRoute: () => AuthenticatedCrmVentesRoute,
   } as any)
+const AuthenticatedCrmVentesNouveauRoute =
+  AuthenticatedCrmVentesNouveauRouteImport.update({
+    id: '/nouveau',
+    path: '/nouveau',
+    getParentRoute: () => AuthenticatedCrmVentesRoute,
+  } as any)
 const AuthenticatedImmobilierParcellesPlotIdPrixRoute =
   AuthenticatedImmobilierParcellesPlotIdPrixRouteImport.update({
     id: '/$plotId/prix',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/crm/': typeof AuthenticatedCrmIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/crm/ventes/$saleId': typeof AuthenticatedCrmVentesSaleIdRoute
+  '/crm/ventes/nouveau': typeof AuthenticatedCrmVentesNouveauRoute
   '/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
 export interface FileRoutesByTo {
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/crm': typeof AuthenticatedCrmIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/crm/ventes/$saleId': typeof AuthenticatedCrmVentesSaleIdRoute
+  '/crm/ventes/nouveau': typeof AuthenticatedCrmVentesNouveauRoute
   '/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
 export interface FileRoutesById {
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
   '/_authenticated/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/_authenticated/crm/ventes/$saleId': typeof AuthenticatedCrmVentesSaleIdRoute
+  '/_authenticated/crm/ventes/nouveau': typeof AuthenticatedCrmVentesNouveauRoute
   '/_authenticated/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
 export interface FileRouteTypes {
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/crm/'
     | '/crm/client/$clientId'
     | '/crm/ventes/$saleId'
+    | '/crm/ventes/nouveau'
     | '/immobilier/parcelles/$plotId/prix'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/crm'
     | '/crm/client/$clientId'
     | '/crm/ventes/$saleId'
+    | '/crm/ventes/nouveau'
     | '/immobilier/parcelles/$plotId/prix'
   id:
     | '__root__'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/_authenticated/crm/'
     | '/_authenticated/crm/client/$clientId'
     | '/_authenticated/crm/ventes/$saleId'
+    | '/_authenticated/crm/ventes/nouveau'
     | '/_authenticated/immobilier/parcelles/$plotId/prix'
   fileRoutesById: FileRoutesById
 }
@@ -375,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCrmVentesSaleIdRouteImport
       parentRoute: typeof AuthenticatedCrmVentesRoute
     }
+    '/_authenticated/crm/ventes/nouveau': {
+      id: '/_authenticated/crm/ventes/nouveau'
+      path: '/nouveau'
+      fullPath: '/crm/ventes/nouveau'
+      preLoaderRoute: typeof AuthenticatedCrmVentesNouveauRouteImport
+      parentRoute: typeof AuthenticatedCrmVentesRoute
+    }
     '/_authenticated/immobilier/parcelles/$plotId/prix': {
       id: '/_authenticated/immobilier/parcelles/$plotId/prix'
       path: '/$plotId/prix'
@@ -387,11 +407,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCrmVentesRouteChildren {
   AuthenticatedCrmVentesSaleIdRoute: typeof AuthenticatedCrmVentesSaleIdRoute
+  AuthenticatedCrmVentesNouveauRoute: typeof AuthenticatedCrmVentesNouveauRoute
 }
 
 const AuthenticatedCrmVentesRouteChildren: AuthenticatedCrmVentesRouteChildren =
   {
     AuthenticatedCrmVentesSaleIdRoute: AuthenticatedCrmVentesSaleIdRoute,
+    AuthenticatedCrmVentesNouveauRoute: AuthenticatedCrmVentesNouveauRoute,
   }
 
 const AuthenticatedCrmVentesRouteWithChildren =
