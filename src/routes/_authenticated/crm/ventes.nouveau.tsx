@@ -1,7 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClients } from '@/lib/clients.functions'; // Assuming this exists or will be created
-import { getPlots } from '@/lib/immobilier.functions'; // Assuming this exists or will be created
 import { createSale } from '@/lib/sales.functions';
 import { 
   FileText, 
@@ -45,7 +43,7 @@ function NewSalePage() {
   const [downPayment, setDownPayment] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load data
+  // Load data using Supabase directly to avoid missing module errors
   const { data: clients } = useSuspenseQuery({
     queryKey: ['clients'],
     queryFn: async () => {
@@ -62,11 +60,11 @@ function NewSalePage() {
       const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase
         .from('plots')
-        .select('*, ilot:ilots(*, zone:zones(*, lotissement:lotissements(*))))')
+        .select('*, ilot:ilots(*, zone:zones(*, lotissement:lotissements(*)))')
         .or('status.eq.Disponible,status.eq.Réservée')
         .order('plot_number');
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -109,7 +107,7 @@ function NewSalePage() {
     mutation.mutate({
       clientId: selectedClientId,
       plotId: selectedPlotId,
-      agencyId: selectedPlot?.ilot?.zone?.lotissement?.agency_id || '', // Fallback if needed
+      agencyId: selectedPlot?.ilot?.zone?.lotissement?.agency_id || '', 
       paymentPlanType,
       totalPrice,
       downPaymentAmount: downPayment,
@@ -130,7 +128,6 @@ function NewSalePage() {
 
       <form onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
-          {/* Section 1: Parties au contrat */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -175,7 +172,6 @@ function NewSalePage() {
             </CardContent>
           </Card>
 
-          {/* Section 2: Modalités de paiement */}
           <Card className="border-border/50 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -237,7 +233,6 @@ function NewSalePage() {
           </Card>
         </div>
 
-        {/* Sidebar: Résumé Financier */}
         <div className="space-y-6">
           <Card className="border-border/50 shadow-sm sticky top-6">
             <CardHeader>
