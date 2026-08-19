@@ -700,11 +700,12 @@ export type Database = {
     Views: {
       lotissement_profitability: {
         Row: {
+          location: string | null
           lotissement_id: string | null
-          lotissement_name: string | null
+          margin_percentage: number | null
+          name: string | null
           potential_revenue: number | null
           total_investment: number | null
-          total_plots: number | null
         }
         Relationships: []
       }
