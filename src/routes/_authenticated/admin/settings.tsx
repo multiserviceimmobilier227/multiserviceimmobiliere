@@ -48,8 +48,9 @@ function SettingsPage() {
   });
 
   const handleSave = () => {
-    mutation.mutate({ rules });
+    mutation.mutate({ data: { rules } });
   };
+
 
   return (
     <div className="space-y-6">
