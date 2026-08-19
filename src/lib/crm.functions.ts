@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 
 const clientSchema = z.object({
@@ -18,6 +19,7 @@ const clientSchema = z.object({
 });
 
 export const getClients = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ 
     search: z.string().optional(),
     agenceId: z.string().optional() 
@@ -36,6 +38,7 @@ export const getClients = createServerFn({ method: "GET" })
   });
 
 export const getClientDetails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
@@ -55,6 +58,7 @@ export const getClientDetails = createServerFn({ method: "GET" })
   });
 
 export const upsertClient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
     id: z.string().optional(),
     client: clientSchema
@@ -92,6 +96,7 @@ export const upsertClient = createServerFn({ method: "POST" })
   });
 
 export const addClientInteraction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
     client_id: z.string(),
     interaction_type: z.string(),

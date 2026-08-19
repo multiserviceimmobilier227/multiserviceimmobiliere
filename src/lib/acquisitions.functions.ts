@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 import { Database } from "@/integrations/supabase/types";
 
@@ -24,6 +25,7 @@ const costSchema = z.object({
 });
 
 export const getAcquisitions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
@@ -41,6 +43,7 @@ export const getAcquisitions = createServerFn({ method: "GET" })
   });
 
 export const createAcquisition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => acquisitionSchema.parse(data))
   .handler(async ({ data: input }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -64,6 +67,7 @@ export const createAcquisition = createServerFn({ method: "POST" })
   });
 
 export const addAcquisitionCost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => costSchema.parse(data))
   .handler(async ({ data: input }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -87,6 +91,7 @@ export const addAcquisitionCost = createServerFn({ method: "POST" })
   });
 
 export const getProfitabilityReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
