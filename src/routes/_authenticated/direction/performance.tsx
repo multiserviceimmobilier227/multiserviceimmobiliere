@@ -84,6 +84,12 @@ function PerformanceDirectionPage() {
     }),
   });
 
+  const { data: cashFlow, isLoading: loadingCashFlow } = useQuery({
+    queryKey: ['cashflow-projections'],
+    queryFn: () => getCashFlowProjections(),
+  });
+
+
   const filteredData = useMemo(() => {
     if (!profitability) return [];
     return (profitability as any[]).filter(item => 
@@ -92,7 +98,7 @@ function PerformanceDirectionPage() {
     );
   }, [profitability, searchTerm]);
 
-  const isLoading = loadingProfitability || loadingCommercial;
+  const isLoading = loadingProfitability || loadingCommercial || loadingCashFlow;
 
   const stats = useMemo(() => {
     if (!filteredData.length) return {
