@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Clock, Search, FileText } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatFCFA } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
