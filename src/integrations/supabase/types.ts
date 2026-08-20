@@ -293,6 +293,7 @@ export type Database = {
           address: string | null
           civilite: string | null
           created_at: string
+          created_by: string | null
           date_naissance: string | null
           email: string | null
           first_name: string
@@ -310,6 +311,7 @@ export type Database = {
           address?: string | null
           civilite?: string | null
           created_at?: string
+          created_by?: string | null
           date_naissance?: string | null
           email?: string | null
           first_name: string
@@ -327,6 +329,7 @@ export type Database = {
           address?: string | null
           civilite?: string | null
           created_at?: string
+          created_by?: string | null
           date_naissance?: string | null
           email?: string | null
           first_name?: string

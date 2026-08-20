@@ -91,6 +91,12 @@ export const upsertClient = createServerFn({ method: "POST" })
   }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
+    
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("Vous devez être connecté pour effectuer cette opération.");
+    }
 
     const email = data.client.email?.trim() || null;
 
@@ -129,7 +135,10 @@ export const upsertClient = createServerFn({ method: "POST" })
 
     const { data: client, error } = await supabase
       .from("clients")
-      .upsert(updateData)
+      .upsert({
+        ...updateData,
+        created_by: user.id
+      })
       .select()
       .single();
 
