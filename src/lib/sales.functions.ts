@@ -38,7 +38,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         user_id: userId,
         action: "INTEGRITY_ALERT",
         table_name: "sales",
-        new_values: { error: "Tentative de vente à un client inexistant", clientId: data.clientId }
+        new_data: { error: "Tentative de vente à un client inexistant", clientId: data.clientId }
       });
       throw new Error("Client invalide ou inexistant.");
     }
@@ -57,7 +57,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
         action: "CRITICAL_INTEGRITY_VIOLATION",
         table_name: "sales",
         record_id: data.plotId,
-        new_values: { error: "Tentative de double vente détectée", plotId: data.plotId }
+        new_data: { error: "Tentative de double vente détectée", plotId: data.plotId }
       });
       throw new Error("Cette parcelle est déjà réservée ou vendue.");
     }
