@@ -115,7 +115,7 @@ export default function RefundManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(pendingRefunds?.reduce((acc: number, curr: any) => acc + (curr.balance_due || 0), 0) || 0)}
+              {formatFCFA(pendingRefunds?.reduce((acc: number, curr: any) => acc + (curr.balance_due || 0), 0) || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Sur {pendingRefunds?.length || 0} dossiers actifs
@@ -152,10 +152,10 @@ export default function RefundManagement() {
                     <TableCell className="font-medium">{item.client_name}</TableCell>
                     <TableCell>{item.plot_number}</TableCell>
                     <TableCell>{item.lotissement_name}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(item.total_to_refund)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(item.total_refunded)}</TableCell>
+                    <TableCell className="text-right">{formatFCFA(item.total_to_refund)}</TableCell>
+                    <TableCell className="text-right">{formatFCFA(item.total_refunded)}</TableCell>
                     <TableCell className="text-right font-bold text-red-600">
-                      {formatCurrency(item.balance_due)}
+                      {formatFCFA(item.balance_due)}
                     </TableCell>
                     <TableCell>
                       {item.current_plot_status === 'Vendu' ? (
