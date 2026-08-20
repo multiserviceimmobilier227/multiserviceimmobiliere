@@ -17,6 +17,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { CashJournalStatus } from "@/components/finance/CashJournalStatus";
 import { MsiLogo } from "@/components/ui/msi-logo";
 
 import { Button } from "@/components/ui/button";
