@@ -77,8 +77,10 @@ export const getClientDetails = createServerFn({ method: "GET" })
       supabase.from("client_interactions").select("*").eq("client_id", data.id).order("interaction_date", { ascending: false }),
       supabase.from("sales").select(`
         *,
-        plots (plot_number, surface_area, lotissements (name))
+        plots (plot_number, surface_area, lotissements (name)),
+        arrears_details:v_sale_arrears(is_critical_delay, total_arrears)
       `).eq("client_id", data.id).order("created_at", { ascending: false })
+
     ]);
 
     return {
