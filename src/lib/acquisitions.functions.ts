@@ -100,6 +100,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       totalCAPotential: summary?.total_ca_potential || 0,
       totalCollected: summary?.total_collected_net || 0,
       totalOutstanding: summary?.total_outstanding || 0,
-      inventoryValue: summary?.stock_value || 0
+      inventoryValue: summary?.stock_value || 0,
+      activeSalesCount: summary?.active_sales_count || 0
     };
   });

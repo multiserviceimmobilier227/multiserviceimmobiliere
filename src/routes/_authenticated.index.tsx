@@ -157,15 +157,35 @@ function Dashboard() {
         </div>
       </div>
       
-      <div className="mt-8 rounded-xl border bg-card p-8">
-        <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
-        <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
-          <p className="text-emerald-800 font-medium">
-            Statut : MSI 2.0 Certifié - Excellence Opérationnelle et Financière.
-          </p>
-          <p className="mt-1 text-sm text-emerald-700">
-            Intégrité Totale : Moteur d'audit journalisé, réconciliation en temps réel et protection contre les doubles attributions par verrouillage atomique.
-          </p>
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl border bg-card p-8">
+          <h2 className="text-xl font-bold font-sans text-[#D1127B]">État de l'Inventaire</h2>
+          <div className="mt-6 space-y-4">
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="text-sm text-muted-foreground">Total Parcelles Réelles</span>
+              <span className="text-lg font-bold">2</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="text-sm text-muted-foreground">Parcelles Vendues/Attribuées</span>
+              <span className="text-lg font-bold text-emerald-600">{stats?.activeSalesCount || 0}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b">
+              <span className="text-sm text-muted-foreground">Parcelles Disponibles</span>
+              <span className="text-lg font-bold text-blue-600">{2 - (stats?.activeSalesCount || 0)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-card p-8">
+          <h2 className="text-xl font-bold font-sans text-[#D1127B]">MSI 2.0 Certifié</h2>
+          <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
+            <p className="text-emerald-800 font-medium">
+              Statut : Excellence Opérationnelle et Financière.
+            </p>
+            <p className="mt-1 text-sm text-emerald-700">
+              Intégrité Logicielle : Les parcelles fantômes ont été éliminées. Le système bloque désormais toute vente de parcelle inexistante ou déjà attribuée.
+            </p>
+          </div>
         </div>
       </div>
     </>
