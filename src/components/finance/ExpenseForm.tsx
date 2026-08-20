@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const expenseSchema = z.object({
   amount: z.string().transform((v) => parseFloat(v)).refine(v => v > 0, "Le montant doit être positif"),

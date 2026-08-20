@@ -8,7 +8,8 @@ import {
   CreditCard, 
   AlertCircle, 
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  Wallet
 } from "lucide-react";
 import { 
   Popover, 
