@@ -419,8 +419,93 @@ export const registerPayment = createServerFn({ method: "POST" })
         .eq("id", data.saleId);
     }
 
-    return payment;
+
+// ============= Phase A-02 : Annulation et remboursement =============
+
+const FINANCE_ROLES = ["pdg", "admin", "super_admin", "comptable"] as const;
+
+export const cancelSale = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    saleId: z.string().uuid(),
+    reason: z.string().min(3),
+    refundAmount: z.number().nonnegative().optional(),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const allowed = (roles ?? []).some((r) => (FINANCE_ROLES as readonly string[]).includes(r.role));
+    if (!allowed) throw new Error("Seuls le PDG, l'administrateur ou le comptable peuvent annuler une vente.");
+
+    const { data: sale, error: saleError } = await supabase
+      .from("sales")
+      .select("id, status, total_amount, total_price, deposit_amount, payments(amount), refunds(amount)")
+      .eq("id", data.saleId)
+      .single();
+
+    if (saleError || !sale) throw new Error("Vente introuvable.");
+    if (sale.status === "annule") throw new Error("Cette vente est déjà annulée.");
+
+    const collected =
+      Number(sale.deposit_amount ?? 0) +
+      (sale.payments ?? []).reduce((acc: number, p: any) => acc + Number(p.amount ?? 0), 0);
+    const alreadyRefunded = (sale.refunds ?? []).reduce((acc: number, r: any) => acc + Number(r.amount ?? 0), 0);
+    const refundable = Math.max(0, collected - alreadyRefunded);
+    const refundAmount = data.refundAmount ?? 0;
+
+    if (refundAmount > refundable) {
+      throw new Error(
+        `Le remboursement demandé dépasse les sommes réellement encaissées (max : ${refundable} FCFA).`
+      );
+    }
+
+    // 1. Remboursement éventuel (journalisé automatiquement par trigger)
+    if (refundAmount > 0) {
+      const { error: refundError } = await supabase.from("refunds").insert({
+        sale_id: data.saleId,
+        amount: refundAmount,
+        reason: data.reason,
+        processed_by: userId,
+      });
+      if (refundError) throw new Error(`Remboursement impossible : ${refundError.message}`);
+    }
+
+    // 2. Annulation de la vente : le trigger libère la parcelle,
+    // annule les échéances non payées et journalise la trace négative du CA.
+    const { error: updateError } = await supabase
+      .from("sales")
+      .update({
+        status: "annule",
+        balance: 0,
+        notes: data.reason,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.saleId);
+
+    if (updateError) throw new Error(updateError.message);
+
+    return { success: true, refunded: refundAmount, refundable };
   });
+
+export const getSaleFinancialLedger = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: ledger, error } = await context.supabase
+      .from("audit_finance")
+      .select("*")
+      .eq("sale_id", data.saleId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return ledger ?? [];
+  });
+
 
 
 
