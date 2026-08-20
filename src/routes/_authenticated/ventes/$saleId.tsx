@@ -69,6 +69,14 @@ function SaleDetailsComponent() {
 
   const isPdgOrAdmin = userRoles?.some((r: any) => ['pdg', 'admin', 'super_admin'].includes(r as string));
 
+  const { data: imputationPreview } = useQuery({
+    queryKey: ['imputation-preview', saleId, payAmount],
+    queryFn: () => getPreview({ data: { saleId, amount: parseFloat(payAmount) } }),
+    enabled: !!payAmount && parseFloat(payAmount) > 0 && isPaymentOpen,
+    staleTime: 1000
+  });
+
+
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
     queryFn: () => getDetails({ data: { saleId } })
