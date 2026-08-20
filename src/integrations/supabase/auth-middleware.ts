@@ -89,8 +89,10 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       }
     );
 
+    console.log('Verifying token:', token.substring(0, 20) + '...');
     const { data, error } = await supabase.auth.getClaims(token);
     if (error || !data?.claims) {
+      console.error('Auth check failed:', error);
       throw new Error('Unauthorized: Invalid token');
     }
 
