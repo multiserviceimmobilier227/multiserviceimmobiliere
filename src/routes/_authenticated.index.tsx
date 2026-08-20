@@ -19,6 +19,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { AlertCircle } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/')({
   component: Dashboard,
@@ -69,7 +70,7 @@ function Dashboard() {
         </div>
       )}
 
-      {stats?.integrityAlerts > 0 && (
+      {stats && stats.integrityAlerts > 0 && (
         <div className="mb-6 p-4 bg-orange-100 border border-orange-300 rounded-xl flex items-center gap-3">
           <AlertCircle className="h-5 w-5 text-orange-600" />
           <p className="text-sm text-orange-800 font-medium">
