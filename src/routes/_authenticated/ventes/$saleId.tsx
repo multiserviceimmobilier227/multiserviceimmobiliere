@@ -31,8 +31,9 @@ function SaleDetailsComponent() {
   const validate = useServerFn(validateSaleFn)
   const adjustPrice = useServerFn(adjustSalePrice)
   const mutateSale = useServerFn(createMutationRequest)
-  const confirmPay = useServerFn(confirmPayment)
+  const confirmPay = useServerFn(confirmPayFn)
   const correctPay = useServerFn(correctPayFn)
+
   const getPreview = useServerFn(getImputationPreview)
 
   const [newPrice, setNewPrice] = useState<string>('')
