@@ -1330,6 +1330,7 @@ export type Database = {
         | "responsable_agence"
         | "informaticien"
         | "client"
+        | "super_admin"
       id_type: "cni" | "passeport" | "permis" | "autre"
       payment_method: "espece" | "virement" | "cheque" | "mobile_money"
       payment_plan_type: "comptant" | "echelonne"
@@ -1494,6 +1495,7 @@ export const Constants = {
         "responsable_agence",
         "informaticien",
         "client",
+        "super_admin",
       ],
       id_type: ["cni", "passeport", "permis", "autre"],
       payment_method: ["espece", "virement", "cheque", "mobile_money"],
