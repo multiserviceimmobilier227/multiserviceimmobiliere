@@ -4,6 +4,7 @@ import { useServerFn } from '@tanstack/react-start';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
