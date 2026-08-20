@@ -59,11 +59,11 @@ function SaleDetailsComponent() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
       const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
-      return data?.map(r => r.role) || [];
+      return data?.map((r: any) => r.role) || [];
     }
   });
 
-  const isPdgOrAdmin = userRoles?.some(r => ['pdg', 'admin', 'super_admin'].includes(r as string));
+  const isPdgOrAdmin = userRoles?.some((r: any) => ['pdg', 'admin', 'super_admin'].includes(r as string));
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
