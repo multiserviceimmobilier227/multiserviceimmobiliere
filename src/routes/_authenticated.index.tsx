@@ -52,8 +52,32 @@ function Dashboard() {
     { name: 'Stock', montant: stats?.inventoryValue || 0, color: '#3b82f6' }
   ];
 
+  const isInconsistent = (stats?.activeSalesCount || 0) > (stats?.totalRealPlots || 0);
+
   return (
     <>
+      {isInconsistent && (
+        <div className="mb-6 p-4 bg-red-100 border-2 border-red-500 rounded-xl flex items-center gap-3 animate-pulse">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <div>
+            <h4 className="font-bold text-red-800">ALERTE D'INTÉGRITÉ LOGISTIQUE</h4>
+            <p className="text-sm text-red-700">
+              Le nombre de ventes actives ({stats?.activeSalesCount}) dépasse le nombre total de parcelles dans le système ({stats?.totalRealPlots}). 
+              Veuillez auditer l'inventaire immédiatement.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {stats?.integrityAlerts > 0 && (
+        <div className="mb-6 p-4 bg-orange-100 border border-orange-300 rounded-xl flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-orange-600" />
+          <p className="text-sm text-orange-800 font-medium">
+            Attention : {stats.integrityAlerts} alerte(s) d'intégrité détectée(s) ces 7 derniers jours.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Ventes Contractées (Mois)</h3>
@@ -163,15 +187,15 @@ function Dashboard() {
           <div className="mt-6 space-y-4">
             <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Total Parcelles Réelles</span>
-              <span className="text-lg font-bold">2</span>
+              <span className="text-lg font-bold">{stats?.totalRealPlots || 0}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Parcelles Vendues/Attribuées</span>
               <span className="text-lg font-bold text-emerald-600">{stats?.activeSalesCount || 0}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm text-muted-foreground">Parcelles Disponibles</span>
-              <span className="text-lg font-bold text-blue-600">{2 - (stats?.activeSalesCount || 0)}</span>
+              <span className="text-sm text-muted-foreground">Parcelles Disponibles (Stock)</span>
+              <span className="text-lg font-bold text-blue-600">{stats?.availablePlotsCount || 0}</span>
             </div>
           </div>
         </div>
