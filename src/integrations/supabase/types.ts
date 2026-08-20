@@ -1890,6 +1890,17 @@ export type Database = {
         Args: { _journal_id: string }
         Returns: number
       }
+      fn_check_and_notify_arrears: { Args: never; Returns: undefined }
+      fn_create_notification: {
+        Args: {
+          _message: string
+          _sale_id?: string
+          _title: string
+          _type?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       fn_get_payment_imputation_preview: {
         Args: { p_amount: number; p_sale_id: string }
         Returns: Json

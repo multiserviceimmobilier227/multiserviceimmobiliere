@@ -104,6 +104,28 @@ function ClientDetails() {
 
   return (
     <div className="space-y-6">
+      {(client as any).has_critical_delay && (
+        <div className="bg-red-600 text-white p-4 rounded-lg flex items-center justify-between shadow-lg animate-pulse">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-6 w-6" />
+            <div>
+              <p className="font-bold text-lg">AVERTISSEMENT FORT : RETARD CRITIQUE</p>
+              <p className="text-sm opacity-90">
+                Ce client présente un retard de paiement de plus de 60 jours. 
+                Montant total des arriérés : {new Intl.NumberFormat('fr-FR').format((client as any).total_arrears)} FCFA.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="bg-white text-red-600 border-none hover:bg-gray-100" asChild>
+              <Link to="/ventes/$saleId" params={{ saleId: client.sales?.[0]?.id || "" }}>
+                Régulariser
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-[#D1127B]/10 flex items-center justify-center text-[#D1127B] font-bold text-2xl">
@@ -113,8 +135,7 @@ function ClientDetails() {
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-gray-900">{(client as any).civilite} {(client as any).first_name} {(client as any).last_name}</h1>
               {(client as any).has_critical_delay && (
-
-                <Badge variant="destructive" className="animate-pulse flex items-center gap-1">
+                <Badge variant="destructive" className="flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" /> RETARD CRITIQUE
                 </Badge>
               )}
@@ -127,10 +148,8 @@ function ClientDetails() {
                   Arriéré : {new Intl.NumberFormat('fr-FR').format((client as any).total_arrears)} FCFA
                 </Badge>
               )}
-
             </div>
           </div>
-
         </div>
         <Button variant="outline" onClick={() => setIsEditingClient(true)}>Modifier la fiche</Button>
       </div>
