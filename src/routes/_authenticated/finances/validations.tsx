@@ -1,10 +1,18 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -13,7 +21,13 @@ import {
   XCircle, 
   ShieldCheck, 
   Eye,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  User,
+  MapPin,
+  Calendar,
+  Wallet,
+  History
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { validateExpense } from '@/lib/finance.functions';
