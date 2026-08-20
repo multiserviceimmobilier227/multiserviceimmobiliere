@@ -488,6 +488,53 @@ export type Database = {
           },
         ]
       }
+      daily_cash_operations: {
+        Row: {
+          agency_id: string | null
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          operation_date: string | null
+          operation_type: string | null
+          payment_method: string
+          performed_by: string | null
+          reference_id: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          operation_date?: string | null
+          operation_type?: string | null
+          payment_method: string
+          performed_by?: string | null
+          reference_id?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          operation_date?: string | null
+          operation_type?: string | null
+          payment_method?: string
+          performed_by?: string | null
+          reference_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_cash_operations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_categories: {
         Row: {
           created_at: string | null
@@ -627,6 +674,50 @@ export type Database = {
           },
         ]
       }
+      payment_corrections: {
+        Row: {
+          corrected_by: string | null
+          created_at: string | null
+          id: string
+          new_amount: number | null
+          new_data: Json | null
+          old_amount: number | null
+          old_data: Json | null
+          payment_id: string | null
+          reason: string
+        }
+        Insert: {
+          corrected_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_amount?: number | null
+          new_data?: Json | null
+          old_amount?: number | null
+          old_data?: Json | null
+          payment_id?: string | null
+          reason: string
+        }
+        Update: {
+          corrected_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_amount?: number | null
+          new_data?: Json | null
+          old_amount?: number | null
+          old_data?: Json | null
+          payment_id?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_corrections_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_schedules: {
         Row: {
           amount_due: number
@@ -674,8 +765,11 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
           id: string
+          imputed_data: Json | null
           method: Database["public"]["Enums"]["payment_method"]
           notes: string | null
           payment_date: string
@@ -684,8 +778,11 @@ export type Database = {
         }
         Insert: {
           amount: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           id?: string
+          imputed_data?: Json | null
           method: Database["public"]["Enums"]["payment_method"]
           notes?: string | null
           payment_date?: string
@@ -694,8 +791,11 @@ export type Database = {
         }
         Update: {
           amount?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           id?: string
+          imputed_data?: Json | null
           method?: Database["public"]["Enums"]["payment_method"]
           notes?: string | null
           payment_date?: string
@@ -1416,6 +1516,10 @@ export type Database = {
           total_payments: number
           total_refunds: number
         }[]
+      }
+      fn_impute_payment_on_schedule: {
+        Args: { p_amount: number; p_payment_id: string; p_sale_id: string }
+        Returns: Json
       }
       fn_update_late_schedules: { Args: never; Returns: undefined }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
