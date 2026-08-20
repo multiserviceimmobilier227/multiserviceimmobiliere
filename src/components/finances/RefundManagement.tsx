@@ -105,7 +105,22 @@ export default function RefundManagement() {
             '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            Fait un audit rigoureux des 15 phases
+                                            For the code present, I get the error below.
+
+Please think step-by-step in order to resolve it.
+```
+The app returned 500 while handling GET /_serverFn/eyJmaWxlIjoiL3NyYy9saWIvc2FsZXMuZnVuY3Rpb25zLnRzP3Rzcy1zZXJ2ZXJmbi1zcGxpdCIsImV4cG9ydCI6ImdldE5vdGlmaWNhdGlvbnNfY3JlYXRlU2VydmVyRm5faGFuZGxlciJ9. The error was handled by a route or error boundary, so no stack was captured — check the failing loader/route code and the dev server output.
+
+{
+  "timestamp": 1787246358792,
+  "error_type": "RUNTIME_ERROR",
+  "filename": "Unknown file",
+  "lineno": 0,
+  "colno": 0,
+  "stack": "Unavailable",
+  "has_blank_screen": true
+}
+```
           </p>
 
 
