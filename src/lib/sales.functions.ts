@@ -373,6 +373,7 @@ export const registerPayment = createServerFn({ method: "POST" })
     // Phase 11.1 & 11.2: Advanced Imputation & FIFO
     
     // 1. Record the payment first
+    // Note: prepared_by_id is checked in DB types. Assuming generic 'auth.uid()' or a field.
     const { data: payment, error: paymentError } = await supabase
       .from("payments")
       .insert({
@@ -381,8 +382,7 @@ export const registerPayment = createServerFn({ method: "POST" })
         payment_date: data.paymentDate,
         method: data.method,
         reference: data.reference ?? null,
-        notes: data.notes ?? null,
-        prepared_by_id: userId, // Assuming prepared_by_id exists or we use auth.uid() in DB
+        notes: data.notes ?? null
       })
       .select()
       .single();
@@ -401,7 +401,6 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     if (imputationError) {
       console.error("Imputation error:", imputationError);
-      // We don't throw yet, but log it
     } else {
       // Update payment with imputation details
       await supabase
@@ -410,7 +409,7 @@ export const registerPayment = createServerFn({ method: "POST" })
         .eq("id", payment.id);
     }
 
-    // 3. Update sale balance (Keep current logic for overall balance)
+    // 3. Update sale balance
     const { data: sale } = await supabase
       .from("sales")
       .select("balance")
@@ -424,9 +423,6 @@ export const registerPayment = createServerFn({ method: "POST" })
         .update({ balance: newBalance })
         .eq("id", data.saleId);
     }
-
-    // Phase 11.2: Notification logic could be triggered here or via DB trigger
-    // For now, we rely on the audit log and the status change visible to PDG
 
     return { ...payment, imputed_data: imputedData };
   });
