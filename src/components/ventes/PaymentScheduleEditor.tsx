@@ -36,7 +36,9 @@ export function PaymentScheduleEditor({
   useEffect(() => {
     if (!isManual) {
       const baseDate = firstPaymentDate ? new Date(firstPaymentDate) : new Date();
-      const monthlyAmount = Math.round((remainingAmount / initialDuration));
+      // Ensure remainingAmount is positive
+      const amountToDistribute = Math.max(0, remainingAmount);
+      const monthlyAmount = Math.floor(amountToDistribute / initialDuration);
       const newSchedules: ScheduleItem[] = [];
       
       for (let i = 1; i <= initialDuration; i++) {
@@ -46,13 +48,13 @@ export function PaymentScheduleEditor({
         });
       }
       
-      // Adjust last installment for rounding
+      // Adjust last installment for rounding/remainder
       const sum = newSchedules.reduce((acc, curr) => acc + curr.amount_due, 0);
-      if (sum !== remainingAmount && newSchedules.length > 0) {
+      if (sum !== amountToDistribute && newSchedules.length > 0) {
         const lastIndex = newSchedules.length - 1;
         const lastInstallment = newSchedules[lastIndex];
         if (lastInstallment) {
-          lastInstallment.amount_due += (remainingAmount - sum);
+          lastInstallment.amount_due += (amountToDistribute - sum);
         }
       }
       
