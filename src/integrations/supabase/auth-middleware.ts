@@ -20,7 +20,6 @@ const createSupabaseFetch = (supabaseKey: string) => {
 
 export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
-    
     const SUPABASE_URL = process.env['SUPABASE_URL'];
     const SUPABASE_PUBLISHABLE_KEY = process.env['SUPABASE_PUBLISHABLE_KEY'];
 
@@ -33,29 +32,16 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       console.error(`[Supabase] ${message}`);
       throw new Error(message);
     }
-    
-    const request = getRequest();
 
-    if (!request?.headers) {
-      throw new Error('Unauthorized: No request headers available');
+    const request = getRequest();
+    if (!request) {
+      throw new Error('Unauthorized: No request object available');
     }
 
     const authHeader = request.headers.get('authorization');
 
-    // Handle missing authorization header for SSR/Initial Prerender
-    // Note: attachSupabaseAuth must be registered in src/start.ts functionMiddleware
     if (!authHeader) {
-      const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-        global: { fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY) }
-      });
-      
-      return next({
-        context: {
-          supabase,
-          userId: "" as string,
-          claims: {} as any,
-        }
-      });
+      throw new Error('Unauthorized: No authorization header provided');
     }
 
     if (!authHeader.startsWith('Bearer ')) {
@@ -101,7 +87,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     return next({
       context: {
         supabase,
-        userId: data.claims.sub as string,
+        userId: data.claims.sub,
         claims: data.claims,
       },
     });
