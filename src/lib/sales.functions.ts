@@ -24,7 +24,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => createSaleSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // 1. Verify client exists
     const { data: clientCheck, error: clientCheckError } = await supabase
@@ -143,7 +143,7 @@ export const validateSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Check if user has PDG role
     const { data: roleData, error: roleError } = await supabase
@@ -200,7 +200,7 @@ export const getSaleDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase } = context!;
     
     const { data: sale, error } = await supabase
       .from("sales")
@@ -258,7 +258,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
     reason: z.string()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Check PDG role
     const { data: roleData, error: roleError } = await supabase
@@ -357,7 +357,7 @@ export const createMutationRequest = createServerFn({ method: "POST" })
     priceDifference: z.number()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: mutation, error } = await supabase
       .from("sale_mutations")
@@ -388,7 +388,7 @@ export const registerPayment = createServerFn({ method: "POST" })
     notes: z.string().optional().nullable(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Phase 11.1: Permissions & Roles
     const { data: roles } = await supabase
@@ -467,7 +467,7 @@ export const confirmPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ paymentId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Role check: Only PDG or Admin can confirm
     const { data: roles } = await supabase
@@ -498,7 +498,7 @@ export const correctPayment = createServerFn({ method: "POST" })
     reason: z.string().min(5)
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Role check
     const { data: roles } = await supabase
@@ -619,7 +619,7 @@ export const cancelSale = createServerFn({ method: "POST" })
     refundAmount: z.number().nonnegative().optional(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: roles } = await supabase
       .from("user_roles")
@@ -704,7 +704,7 @@ export const getSaleFinancialLedger = createServerFn({ method: "GET" })
 export const getNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
     if (!userId) return [];
     
     const { data, error } = await supabase
@@ -722,7 +722,7 @@ export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ notificationId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
     if (!userId) throw new Error("Non authentifié");
     
     const { error } = await supabase

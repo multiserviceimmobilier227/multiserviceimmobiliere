@@ -27,7 +27,7 @@ export const getClients = createServerFn({ method: "GET" })
     agenceId: z.string().optional() 
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase } = context!;
     
     let query = supabase.from("clients").select(`
       *,
@@ -54,7 +54,7 @@ export const getClientDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { id: string }) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase } = context!;
     
     const { data: client, error: clientError } = await supabase
       .from("clients")
@@ -174,7 +174,7 @@ export const addClientInteraction = createServerFn({ method: "POST" })
     interaction_date: z.string().optional(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: interaction, error } = await supabase
       .from("client_interactions")
