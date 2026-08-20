@@ -143,10 +143,14 @@ function Dashboard() {
       
       <div className="mt-8 rounded-xl border bg-card p-8">
         <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
-        <p className="mt-2 text-muted-foreground font-sans">
-          Bienvenue Souleymane. Le système est désormais opérationnel avec une intégrité financière totale. 
-          Toutes les ventes annulées sont automatiquement déduites du Chiffre d'Affaires et les parcelles sont libérées instantanément.
-        </p>
+        <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
+          <p className="text-emerald-800 font-medium">
+            Statut : Système de confiance financière Phase A-02 Déployé.
+          </p>
+          <p className="mt-1 text-sm text-emerald-700">
+            Intégrité garantie : Les ventes annulées libèrent les parcelles et ajustent le CA en temps réel via triggers SQL sécurisés.
+          </p>
+        </div>
       </div>
     </>
   );
