@@ -345,19 +345,20 @@ function ClientDetails() {
                   <div className="grid grid-cols-2 gap-x-12 gap-y-6">
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Civilité</div>
-                      <div className="text-sm">{client.civilite || "M."}</div>
+                      <div className="text-sm">{(client as any).civilite || "M."}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Type de pièce</div>
-                      <div className="text-sm">{client.id_type}</div>
+                      <div className="text-sm">{(client as any).id_type}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Numéro de pièce</div>
-                      <div className="text-sm font-mono">{client.id_number || "Non renseigné"}</div>
+                      <div className="text-sm font-mono">{(client as any).id_number || "Non renseigné"}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Profession</div>
-                      <div className="text-sm">{client.occupation || "N/A"}</div>
+                      <div className="text-sm">{(client as any).occupation || "N/A"}</div>
+
                     </div>
                   </div>
                 </CardContent>
