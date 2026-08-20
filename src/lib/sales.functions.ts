@@ -518,7 +518,9 @@ export const correctPayment = createServerFn({ method: "POST" })
     
     // a. Reset schedules affected by this payment
     if (oldPayment.imputed_data && Array.isArray(oldPayment.imputed_data)) {
-      for (const item of oldPayment.imputed_data) {
+      for (const item of (oldPayment.imputed_data as any[])) {
+        if (!item?.schedule_id) continue;
+        
         const { data: schedule } = await supabase
           .from("payment_schedules")
           .select("amount_paid, amount_due")
@@ -526,7 +528,7 @@ export const correctPayment = createServerFn({ method: "POST" })
           .single();
         
         if (schedule) {
-          const newPaid = Math.max(0, Number(schedule.amount_paid) - Number(item.amount_applied));
+          const newPaid = Math.max(0, Number(schedule.amount_paid) - Number(item.amount_applied || 0));
           await supabase
             .from("payment_schedules")
             .update({
