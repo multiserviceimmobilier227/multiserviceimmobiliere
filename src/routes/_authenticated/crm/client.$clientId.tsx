@@ -111,8 +111,9 @@ function ClientDetails() {
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-900">{client.civilite} {client.first_name} {client.last_name}</h1>
-              {client.has_critical_delay && (
+              <h1 className="text-3xl font-bold text-gray-900">{(client as any).civilite} {(client as any).first_name} {(client as any).last_name}</h1>
+              {(client as any).has_critical_delay && (
+
                 <Badge variant="destructive" className="animate-pulse flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" /> RETARD CRITIQUE
                 </Badge>
