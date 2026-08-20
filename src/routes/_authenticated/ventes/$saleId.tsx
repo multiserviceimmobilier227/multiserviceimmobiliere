@@ -230,6 +230,19 @@ function SaleDetailsComponent() {
             {getStatusBadge(sale.status)}
           </div>
           <p className="text-muted-foreground">Créée le {format(new Date(sale.created_at), 'dd/MM/yyyy HH:mm')}</p>
+          {(sale as any).arrears_details?.is_critical_delay && (
+            <div className="mt-2 p-3 bg-red-600 text-white rounded-lg shadow-lg flex items-center gap-3 animate-bounce border-2 border-red-400 max-w-md">
+              <AlertTriangle className="h-6 w-6 shrink-0" />
+              <div>
+                <div className="font-black text-sm uppercase">Avertissement Fort : Retard Critique</div>
+                <div className="text-[11px] leading-tight opacity-90">
+                  Cette acquisition présente un retard de plus de 60 jours. 
+                  Une procédure de recouvrement ou d'annulation peut être engagée par le PDG.
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" asChild>
