@@ -1,13 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const cleanupDuplicates = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase } = context;
 
-    // Direct update as it is a one-off fix
     const { error } = await supabase
       .from("sales")
       .update({ 
