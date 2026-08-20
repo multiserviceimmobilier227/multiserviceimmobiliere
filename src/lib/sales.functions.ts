@@ -205,12 +205,14 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Check PDG role
-    const { data: isPdg } = await supabase.rpc('has_role', { 
-      _user_id: userId, 
-      _role: 'pdg' 
-    });
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "pdg")
+      .single();
 
-    if (!isPdg) throw new Error("Seul le PDG peut ajuster le prix d'une vente.");
+    if (roleError || !roleData) throw new Error("Seul le PDG peut ajuster le prix d'une vente.");
 
     // Get current sale to calculate new balance
     const { data: sale } = await supabase
