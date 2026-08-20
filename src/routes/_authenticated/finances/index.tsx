@@ -177,7 +177,23 @@ function FinanceDashboard() {
                      Journal Récent (Ventes & Dépenses)
                    </CardTitle>
                  </CardHeader>
-                 <CardContent>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+           <Button 
+             variant="outline" 
+             size="sm" 
+             className="w-full gap-2 border-[#D1127B] text-[#D1127B] hover:bg-[#D1127B] hover:text-white"
+             asChild
+           >
+             <a href="/finances/validations">
+               <ShieldCheck className="h-4 w-4" /> Validations
+             </a>
+           </Button>
+           <Button variant="outline" size="sm" className="w-full gap-2">
+             <History className="h-4 w-4" /> Historique
+           </Button>
+        </div>
+
                     <Table>
                       <TableHeader>
                         <TableRow>
