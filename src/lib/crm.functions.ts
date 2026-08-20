@@ -64,8 +64,8 @@ export const upsertClient = createServerFn({ method: "POST" })
     client: clientSchema
   }).parse(data))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const supabase = supabaseAdmin;
+    const { supabase } = await import("@/integrations/supabase/client");
+
 
     const updateData: any = {
       first_name: data.client.first_name,
@@ -106,8 +106,8 @@ export const addClientInteraction = createServerFn({ method: "POST" })
     interaction_date: z.string().optional(),
   }).parse(data))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const supabase = supabaseAdmin;
+    const { supabase } = await import("@/integrations/supabase/client");
+
 
     const { data: userRes } = await supabase.auth.getUser();
     const { data: interaction, error } = await supabase
