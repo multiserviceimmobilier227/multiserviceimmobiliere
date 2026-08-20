@@ -31,8 +31,10 @@ export const getClients = createServerFn({ method: "GET" })
     
     let query = supabase.from("clients").select(`
       *,
-      sales:sales(count)
+      sales:sales(count),
+      arrears:v_sale_arrears(is_critical_delay, total_arrears)
     `);
+
     
     if (data.search) {
       query = query.or(`first_name.ilike.%${data.search}%,last_name.ilike.%${data.search}%,phone.ilike.%${data.search}%`);
