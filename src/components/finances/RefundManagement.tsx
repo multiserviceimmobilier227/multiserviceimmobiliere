@@ -105,9 +105,7 @@ export default function RefundManagement() {
             '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            Explique moi ça : I have updated the literal display text in the Refund Management component as requested. 
-
-The description area now displays the verbatim Phase 14 details and the request for analysis and planning.
+                                            As-tu une autre proposition
           </p>
 
 
