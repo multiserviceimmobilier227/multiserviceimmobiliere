@@ -152,22 +152,23 @@ function ClientDetails() {
 
             <div className="flex items-center text-sm">
               <MapPin className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.address || "Adresse non renseignée"}</span>
+              <span>{(client as any).address || "Adresse non renseignée"}</span>
             </div>
             <div className="pt-4 border-t space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Nationalité</span>
-                <span className="font-medium">{client.nationalite || "N/A"}</span>
+                <span className="font-medium">{(client as any).nationalite || "N/A"}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Né le</span>
-                <span className="font-medium">{client.date_naissance || "N/A"}</span>
+                <span className="font-medium">{(client as any).date_naissance || "N/A"}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Lieu</span>
-                <span className="font-medium">{client.lieu_naissance || "N/A"}</span>
+                <span className="font-medium">{(client as any).lieu_naissance || "N/A"}</span>
               </div>
             </div>
+
           </CardContent>
         </Card>
 
