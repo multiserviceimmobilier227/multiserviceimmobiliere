@@ -150,64 +150,66 @@ function ExpenseValidations() {
                         </DialogHeader>
                         
                         {selectedExpense && (
-                          <div className="grid grid-cols-2 gap-4 py-4">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2 text-sm">
-                                <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">Agence:</span> {(selectedExpense.agency as any)?.nom}
+                          <div className="space-y-6 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-sm">
+                                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">Agence:</span> {(selectedExpense.agency as any)?.nom}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">Date:</span> {format(new Date(selectedExpense.date), 'PPP', { locale: fr })}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">Créé par:</span> {(selectedExpense.creator as any)?.full_name || 'Utilisateur'}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">Mode:</span> <Badge>{selectedExpense.payment_method}</Badge>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded border">
+                                  <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold">Description</div>
+                                  <div className="text-sm">{selectedExpense.description}</div>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">Date:</span> {format(new Date(selectedExpense.date), 'PPP', { locale: fr })}
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">Créé par:</span> {(selectedExpense.creator as any)?.full_name || 'Utilisateur'}
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Wallet className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">Mode:</span> <Badge>{selectedExpense.payment_method}</Badge>
-                              </div>
-                              <div className="bg-slate-50 p-3 rounded border">
-                                <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold">Description</div>
-                                <div className="text-sm">{selectedExpense.description}</div>
-                              </div>
-                            </div>
 
-                            <div className="space-y-4">
-                              <div className="bg-[#D1127B]/5 p-4 rounded-lg border border-[#D1127B]/20 text-center">
-                                <div className="text-xs text-[#D1127B] uppercase font-bold mb-1">Montant Total</div>
-                                <div className="text-3xl font-black text-[#D1127B]">{formatFCFA(selectedExpense.amount)}</div>
-                              </div>
-                              
-                              <div className="border rounded-md p-3">
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-semibold flex items-center gap-1">
-                                    <FileText className="h-3 w-3" /> JUSTIFICATIF
-                                  </span>
+                              <div className="space-y-4">
+                                <div className="bg-[#D1127B]/5 p-4 rounded-lg border border-[#D1127B]/20 text-center">
+                                  <div className="text-xs text-[#D1127B] uppercase font-bold mb-1">Montant Total</div>
+                                  <div className="text-3xl font-black text-[#D1127B]">{formatFCFA(selectedExpense.amount)}</div>
+                                </div>
+                                
+                                <div className="border rounded-md p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-semibold flex items-center gap-1">
+                                      <FileText className="h-3 w-3" /> JUSTIFICATIF
+                                    </span>
+                                    {selectedExpense.receipt_url ? (
+                                      <Button variant="link" size="sm" className="h-auto p-0 text-blue-600" asChild>
+                                        <a href={selectedExpense.receipt_url} target="_blank" rel="noopener noreferrer">Ouvrir</a>
+                                      </Button>
+                                    ) : (
+                                      <span className="text-[10px] text-red-500 italic">Absent</span>
+                                    )}
+                                  </div>
                                   {selectedExpense.receipt_url ? (
-                                    <Button variant="link" size="sm" className="h-auto p-0 text-blue-600" asChild>
-                                      <a href={selectedExpense.receipt_url} target="_blank" rel="noopener noreferrer">Ouvrir</a>
-                                    </Button>
+                                    <div className="aspect-video bg-black/5 rounded overflow-hidden flex items-center justify-center">
+                                      <img src={selectedExpense.receipt_url} alt="Justificatif" className="max-h-full object-contain" />
+                                    </div>
                                   ) : (
-                                    <span className="text-[10px] text-red-500 italic">Absent</span>
+                                    <div className="aspect-video bg-slate-50 border-2 border-dashed rounded flex flex-col items-center justify-center text-slate-400">
+                                      <AlertCircle className="h-8 w-8 mb-2 opacity-20" />
+                                      <span className="text-xs">Aucun document joint</span>
+                                    </div>
                                   )}
                                 </div>
-                                {selectedExpense.receipt_url ? (
-                                  <div className="aspect-video bg-black/5 rounded overflow-hidden flex items-center justify-center">
-                                    <img src={selectedExpense.receipt_url} alt="Justificatif" className="max-h-full object-contain" />
-                                  </div>
-                                ) : (
-                                  <div className="aspect-video bg-slate-50 border-2 border-dashed rounded flex flex-col items-center justify-center text-slate-400">
-                                    <AlertCircle className="h-8 w-8 mb-2 opacity-20" />
-                                    <span className="text-xs">Aucun document joint</span>
-                                  </div>
-                                )}
                               </div>
                             </div>
 
                             {auditLogs && auditLogs.length > 0 && (
-                              <div className="col-span-2 mt-2">
+                              <div className="mt-2">
                                 <div className="text-xs font-bold mb-2 flex items-center gap-1">
                                   <History className="h-3 w-3" /> HISTORIQUE DES CORRECTIONS
                                 </div>
@@ -224,9 +226,8 @@ function ExpenseValidations() {
                                 </div>
                               </div>
                             )}
-                            </div>
 
-                            <div className="col-span-2 space-y-2">
+                            <div className="space-y-2 border-t pt-4">
                               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Commentaire PDG (Optionnel)</label>
                               <Textarea 
                                 placeholder="Ajouter un motif pour l'approbation ou le rejet..."
@@ -235,6 +236,7 @@ function ExpenseValidations() {
                                 className="text-sm min-h-[80px]"
                               />
                             </div>
+                          </div>
                         )}
 
                         <DialogFooter className="gap-2 sm:gap-0">
