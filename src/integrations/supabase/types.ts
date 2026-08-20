@@ -179,6 +179,70 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_finance: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          new_balance: number | null
+          notes: string | null
+          operation_type: string
+          payment_id: string | null
+          previous_balance: number | null
+          refund_id: string | null
+          sale_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          new_balance?: number | null
+          notes?: string | null
+          operation_type: string
+          payment_id?: string | null
+          previous_balance?: number | null
+          refund_id?: string | null
+          sale_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          new_balance?: number | null
+          notes?: string | null
+          operation_type?: string
+          payment_id?: string | null
+          previous_balance?: number | null
+          refund_id?: string | null
+          sale_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_finance_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_finance_refund_id_fkey"
+            columns: ["refund_id"]
+            isOneToOne: false
+            referencedRelation: "refunds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_finance_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
