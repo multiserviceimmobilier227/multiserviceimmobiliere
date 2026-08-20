@@ -66,20 +66,34 @@ export const upsertClient = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
 
+    const email = data.client.email?.trim() || null;
+
+    // Gracefully handle duplicate email check if email is provided
+    if (email) {
+      const { data: existing } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+      
+      if (existing && existing.id !== data.id) {
+        throw new Error("Un client avec cet e-mail existe déjà.");
+      }
+    }
 
     const updateData: any = {
       first_name: data.client.first_name,
       last_name: data.client.last_name,
-      email: data.client.email ?? null,
+      email: email,
       phone: data.client.phone,
-      address: data.client.address ?? null,
+      address: data.client.address || null,
       id_type: data.client.id_type,
-      id_number: data.client.id_number ?? null,
-      occupation: data.client.occupation ?? null,
-      date_naissance: data.client.date_naissance ?? null,
-      lieu_naissance: data.client.lieu_naissance ?? null,
-      nationalite: data.client.nationalite ?? null,
-      civilite: data.client.civilite ?? null,
+      id_number: data.client.id_number || null,
+      occupation: data.client.occupation || null,
+      date_naissance: data.client.date_naissance || null,
+      lieu_naissance: data.client.lieu_naissance || null,
+      nationalite: data.client.nationalite || null,
+      civilite: data.client.civilite || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -93,9 +107,15 @@ export const upsertClient = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "23505") {
+        throw new Error("Un client avec cet e-mail existe déjà.");
+      }
+      throw error;
+    }
     return client;
   });
+
 
 export const addClientInteraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
