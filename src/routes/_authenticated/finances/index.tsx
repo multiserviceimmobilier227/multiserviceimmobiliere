@@ -70,10 +70,11 @@ function CashManagement() {
                 cashOps
                   ?.filter(op => 
                     op.operation_type === 'ENTREE' && 
+                    op.created_at &&
                     format(new Date(op.created_at), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                   )
-                  .reduce((acc, op) => acc + Number(op.amount), 0) || 0
-              )}
+                  .reduce((acc, op) => acc + Number(op.amount || 0), 0) || 0
+              ) || "0 FCFA"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Aujourd'hui, {format(new Date(), 'dd MMMM', { locale: fr })}</p>
           </CardContent>
@@ -124,7 +125,7 @@ function CashManagement() {
                 cashOps?.map((op) => (
                   <TableRow key={op.id}>
                     <TableCell className="text-xs">
-                      {format(new Date(op.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                      {op.created_at ? format(new Date(op.created_at), 'dd/MM/yyyy HH:mm', { locale: fr }) : '-'}
                     </TableCell>
                     <TableCell>
                       <Badge variant={op.operation_type === 'ENTREE' ? 'outline' : 'destructive'} className={op.operation_type === 'ENTREE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ''}>
