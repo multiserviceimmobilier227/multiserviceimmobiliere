@@ -85,8 +85,11 @@ export const getClientDetails = createServerFn({ method: "GET" })
       ...client,
       documents: docsRes.data || [],
       interactions: interactionsRes.data || [],
-      sales: salesRes.data || []
+      sales: salesRes.data || [],
+      has_critical_delay: (salesRes.data as any[])?.some((s: any) => s.arrears_details?.is_critical_delay) || false,
+      total_arrears: (salesRes.data as any[])?.reduce((acc: number, curr: any) => acc + (Number(curr.arrears_details?.total_arrears) || 0), 0) || 0
     };
+
   });
 
 export const upsertClient = createServerFn({ method: "POST" })
