@@ -62,7 +62,7 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
       </h2>
       <div className="space-y-1">
         <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
-        <NavItem to="/immobilier/parcelles" icon={Map} onClick={onItemClick || undefined}>Suivi Parcelles</NavItem>
+        <NavItem to="/immobilier/bilans" icon={PieChart} onClick={onItemClick || undefined}>Bilans Stratégiques</NavItem>
         <NavItem to="/immobilier/inventaire" icon={ClipboardList} onClick={onItemClick || undefined}>Inventaire & Stock</NavItem>
         <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
         <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>

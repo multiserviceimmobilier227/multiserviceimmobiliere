@@ -135,9 +135,9 @@ function PerformanceDirectionPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">Bilans & Rentabilité Nette</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">Analyses de Performance</h1>
           <p className="text-muted-foreground font-sans">
-            Analyse stratégique de la rentabilité réelle par lotissement.
+            Suivi des ventes et performance commerciale globale.
           </p>
         </div>
         <div className="flex items-center gap-2">

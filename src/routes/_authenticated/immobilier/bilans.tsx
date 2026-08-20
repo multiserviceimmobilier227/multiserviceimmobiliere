@@ -50,7 +50,7 @@ import {
 } from 'recharts';
 import { Input } from '@/components/ui/input';
 
-export const Route = createFileRoute('/_authenticated/direction/performance')({
+export const Route = createFileRoute('/_authenticated/immobilier/bilans')({
   head: () => ({
     meta: [
       { title: 'Rentabilité & Bilans | MSI 2.0' },
