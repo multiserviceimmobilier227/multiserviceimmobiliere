@@ -1,0 +1,1 @@
+GRANT USAGE ON TYPE public.app_role TO authenticated, service_role;
