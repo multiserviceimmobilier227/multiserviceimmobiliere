@@ -18,6 +18,7 @@ function SalesListComponent() {
   const { data: sales, isLoading } = useQuery({
     queryKey: ['sales'],
     queryFn: async () => {
+      console.log("Fetching sales...");
       const { data, error } = await supabase
         .from('sales')
         .select(`
@@ -27,7 +28,11 @@ function SalesListComponent() {
         `)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error("Supabase error fetching sales:", error);
+        throw error
+      }
+      console.log("Sales data fetched:", data);
       return data
     }
   })
