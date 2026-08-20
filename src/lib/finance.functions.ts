@@ -193,11 +193,11 @@ export const closeCashSession = createServerFn({ method: "POST" })
       .from("cash_journals")
       .update({
         actual_closing_balance: data.closingBalance,
-        closing_discrepancy: discrepancy,
+        discrepancy: discrepancy,
         closed_by_id: userId,
         closed_at: new Date().toISOString(),
         status: "fermé",
-        notes: data.notes
+        discrepancy_reason: data.notes
       })
       .eq("id", data.journalId)
       .select()
