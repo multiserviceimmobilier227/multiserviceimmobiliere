@@ -72,7 +72,7 @@ export function CashJournalStatus() {
       if (!activeSession) throw new Error("Aucune session active.");
       return closeSessionFn({ 
         data: { 
-          journalId: activeSession.id,
+          journalId: (activeSession as any).id,
           closingBalance: parseFloat(closingBalance)
         } 
       });
@@ -167,11 +167,11 @@ export function CashJournalStatus() {
           </div>
           <div className="flex justify-between items-center text-xs">
             <span className="text-emerald-600">Solde initial :</span>
-            <span className="font-bold text-emerald-800">{formatFCFA(activeSession.opening_balance)}</span>
+            <span className="font-bold text-emerald-800">{formatFCFA((activeSession as any).opening_balance)}</span>
           </div>
           <div className="flex justify-between items-center text-xs pt-1 border-t border-emerald-200">
             <span className="text-emerald-700 font-bold">Solde Théorique :</span>
-            <span className="font-black text-emerald-900">{formatFCFA(activeSession.theoretical_closing_balance)}</span>
+            <span className="font-black text-emerald-900">{formatFCFA((activeSession as any).theoretical_closing_balance)}</span>
           </div>
           {isClosing ? (
             <div className="space-y-3 mt-2 pt-2 border-t border-emerald-200">
@@ -215,7 +215,7 @@ export function CashJournalStatus() {
                 size="sm" 
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                 onClick={() => {
-                  setClosingBalance(activeSession.theoretical_closing_balance.toString());
+                  setClosingBalance((activeSession as any).theoretical_closing_balance.toString());
                   setIsClosing(true);
                 }}
               >

@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const getExpenseCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase } = context!;
     const { data, error } = await supabase
       .from("expense_categories")
       .select("*")
@@ -24,7 +24,7 @@ export const getExpenseCategories = createServerFn({ method: "GET" })
 export const getActiveCashJournal = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
     
     // 1. Get user's agency
     const { data: userRole } = await supabase
@@ -59,7 +59,7 @@ export const openCashSession = createServerFn({ method: "POST" })
     agencyId: z.string().uuid()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Check if a session is already open
     const { data: active } = await supabase
@@ -104,7 +104,7 @@ export const submitExpense = createServerFn({ method: "POST" })
     cashJournalId: z.string().uuid().optional()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: expense, error } = await supabase
       .from("expenses")
@@ -138,7 +138,7 @@ export const validateExpense = createServerFn({ method: "POST" })
     approve: z.boolean()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // PDG Role check
     const { data: role } = await supabase
@@ -176,7 +176,7 @@ export const closeCashSession = createServerFn({ method: "POST" })
     notes: z.string().optional()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Get journal details to calculate discrepancy
     const { data: journal } = await supabase

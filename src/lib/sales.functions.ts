@@ -24,7 +24,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => createSaleSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // 1. Verify client exists
     const { data: clientCheck, error: clientCheckError } = await supabase
@@ -143,7 +143,7 @@ export const validateSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Check if user has PDG role
     const { data: roleData, error: roleError } = await supabase
@@ -200,7 +200,7 @@ export const getSaleDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase } = context!;
     
     const { data: sale, error } = await supabase
       .from("sales")
@@ -258,7 +258,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
     reason: z.string()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Check PDG role
     const { data: roleData, error: roleError } = await supabase
@@ -311,7 +311,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
         .select("amount_paid")
         .eq("sale_id", data.saleId);
       
-      const totalAlreadyPaid = allSchedules?.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
+      const totalAlreadyPaid = allSchedules?.reduce((acc: number, curr: any) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
       
       // The remaining to schedule is: New Total - Deposit - Total Paid in schedules
       const remainingToSchedule = data.newTotalAmount - (sale.deposit_amount || 0) - totalAlreadyPaid;
@@ -357,7 +357,7 @@ export const createMutationRequest = createServerFn({ method: "POST" })
     priceDifference: z.number()
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: mutation, error } = await supabase
       .from("sale_mutations")
@@ -388,7 +388,7 @@ export const registerPayment = createServerFn({ method: "POST" })
     notes: z.string().optional().nullable(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Phase 11.1: Permissions & Roles
     const { data: roles } = await supabase
@@ -397,14 +397,14 @@ export const registerPayment = createServerFn({ method: "POST" })
       .eq("user_id", userId);
     
     const financeRoles = ["pdg", "comptable", "admin", "super_admin"];
-    const userRoles = roles?.map(r => r.role) || [];
-    const canRegister = userRoles.some(r => financeRoles.includes(r as string));
+    const userRoles = roles?.map((r: any) => r.role) || [];
+    const canRegister = userRoles.some((r: any) => financeRoles.includes(r as string));
     
     if (!canRegister) {
       throw new Error("Droit d'encaissement insuffisant.");
     }
 
-    const isPdgOrAdmin = userRoles.some(r => ["pdg", "admin", "super_admin"].includes(r as string));
+    const isPdgOrAdmin = userRoles.some((r: any) => ["pdg", "admin", "super_admin"].includes(r as string));
 
     // 1. Record the payment
     const { data: payment, error: paymentError } = await supabase
@@ -467,7 +467,7 @@ export const confirmPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ paymentId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Role check: Only PDG or Admin can confirm
     const { data: roles } = await supabase
@@ -475,7 +475,7 @@ export const confirmPayment = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", userId);
     
-    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    const isPdgOrAdmin = roles?.some((r: any) => ["pdg", "admin", "super_admin"].includes(r.role as string));
     if (!isPdgOrAdmin) throw new Error("Seul le PDG peut confirmer un encaissement.");
 
     const { error } = await supabase
@@ -498,7 +498,7 @@ export const correctPayment = createServerFn({ method: "POST" })
     reason: z.string().min(5)
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     // Role check
     const { data: roles } = await supabase
@@ -506,7 +506,7 @@ export const correctPayment = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", userId);
     
-    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    const isPdgOrAdmin = roles?.some((r: any) => ["pdg", "admin", "super_admin"].includes(r.role as string));
     if (!isPdgOrAdmin) throw new Error("Seul le PDG peut corriger un montant déjà encaissé.");
 
     // 1. Get old payment data
@@ -619,7 +619,7 @@ export const cancelSale = createServerFn({ method: "POST" })
     refundAmount: z.number().nonnegative().optional(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId } = context!;
 
     const { data: roles } = await supabase
       .from("user_roles")
@@ -627,7 +627,7 @@ export const cancelSale = createServerFn({ method: "POST" })
       .eq("user_id", userId);
 
     const financeRoles = ["pdg", "admin", "super_admin", "comptable"];
-    const allowed = (roles ?? []).some((r) => financeRoles.includes(r.role));
+    const allowed = (roles ?? []).some((r: any) => financeRoles.includes(r.role));
     if (!allowed) throw new Error("Seuls le PDG, l'administrateur ou le comptable peuvent annuler une vente.");
 
     const { data: sale, error: saleError } = await supabase
@@ -704,8 +704,15 @@ export const getSaleFinancialLedger = createServerFn({ method: "GET" })
 export const getNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+    const { supabase, userId } = context!;
+    if (!userId) return [];
+    
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -715,8 +722,14 @@ export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ notificationId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase.from('notifications').update({ is_read: true } as any).eq('id', data.notificationId).eq('user_id', userId);
+    const { supabase, userId } = context!;
+    if (!userId) throw new Error("Non authentifié");
+    
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true } as any)
+      .eq('id', data.notificationId)
+      .eq('user_id', userId);
 
     if (error) throw new Error(error.message);
     return { success: true };

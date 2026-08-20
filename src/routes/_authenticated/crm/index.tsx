@@ -81,7 +81,7 @@ function CRMIndex() {
                   <TableCell colSpan={5} className="text-center py-8 text-gray-500">Aucun client trouvé.</TableCell>
                 </TableRow>
               ) : (
-                clients?.map((client) => (
+                (clients as any[])?.map((client: any) => (
                   <TableRow key={client.id}>
                     <TableCell>
                       <div className="font-medium text-gray-900">
