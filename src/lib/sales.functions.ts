@@ -737,8 +737,20 @@ export const markNotificationRead = createServerFn({ method: "POST" })
   });
 
 
+export const getNotifications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context!;
+    if (!userId) throw new Error("Non authentifié");
+    
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-
-
-
+    if (error) throw new Error(error.message);
+    return data || [];
+  });
 
