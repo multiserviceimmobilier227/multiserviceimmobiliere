@@ -29,20 +29,19 @@ export const getActiveCashJournal = createServerFn({ method: "GET" })
     // 1. Get user's agency
     const { data: userRole } = await supabase
       .from("user_roles")
-      .select("agency_id")
+      .select("agence_id")
       .eq("user_id", userId)
       .single();
     
-    if (!userRole?.agency_id) return null;
+    if (!userRole?.agence_id) return null;
 
     // 2. Find active session (status = 'ouvert')
     const { data, error } = await supabase
       .from("cash_journals")
       .select(`
-        *,
-        opened_by:auth.users!opened_by_id(email)
+        *
       `)
-      .eq("agency_id", userRole.agency_id)
+      .eq("agency_id", userRole.agence_id)
       .eq("status", "ouvert")
       .maybeSingle();
 
