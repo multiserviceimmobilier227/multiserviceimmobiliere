@@ -204,10 +204,8 @@ export const closeCashSession = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
-
-    // If discrepancy > 5000, we could trigger a notification here
-    // for Phase 12.5 requirements
-    
+    return closedJournal;
+  });
 
 /**
  * Phase 12.6 : Récupération des flux financiers consolidés
@@ -252,14 +250,23 @@ export const correctExpense = createServerFn({ method: "POST" })
       .single();
 
     if (!oldExpense) throw new Error("Dépense non trouvée.");
-    if (oldExpense.status === 'fermé') throw new Error("Impossible de corriger une dépense sur une caisse clôturée.");
+    
+    // Check if linked to closed journal
+    if (oldExpense.cash_journal_id) {
+       const { data: journal } = await supabase
+         .from("cash_journals")
+         .select("status")
+         .eq("id", oldExpense.cash_journal_id)
+         .single();
+       if (journal?.status === 'fermé') throw new Error("Impossible de corriger une dépense sur une caisse clôturée.");
+    }
 
     // 2. Insert into audit log
     await supabase.from("audit_finance_corrections").insert({
       record_id: data.expenseId,
       record_type: 'expense',
-      old_data: oldExpense,
-      new_data: data.newData,
+      old_data: oldExpense as any,
+      new_data: data.newData as any,
       reason: data.reason,
       corrected_by: userId
     });
@@ -271,7 +278,6 @@ export const correctExpense = createServerFn({ method: "POST" })
         amount: data.newData.amount,
         description: data.newData.description,
         beneficiary: data.newData.beneficiary,
-        // Reset status for re-validation if necessary, or keep as is if authorized
         status: 'en_attente_validation' 
       })
       .eq("id", data.expenseId)
