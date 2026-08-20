@@ -687,6 +687,8 @@ function SaleDetailsComponent() {
                               setIsCorrectOpen(true);
                             }}
                             title="Corriger le versement (Annule et Remplace)"
+                            disabled={isCorrected}
+
 
                           >
                             <DollarSign className="h-4 w-4" />
