@@ -101,7 +101,7 @@ export default function RefundManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-[#D1127B]">Gestion des Remboursements</h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground whitespace-pre-wrap">
             '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
             
             Générer et enregistrer automatiquement un reçu de remboursement PDF pour chaque versement et chaque remboursement finalisé.
@@ -109,7 +109,10 @@ export default function RefundManagement() {
 Mettre en place le processus de décharge finale et de clôture à solde zéro avec validation et journalisation complète.
 
 Ajouter une vue de rapprochement qui compare créances dues, versements confirmés et soldes restants par vente et par acquéreur.
+
+Configurer des notifications (in-app et e-mail) pour l’alerte persistante quand une parcelle est remise en vente alors qu’un remboursement est encore dû.
           </p>
+
 
         </div>
       </div>
