@@ -125,7 +125,7 @@ function ArrearsPage() {
                       <div className="text-xs text-gray-500">{item.agence_name}</div>
                     </TableCell>
                     <TableCell className="text-right font-semibold text-red-600">
-                      {formatCurrency(item.total_arrears)}
+                      {formatFCFA(item.total_arrears)}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1 text-sm">
