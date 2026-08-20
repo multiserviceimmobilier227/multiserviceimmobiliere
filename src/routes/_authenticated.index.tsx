@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from "@tanstack/react-start";
 import { getClients } from "@/lib/crm.functions";
-import { getPlots, getLotissements } from "@/lib/real-estate.functions";
+import { getPlots } from "@/lib/real-estate.functions";
 import { getDashboardStats } from "@/lib/acquisitions.functions";
 import { formatFCFA } from "@/lib/utils";
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,7 +14,10 @@ import {
   Tooltip, 
   ResponsiveContainer,
   Cell,
-  Legend
+  LineChart,
+  Line,
+  AreaChart,
+  Area
 } from 'recharts';
 
 export const Route = createFileRoute('/_authenticated/')({
@@ -145,10 +148,10 @@ function Dashboard() {
         <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
         <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
           <p className="text-emerald-800 font-medium">
-            Statut : Système de confiance financière Phase A-02 Déployé.
+            Statut : Système d'Excellence Analytique (Phase A-03) Déployé.
           </p>
           <p className="mt-1 text-sm text-emerald-700">
-            Intégrité garantie : Les ventes annulées libèrent les parcelles et ajustent le CA en temps réel via triggers SQL sécurisés.
+            Vision cristalline : Les indicateurs de CA Contracté, Recouvrement Réel et Valeur du Stock sont consolidés en temps réel.
           </p>
         </div>
       </div>
