@@ -41,8 +41,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { formatCurrency } from "@/lib/utils";
+import { formatFCFA } from "@/lib/utils";
 import { AlertCircle, CreditCard, History, Printer } from "lucide-react";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useServerFn } from "@tanstack/react-start";
 
