@@ -427,8 +427,6 @@ export const registerPayment = createServerFn({ method: "POST" })
 
 // ============= Phase A-02 : Annulation et remboursement =============
 
-const FINANCE_ROLES = ["pdg", "admin", "super_admin", "comptable"] as const;
-
 export const cancelSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
@@ -444,7 +442,8 @@ export const cancelSale = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", userId);
 
-    const allowed = (roles ?? []).some((r) => (FINANCE_ROLES as readonly string[]).includes(r.role));
+    const financeRoles = ["pdg", "admin", "super_admin", "comptable"];
+    const allowed = (roles ?? []).some((r) => financeRoles.includes(r.role));
     if (!allowed) throw new Error("Seuls le PDG, l'administrateur ou le comptable peuvent annuler une vente.");
 
     const { data: sale, error: saleError } = await supabase
