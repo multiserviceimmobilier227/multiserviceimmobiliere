@@ -48,7 +48,9 @@ export function NotificationCenter() {
     switch (type) {
       case 'payment': return <CreditCard className="h-4 w-4 text-emerald-500" />;
       case 'finance': return <Wallet className="h-4 w-4 text-[#D1127B]" />;
-      case 'alert': return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'alert': 
+      case 'error': return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'warning': return <AlertCircle className="h-4 w-4 text-orange-500" />;
       default: return <MessageSquare className="h-4 w-4 text-blue-500" />;
     }
   };
