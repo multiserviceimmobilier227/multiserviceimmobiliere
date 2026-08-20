@@ -120,13 +120,14 @@ function ClientDetails() {
               )}
             </div>
             <div className="flex gap-2 mt-1">
-              <Badge variant="secondary">{client.occupation || "Profession non renseignée"}</Badge>
-              <Badge variant="outline">Client ID: {client.id.slice(0, 8)}</Badge>
-              {client.total_arrears > 0 && (
+              <Badge variant="secondary">{(client as any).occupation || "Profession non renseignée"}</Badge>
+              <Badge variant="outline">Client ID: {(client as any).id.slice(0, 8)}</Badge>
+              {(client as any).total_arrears > 0 && (
                 <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
-                  Arriéré : {new Intl.NumberFormat('fr-FR').format(client.total_arrears)} FCFA
+                  Arriéré : {new Intl.NumberFormat('fr-FR').format((client as any).total_arrears)} FCFA
                 </Badge>
               )}
+
             </div>
           </div>
 
