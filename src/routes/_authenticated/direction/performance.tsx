@@ -335,18 +335,18 @@ function PerformanceDirectionPage() {
                       <div className="font-medium">{item.sold_plots} / {item.total_plots}</div>
                       <div className="text-[10px] text-muted-foreground">vendues</div>
                     </td>
-                    <td className="p-3 text-right font-medium">{formatFCFA(item.sold_value)}</td>
-                    <td className="p-3 text-right text-emerald-600 font-bold">{formatFCFA(item.collected_amount)}</td>
-                    <td className="p-3 text-right text-red-600">{formatFCFA(item.total_costs)}</td>
-                    <td className={`p-3 text-right font-bold ${item.net_profit >= 0 ? 'text-[#D1127B]' : 'text-red-700'}`}>
-                      {formatFCFA(item.net_profit)}
+                    <td className="p-3 text-right font-medium">{formatFCFA(item.sold_value || 0)}</td>
+                    <td className="p-3 text-right text-emerald-600 font-bold">{formatFCFA(item.collected_amount || 0)}</td>
+                    <td className="p-3 text-right text-red-600">{formatFCFA(item.total_costs || 0)}</td>
+                    <td className={`p-3 text-right font-bold ${(item.net_profit || 0) >= 0 ? 'text-[#D1127B]' : 'text-red-700'}`}>
+                      {formatFCFA(item.net_profit || 0)}
                     </td>
                     <td className="p-3 text-right">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        item.roi_percent >= 150 ? 'bg-emerald-100 text-emerald-700' : 
-                        item.roi_percent >= 100 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
+                        (item.roi_percent || 0) >= 150 ? 'bg-emerald-100 text-emerald-700' : 
+                        (item.roi_percent || 0) >= 100 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
                       }`}>
-                        {item.roi_percent.toFixed(1)}%
+                        {(item.roi_percent || 0).toFixed(1)}%
                       </span>
                     </td>
                   </tr>
