@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button';
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck, Undo2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveCashJournal } from '@/lib/finance.functions';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
+import RefundManagement from '@/components/finances/RefundManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 export const Route = createFileRoute('/_authenticated/finances/')({
   component: FinanceDashboard,
