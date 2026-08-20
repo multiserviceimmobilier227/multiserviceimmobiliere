@@ -8,17 +8,15 @@ import { getAgences } from '@/lib/settings.functions';
 import { formatFCFA } from '@/lib/utils';
 import { 
   TrendingUp, 
-  DollarSign, 
   Map, 
   Download,
   Building2,
-  PieChart as PieIcon,
   Search,
   ArrowUpRight,
   Target,
-  Users,
   Award,
-  Zap
+  Calendar,
+  FileSpreadsheet
 } from 'lucide-react';
 import { 
   Card, 
@@ -44,12 +42,13 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  Cell,
-  PieChart,
-  Pie,
   Legend
 } from 'recharts';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 export const Route = createFileRoute('/_authenticated/direction/performance')({
   head: () => ({
@@ -64,6 +63,10 @@ export const Route = createFileRoute('/_authenticated/direction/performance')({
 function PerformanceDirectionPage() {
   const [agenceId, setAgenceId] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined
+  });
 
   const { data: agences } = useQuery({
     queryKey: ['agences'],
@@ -78,9 +81,13 @@ function PerformanceDirectionPage() {
   });
 
   const { data: commercialPerf, isLoading: loadingCommercial } = useQuery({
-    queryKey: ['commercial-performance', agenceId],
+    queryKey: ['commercial-performance', agenceId, dateRange.from, dateRange.to],
     queryFn: () => getCommercialPerformance({
-      data: { agenceId: agenceId === "all" ? undefined : agenceId }
+      data: { 
+        agenceId: agenceId === "all" ? undefined : agenceId,
+        startDate: dateRange.from?.toISOString().split('T')[0],
+        endDate: dateRange.to?.toISOString().split('T')[0]
+      }
     }),
   });
 
@@ -88,7 +95,6 @@ function PerformanceDirectionPage() {
     queryKey: ['cashflow-projections'],
     queryFn: () => getCashFlowProjections(),
   });
-
 
   const filteredData = useMemo(() => {
     if (!profitability) return [];
@@ -99,6 +105,31 @@ function PerformanceDirectionPage() {
   }, [profitability, searchTerm]);
 
   const isLoading = loadingProfitability || loadingCommercial || loadingCashFlow;
+
+  const exportCSV = () => {
+    if (!commercialPerf) return;
+    const headers = ["Agent", "Agence", "Ventes", "Valeur Totale", "Encaissé", "Reste à payer"];
+    const rows = commercialPerf.map((p: any) => [
+      p.agent_name,
+      p.agency_name,
+      p.total_sales,
+      p.total_value,
+      p.collected_amount,
+      p.total_balance
+    ]);
+    
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `performance_commerciale_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const stats = useMemo(() => {
     if (!filteredData.length) return {
@@ -130,12 +161,6 @@ function PerformanceDirectionPage() {
     };
   }, [filteredData]);
 
-  const pieData = [
-    { name: 'Encaissé', value: stats.totalCollected, color: '#10b981' },
-    { name: 'Reste à payer', value: stats.totalSold - stats.totalCollected, color: '#f59e0b' },
-    { name: 'Coûts (Acq + Dép)', value: stats.totalCosts, color: '#ef4444' },
-  ];
-
   if (isLoading) return <div className="p-8 text-center font-sans">Chargement des analyses stratégiques...</div>;
 
   return (
@@ -147,7 +172,38 @@ function PerformanceDirectionPage() {
             Suivi des ventes et performance commerciale globale.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[240px] justify-start text-left font-normal font-sans">
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "dd LLL yyyy", { locale: fr })} -{" "}
+                      {format(dateRange.to, "dd LLL yyyy", { locale: fr })}
+                    </>
+                  ) : (
+                    format(dateRange.from, "dd LLL yyyy", { locale: fr })
+                  )
+                ) : (
+                  <span>Filtrer par période</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <CalendarComponent
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange.from}
+                selected={{ from: dateRange.from, to: dateRange.to }}
+                onSelect={(range: any) => setDateRange({ from: range?.from, to: range?.to })}
+                numberOfMonths={2}
+                locale={fr}
+              />
+            </PopoverContent>
+          </Popover>
+
           <Select value={agenceId} onValueChange={setAgenceId}>
             <SelectTrigger className="w-[180px] font-sans">
               <Building2 className="mr-2 h-4 w-4" />
@@ -160,7 +216,12 @@ function PerformanceDirectionPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" className="gap-2 font-sans">
+          
+          <Button variant="outline" className="gap-2 font-sans" onClick={exportCSV}>
+            <FileSpreadsheet className="h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button variant="outline" className="gap-2 font-sans" onClick={() => window.print()}>
             <Download className="h-4 w-4" />
             Rapport PDF
           </Button>

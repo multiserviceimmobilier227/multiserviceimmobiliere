@@ -477,17 +477,38 @@ export const getCommercialPerformance = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
     let query = supabaseAdmin
-      .from("v_commercial_performance")
+      .from("v_commercial_performance_detailed")
       .select("*");
     
-    if (input?.agenceId) {
+    if (input?.agenceId && input.agenceId !== "all") {
       query = query.eq("agency_id", input.agenceId);
     }
+
+    if (input?.startDate) {
+      query = query.gte("sale_date", input.startDate);
+    }
+
+    if (input?.endDate) {
+      query = query.lte("sale_date", input.endDate);
+    }
     
-    const { data, error } = await query.order("total_sales", { ascending: false });
+    const { data, error } = await query;
     
     if (error) throw new Error(error.message);
-    return data;
+
+    // Aggregate results by agent since the view is grouped by date too
+    const aggregated: Record<string, any> = {};
+    data.forEach(row => {
+      if (!aggregated[row.agent_id]) {
+        aggregated[row.agent_id] = { ...row, total_sales: 0, total_value: 0, collected_amount: 0, total_balance: 0 };
+      }
+      aggregated[row.agent_id].total_sales += Number(row.total_sales);
+      aggregated[row.agent_id].total_value += Number(row.total_value);
+      aggregated[row.agent_id].collected_amount += Number(row.collected_amount);
+      aggregated[row.agent_id].total_balance += Number(row.total_balance);
+    });
+
+    return Object.values(aggregated).sort((a, b) => b.total_sales - a.total_sales);
   });
 
 export const getCashFlowProjections = createServerFn({ method: "GET" })
