@@ -222,8 +222,10 @@ export const getSaleDetails = createServerFn({ method: "GET" })
         payments(*),
         refunds(*),
         snapshots:contract_snapshots(*),
-        mutations:sale_mutations(*)
+        mutations:sale_mutations(*),
+        arrears_details:v_sale_arrears(is_critical_delay, total_arrears)
       `)
+
       .eq("id", data.saleId)
       .single();
 
