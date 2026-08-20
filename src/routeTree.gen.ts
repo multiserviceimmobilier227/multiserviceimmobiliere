@@ -18,6 +18,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
 import { Route as AuthenticatedFinancesIndexRouteImport } from './routes/_authenticated/finances/index'
+import { Route as AuthenticatedFinancesImpayesRouteImport } from './routes/_authenticated/finances/impayes'
 import { Route as AuthenticatedFinancesValidationsRouteImport } from './routes/_authenticated/finances/validations'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierInventaireRouteImport } from './routes/_authenticated/immobilier/inventaire'
@@ -75,6 +76,12 @@ const AuthenticatedFinancesIndexRoute =
   AuthenticatedFinancesIndexRouteImport.update({
     id: '/finances/',
     path: '/finances/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesImpayesRoute =
+  AuthenticatedFinancesImpayesRouteImport.update({
+    id: '/finances/impayes',
+    path: '/finances/impayes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinancesValidationsRoute =
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
@@ -172,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/_authenticated/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
     | '/immobilier/inventaire'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
     | '/immobilier/inventaire'
@@ -261,6 +273,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/finances/impayes'
     | '/_authenticated/finances/validations'
     | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/inventaire'
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/finances'
       fullPath: '/finances/'
       preLoaderRoute: typeof AuthenticatedFinancesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/impayes': {
+      id: '/_authenticated/finances/impayes'
+      path: '/finances/impayes'
+      fullPath: '/finances/impayes'
+      preLoaderRoute: typeof AuthenticatedFinancesImpayesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finances/validations': {
@@ -447,6 +467,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedFinancesImpayesRoute: typeof AuthenticatedFinancesImpayesRoute
   AuthenticatedFinancesValidationsRoute: typeof AuthenticatedFinancesValidationsRoute
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierInventaireRoute: typeof AuthenticatedImmobilierInventaireRoute
@@ -467,6 +488,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedFinancesImpayesRoute: AuthenticatedFinancesImpayesRoute,
   AuthenticatedFinancesValidationsRoute: AuthenticatedFinancesValidationsRoute,
   AuthenticatedImmobilierAcquisitionsRoute:
     AuthenticatedImmobilierAcquisitionsRoute,

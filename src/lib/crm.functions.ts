@@ -31,8 +31,10 @@ export const getClients = createServerFn({ method: "GET" })
     
     let query = supabase.from("clients").select(`
       *,
-      sales:sales(count)
+      sales:sales(count),
+      arrears:v_sale_arrears(is_critical_delay, total_arrears)
     `);
+
     
     if (data.search) {
       query = query.or(`first_name.ilike.%${data.search}%,last_name.ilike.%${data.search}%,phone.ilike.%${data.search}%`);
@@ -46,8 +48,11 @@ export const getClients = createServerFn({ method: "GET" })
     
     return clients.map((c: any) => ({
       ...c,
-      sales_count: (c.sales as any)?.[0]?.count || 0
+      sales_count: (c.sales as any)?.[0]?.count || 0,
+      has_critical_delay: (c.arrears as any[])?.some((a: any) => a.is_critical_delay) || false,
+      total_arrears: (c.arrears as any[])?.reduce((acc: number, curr: any) => acc + (Number(curr.total_arrears) || 0), 0) || 0
     }));
+
   });
 
 export const getClientDetails = createServerFn({ method: "GET" })
@@ -72,16 +77,21 @@ export const getClientDetails = createServerFn({ method: "GET" })
       supabase.from("client_interactions").select("*").eq("client_id", data.id).order("interaction_date", { ascending: false }),
       supabase.from("sales").select(`
         *,
-        plots (plot_number, surface_area, lotissements (name))
+        plots (plot_number, surface_area, lotissements (name)),
+        arrears_details:v_sale_arrears(is_critical_delay, total_arrears)
       `).eq("client_id", data.id).order("created_at", { ascending: false })
+
     ]);
 
     return {
       ...client,
       documents: docsRes.data || [],
       interactions: interactionsRes.data || [],
-      sales: salesRes.data || []
+      sales: salesRes.data || [],
+      has_critical_delay: (salesRes.data as any[])?.some((s: any) => s.arrears_details?.is_critical_delay) || false,
+      total_arrears: (salesRes.data as any[])?.reduce((acc: number, curr: any) => acc + (Number(curr.arrears_details?.total_arrears) || 0), 0) || 0
     };
+
   });
 
 export const upsertClient = createServerFn({ method: "POST" })

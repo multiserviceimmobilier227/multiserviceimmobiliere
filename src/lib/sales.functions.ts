@@ -222,8 +222,10 @@ export const getSaleDetails = createServerFn({ method: "GET" })
         payments(*),
         refunds(*),
         snapshots:contract_snapshots(*),
-        mutations:sale_mutations(*)
+        mutations:sale_mutations(*),
+        arrears_details:v_sale_arrears(is_critical_delay, total_arrears)
       `)
+
       .eq("id", data.saleId)
       .single();
 
@@ -735,6 +737,36 @@ export const markNotificationRead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
+
+export const getArrearsList = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context!;
+    
+    const { data, error } = await (supabase as any)
+      .from('v_sale_arrears')
+      .select('*')
+      .order('days_overdue', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const getSaleArrearsDetails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context!;
+    
+    const { data: arrears, error } = await (supabase as any)
+      .rpc('fn_calculate_sale_arrears', { _sale_id: data.saleId })
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    return arrears;
+  });
+
+
 
 
 

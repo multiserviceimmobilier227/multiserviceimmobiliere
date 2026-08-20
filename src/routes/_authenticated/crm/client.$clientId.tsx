@@ -4,7 +4,7 @@ import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { formatDateNiamey } from "@/lib/utils";
@@ -110,12 +110,27 @@ function ClientDetails() {
             {client.first_name[0]}{client.last_name[0]}
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{client.civilite} {client.first_name} {client.last_name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900">{(client as any).civilite} {(client as any).first_name} {(client as any).last_name}</h1>
+              {(client as any).has_critical_delay && (
+
+                <Badge variant="destructive" className="animate-pulse flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" /> RETARD CRITIQUE
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2 mt-1">
-              <Badge variant="secondary">{client.occupation || "Profession non renseignée"}</Badge>
-              <Badge variant="outline">Client ID: {client.id.slice(0, 8)}</Badge>
+              <Badge variant="secondary">{(client as any).occupation || "Profession non renseignée"}</Badge>
+              <Badge variant="outline">Client ID: {(client as any).id.slice(0, 8)}</Badge>
+              {(client as any).total_arrears > 0 && (
+                <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
+                  Arriéré : {new Intl.NumberFormat('fr-FR').format((client as any).total_arrears)} FCFA
+                </Badge>
+              )}
+
             </div>
           </div>
+
         </div>
         <Button variant="outline" onClick={() => setIsEditingClient(true)}>Modifier la fiche</Button>
       </div>
@@ -128,30 +143,32 @@ function ClientDetails() {
           <CardContent className="space-y-4">
             <div className="flex items-center text-sm">
               <Phone className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.phone}</span>
+              <span>{(client as any).phone}</span>
             </div>
             <div className="flex items-center text-sm">
               <Mail className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.email || "Aucun email"}</span>
+              <span>{(client as any).email || "Aucun email"}</span>
             </div>
+
             <div className="flex items-center text-sm">
               <MapPin className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.address || "Adresse non renseignée"}</span>
+              <span>{(client as any).address || "Adresse non renseignée"}</span>
             </div>
             <div className="pt-4 border-t space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Nationalité</span>
-                <span className="font-medium">{client.nationalite || "N/A"}</span>
+                <span className="font-medium">{(client as any).nationalite || "N/A"}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Né le</span>
-                <span className="font-medium">{client.date_naissance || "N/A"}</span>
+                <span className="font-medium">{(client as any).date_naissance || "N/A"}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Lieu</span>
-                <span className="font-medium">{client.lieu_naissance || "N/A"}</span>
+                <span className="font-medium">{(client as any).lieu_naissance || "N/A"}</span>
               </div>
             </div>
+
           </CardContent>
         </Card>
 
@@ -328,19 +345,20 @@ function ClientDetails() {
                   <div className="grid grid-cols-2 gap-x-12 gap-y-6">
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Civilité</div>
-                      <div className="text-sm">{client.civilite || "M."}</div>
+                      <div className="text-sm">{(client as any).civilite || "M."}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Type de pièce</div>
-                      <div className="text-sm">{client.id_type}</div>
+                      <div className="text-sm">{(client as any).id_type}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Numéro de pièce</div>
-                      <div className="text-sm font-mono">{client.id_number || "Non renseigné"}</div>
+                      <div className="text-sm font-mono">{(client as any).id_number || "Non renseigné"}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Profession</div>
-                      <div className="text-sm">{client.occupation || "N/A"}</div>
+                      <div className="text-sm">{(client as any).occupation || "N/A"}</div>
+
                     </div>
                   </div>
                 </CardContent>

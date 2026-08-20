@@ -230,6 +230,19 @@ function SaleDetailsComponent() {
             {getStatusBadge(sale.status)}
           </div>
           <p className="text-muted-foreground">Créée le {format(new Date(sale.created_at), 'dd/MM/yyyy HH:mm')}</p>
+          {(sale as any).arrears_details?.is_critical_delay && (
+            <div className="mt-2 p-3 bg-red-600 text-white rounded-lg shadow-lg flex items-center gap-3 animate-bounce border-2 border-red-400 max-w-md">
+              <AlertTriangle className="h-6 w-6 shrink-0" />
+              <div>
+                <div className="font-black text-sm uppercase">Avertissement Fort : Retard Critique</div>
+                <div className="text-[11px] leading-tight opacity-90">
+                  Cette acquisition présente un retard de plus de 60 jours. 
+                  Une procédure de recouvrement ou d'annulation peut être engagée par le PDG.
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" asChild>
@@ -465,7 +478,14 @@ function SaleDetailsComponent() {
             <div className="text-xl font-bold text-primary">{new Intl.NumberFormat('fr-FR').format(sale.total_price ?? 0)} FCFA</div>
             <div className="text-xs text-muted-foreground mt-1 text-green-600 font-medium">Apport : {new Intl.NumberFormat('fr-FR').format(sale.deposit_amount || 0)} FCFA</div>
             <div className="text-xs font-bold text-red-600 mt-1 border-t pt-1">Reste à payer : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</div>
+            {(sale as any).arrears_details?.total_arrears > 0 && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-[10px] text-red-700 font-bold flex items-center gap-2">
+                <AlertTriangle className="h-3 w-3" />
+                ARRIÉRÉ À DATE : {new Intl.NumberFormat('fr-FR').format((sale as any).arrears_details.total_arrears)} FCFA
+              </div>
+            )}
           </CardContent>
+
         </Card>
       </div>
 
