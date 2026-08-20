@@ -699,7 +699,8 @@ export const getNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase.rpc('get_user_notifications', { _user_id: userId });
+    const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+
     if (error) throw new Error(error.message);
     return data ?? [];
   });
