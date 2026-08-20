@@ -82,37 +82,51 @@ export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // 1. Récupérer les stats consolidées via la vue
+    const { data: summary, error: summaryError } = await supabaseAdmin
+      .from("v_financial_summary")
+      .select("*")
+      .single();
+
+    if (summaryError) {
+      console.error("Error fetching financial summary:", summaryError);
+    }
+
+    // 2. Stats du mois en cours (pour les tendances)
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
     const startOfMonthStr = startOfMonth.toISOString();
 
-    // 1. Monthly Sales Volume (Sum of total_amount for sales this month)
-    const { data: salesVolume } = await supabaseAdmin
+    const { data: monthlySalesData } = await supabaseAdmin
       .from("sales")
       .select("total_amount")
+      .neq("status", "annule")
       .gte("sale_date", startOfMonthStr);
 
-    // 2. Monthly Collections (Sum of deposits + sum of actual payments this month)
-    
-    // Sum of deposits from sales created this month
-    const { data: deposits } = await supabaseAdmin
-      .from("sales")
-      .select("deposit_amount")
-      .gte("sale_date", startOfMonthStr);
-
-    // Sum of actual payments from the payments table this month
-    const { data: payments } = await supabaseAdmin
+    const { data: monthlyPaymentsData } = await supabaseAdmin
       .from("payments")
       .select("amount")
       .gte("payment_date", startOfMonthStr);
 
-    const totalSalesVolume = salesVolume?.reduce((sum, s) => sum + Number(s.total_amount || 0), 0) || 0;
-    const totalDeposits = deposits?.reduce((sum, s) => sum + Number(s.deposit_amount || 0), 0) || 0;
-    const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0;
+    // Dépôts des ventes créées ce mois
+    const { data: monthlyDepositsData } = await supabaseAdmin
+      .from("sales")
+      .select("deposit_amount")
+      .neq("status", "annule")
+      .gte("sale_date", startOfMonthStr);
+
+    const monthlySales = monthlySalesData?.reduce((sum, s) => sum + Number(s.total_amount || 0), 0) || 0;
+    const monthlyCollections = (monthlyPaymentsData?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0) +
+                               (monthlyDepositsData?.reduce((sum, s) => sum + Number(s.deposit_amount || 0), 0) || 0);
 
     return {
-      monthlySales: totalSalesVolume,
-      monthlyCollections: totalDeposits + totalPayments
+      monthlySales,
+      monthlyCollections,
+      totalCAPotential: summary?.total_ca_potential || 0,
+      totalCollected: summary?.total_collected || 0,
+      totalOutstanding: summary?.total_outstanding || 0,
+      inventoryValue: summary?.inventory_value || 0
     };
   });
