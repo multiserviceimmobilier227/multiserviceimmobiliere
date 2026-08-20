@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-
 const clientSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
@@ -20,12 +19,16 @@ const clientSchema = z.object({
 
 export const getClients = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ 
+  .validator((data: { 
+    search?: string;
+    agenceId?: string;
+  }) => z.object({ 
     search: z.string().optional(),
     agenceId: z.string().optional() 
   }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    
     let query = supabase.from("clients").select(`
       *,
       sales:sales(count)
@@ -36,23 +39,23 @@ export const getClients = createServerFn({ method: "GET" })
     }
     
     const { data: clients, error } = await query.order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error("getClients error:", error);
+      throw error;
+    }
     
-    // Transform count object to a simple number
     return clients.map(c => ({
       ...c,
       sales_count: (c.sales as any)?.[0]?.count || 0
     }));
   });
 
-
 export const getClientDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+  .validator((data: { id: string }) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     
-    // First, verify the client exists
     const { data: client, error: clientError } = await supabase
       .from("clients")
       .select("*")
@@ -64,7 +67,6 @@ export const getClientDetails = createServerFn({ method: "GET" })
       throw new Error("Client introuvable dans la base de données.");
     }
 
-    // Then fetch related data
     const [docsRes, interactionsRes, salesRes] = await Promise.all([
       supabase.from("client_documents").select("*").eq("client_id", data.id).order("created_at", { ascending: false }),
       supabase.from("client_interactions").select("*").eq("client_id", data.id).order("interaction_date", { ascending: false }),
@@ -82,19 +84,20 @@ export const getClientDetails = createServerFn({ method: "GET" })
     };
   });
 
-
 export const upsertClient = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({
+  .validator((data: {
+    id?: string;
+    client: any;
+  }) => z.object({
     id: z.string().optional(),
     client: clientSchema
   }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
-
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    
     const email = data.client.email?.trim() || null;
 
-    // Gracefully handle duplicate email check if email is provided
     if (email) {
       const { data: existing } = await supabase
         .from("clients")
@@ -129,11 +132,15 @@ export const upsertClient = createServerFn({ method: "POST" })
 
     const { data: client, error } = await supabase
       .from("clients")
-      .upsert(updateData)
+      .upsert({
+        ...updateData,
+        created_by: userId
+      })
       .select()
       .single();
 
     if (error) {
+      console.error("Supabase upsert error:", error);
       if (error.code === "23505") {
         throw new Error("Un client avec cet e-mail existe déjà.");
       }
@@ -142,20 +149,22 @@ export const upsertClient = createServerFn({ method: "POST" })
     return client;
   });
 
-
 export const addClientInteraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({
+  .validator((data: {
+    client_id: string;
+    interaction_type: string;
+    notes?: string;
+    interaction_date?: string;
+  }) => z.object({
     client_id: z.string(),
     interaction_type: z.string(),
     notes: z.string().optional(),
     interaction_date: z.string().optional(),
   }).parse(data))
-  .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
 
-
-    const { data: userRes } = await supabase.auth.getUser();
     const { data: interaction, error } = await supabase
       .from("client_interactions")
       .insert({
@@ -163,7 +172,7 @@ export const addClientInteraction = createServerFn({ method: "POST" })
         interaction_type: data.interaction_type,
         notes: data.notes ?? null,
         interaction_date: data.interaction_date || new Date().toISOString(),
-        user_id: userRes.user?.id!,
+        user_id: userId,
       })
       .select()
       .single();
