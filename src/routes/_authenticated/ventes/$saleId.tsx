@@ -523,6 +523,45 @@ function SaleDetailsComponent() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <History className="h-4 w-4" />
+                Journal d'Audit Financier
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-4">
+                  {financialLedger?.map((log: any) => (
+                    <div key={log.id} className="text-xs border-b pb-2">
+                      <div className="flex justify-between items-start">
+                        <span className={`font-bold uppercase ${
+                          log.operation_type === 'CORRECTION_FINANCIERE' ? 'text-orange-600' : 
+                          log.operation_type === 'annulation' ? 'text-red-600' : 'text-blue-600'
+                        }`}>
+                          {log.operation_type}
+                        </span>
+                        <span className="text-muted-foreground">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                      </div>
+                      <div className="mt-1 flex justify-between">
+                        <span>Montant : <strong>{new Intl.NumberFormat('fr-FR').format(log.amount)} FCFA</strong></span>
+                        <span className="text-[10px] italic">{log.notes}</span>
+                      </div>
+                      <div className="mt-1 text-[10px] text-muted-foreground">
+                        Solde : {new Intl.NumberFormat('fr-FR').format(log.previous_balance)} → {new Intl.NumberFormat('fr-FR').format(log.new_balance)}
+                      </div>
+                    </div>
+                  ))}
+                  {(!financialLedger || financialLedger.length === 0) && (
+                    <p className="text-center text-muted-foreground text-xs py-8">Aucun mouvement journalisé.</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          <Card>
+
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
                 Contrat & Historique
