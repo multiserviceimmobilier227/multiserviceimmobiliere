@@ -62,7 +62,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
           supabase: createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
             global: { fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY) }
           }),
-          userId: null as string | null,
+          userId: "" as string, // Default to empty string to avoid null issues in handlers, but check it!
           claims: null as any,
         }
       });
@@ -111,7 +111,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     return next({
       context: {
         supabase,
-        userId: data.claims.sub as string | null,
+        userId: data.claims.sub as string,
         claims: data.claims,
       },
     });
