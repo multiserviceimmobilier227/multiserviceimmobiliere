@@ -374,15 +374,17 @@ export const registerPayment = createServerFn({ method: "POST" })
       .eq("id", data.saleId)
       .single();
 
-    const initialCollected = saleData ? (Number(saleData.total_amount) - Number(saleData.balance)) : 0;
+    const initialBalance = saleData ? Number(saleData.balance) : 0;
     
     await supabase.from("audit_finance").insert({
       operation_type: 'paiement',
-      initial_amount: initialCollected,
-      final_amount: initialCollected + data.amount,
-      entity_type: 'payments',
-      entity_id: payment.id,
-      details: { sale_id: data.saleId, method: data.method }
+      amount: data.amount,
+      previous_balance: initialBalance,
+      new_balance: Math.max(0, initialBalance - data.amount),
+      entity_id: payment.id, // Keep this for reference in details or if entity_id exists
+      payment_id: payment.id,
+      sale_id: data.saleId,
+      user_id: context.userId
     });
 
     // 2. Update payment schedules (Phase 10 logic)
