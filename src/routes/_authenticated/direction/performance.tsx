@@ -235,7 +235,7 @@ function PerformanceDirectionPage() {
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={commercialPerf?.slice(0, 5)} layout="vertical" margin={{ left: 40, right: 30 }}>
+                <BarChart data={commercialPerf?.slice(0, 5) || []} layout="vertical" margin={{ left: 40, right: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                   <XAxis type="number" hide />
                   <YAxis 
