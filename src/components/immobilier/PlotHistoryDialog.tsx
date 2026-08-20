@@ -64,7 +64,7 @@ export function PlotHistoryDialog({ plotId, plotNumber, onClose }: PlotHistoryDi
             ) : history?.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">Aucun historique disponible pour cette parcelle.</div>
             ) : (
-              history?.map((event, idx) => (
+              history?.map((event: any, idx: number) => (
                 <div key={event.id} className="relative flex items-start gap-6 pl-2">
                   <div className="absolute left-0 mt-1.5 h-10 w-10 flex items-center justify-center rounded-full bg-white border-2 border-muted shadow-sm z-10">
                     <Clock className="h-4 w-4 text-muted-foreground" />
