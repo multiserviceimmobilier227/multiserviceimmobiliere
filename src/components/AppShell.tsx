@@ -86,11 +86,10 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Finance
       </h2>
       <div className="space-y-1">
-        <NavItem to="/finances" icon={Wallet} onClick={onItemClick || undefined}>Journal de Caisse</NavItem>
-        <NavItem to="/finances/impayes" icon={Clock} onClick={onItemClick || undefined}>Retards & Impayés</NavItem>
-        <NavItem to="/finances" icon={CreditCard} onClick={onItemClick || undefined}>Dépenses & Charges</NavItem>
-        <NavItem to="/finances" icon={PieChart} onClick={onItemClick || undefined}>Analyses Financières</NavItem>
-        <NavItem to="/finances" icon={ClipboardList} onClick={onItemClick || undefined}>Audit & Rapprochement</NavItem>
+        <NavItem to="/finances" icon={Wallet}>Journal de Caisse</NavItem>
+        <NavItem to="/finances/impayes" icon={Clock}>Retards & Impayés</NavItem>
+        <NavItem to="/direction/performance" icon={PieChart}>Analyses & Performance</NavItem>
+        <NavItem to="/finances" icon={ClipboardList}>Audit & Flux</NavItem>
       </div>
 
     </div>

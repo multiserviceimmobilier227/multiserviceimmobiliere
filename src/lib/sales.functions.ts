@@ -466,6 +466,31 @@ export const registerPayment = createServerFn({ method: "POST" })
     return { ...payment, imputed_data: imputedData };
   });
 
+export const getCommercialPerformance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    agenceId: z.string().uuid().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional()
+  }).optional().parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    let query = supabaseAdmin
+      .from("v_commercial_performance")
+      .select("*");
+    
+    if (input?.agenceId) {
+      query = query.eq("agency_id", input.agenceId);
+    }
+    
+    const { data, error } = await query.order("total_sales", { ascending: false });
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+
 export const confirmPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ paymentId: z.string().uuid() }).parse(data))

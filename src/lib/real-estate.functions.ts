@@ -276,3 +276,27 @@ export const getPlotHistory = createServerFn({ method: "GET" })
 
     return history;
   });
+
+export const getLotissementProfitability = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.object({
+    agenceId: z.string().uuid().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional()
+  }).optional().parse(data))
+  .handler(async ({ data: input }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    let query = supabaseAdmin
+      .from("v_lotissement_profitability")
+      .select("*");
+    
+    if (input?.agenceId) {
+      query = query.eq("agence_id", input.agenceId);
+    }
+    
+    const { data, error } = await query.order("name");
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
