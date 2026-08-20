@@ -99,7 +99,7 @@ export const submitExpense = createServerFn({ method: "POST" })
     beneficiary: z.string().optional(),
     paymentMethod: z.enum(['espece', 'nita', 'virement', 'cheque', 'mobile_money']),
     agencyId: z.string().uuid(),
-    projectId: z.string().uuid().optional(),
+    projectId: z.string().uuid().optional().nullable(),
     receiptUrl: z.string().url().optional().nullable(),
     cashJournalId: z.string().uuid().optional()
   }).parse(data))
@@ -124,9 +124,7 @@ export const submitExpense = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    // Phase 12.4 : Notification PDG gérée par trigger (SQL fn_tr_notify_pdg_large_expense)
-    // Nous n'avons pas besoin d'insertion manuelle ici pour éviter les erreurs de type et les duplications.
-    
+    if (error) throw new Error(error.message);
     return expense;
   });
 
@@ -137,7 +135,8 @@ export const validateExpense = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
     expenseId: z.string().uuid(),
-    approve: z.boolean()
+    approve: z.boolean(),
+    notes: z.string().optional()
   }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context!;
@@ -157,7 +156,8 @@ export const validateExpense = createServerFn({ method: "POST" })
       .update({
         status: data.approve ? 'validé' : 'rejeté',
         validated_by_id: userId,
-        validation_date: new Date().toISOString()
+        validation_date: new Date().toISOString(),
+        validation_notes: data.notes || null
       })
       .eq("id", data.expenseId)
       .select()
@@ -168,14 +168,15 @@ export const validateExpense = createServerFn({ method: "POST" })
   });
 
 /**
- * Phase 12.5 : Clôture de caisse
+ * Phase 12.5 : Clôture de caisse avec gestion des écarts
  */
 export const closeCashSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({
     journalId: z.string().uuid(),
     closingBalance: z.number().nonnegative(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    adjustmentReason: z.string().optional()
   }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context!;
@@ -206,6 +207,17 @@ export const closeCashSession = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
+
+    // Si un écart est constaté et une raison fournie, on journalise
+    if (discrepancy !== 0 && data.adjustmentReason) {
+      await supabase.from("daily_cash_adjustments").insert({
+        journal_id: data.journalId,
+        amount: discrepancy,
+        reason: data.adjustmentReason,
+        adjusted_by: userId
+      });
+    }
+
     return closedJournal;
   });
 
