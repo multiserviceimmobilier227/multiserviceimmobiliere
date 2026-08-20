@@ -165,7 +165,7 @@ function Dashboard() {
             <div className="space-y-4">
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
-                  <p className="text-lg font-bold text-[#D1127B]">{clients?.filter(c => c.sales_count > 0).length || 0}</p>
+                  <p className="text-lg font-bold text-[#D1127B]">{(clients as any[])?.filter((c: any) => c.sales_count > 0).length || 0}</p>
                   <p className="text-[10px] text-muted-foreground uppercase">Clients Actifs</p>
                 </div>
                 <div className="text-right">

@@ -123,7 +123,7 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories.map((cat: any) => (
+                        {(categories as any[]).map((cat: any) => (
                           <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                         ))}
                       </SelectContent>
