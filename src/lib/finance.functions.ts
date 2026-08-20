@@ -164,3 +164,49 @@ export const validateExpense = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return expense;
   });
+
+/**
+ * Phase 12.5 : Clôture de caisse
+ */
+export const closeCashSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    journalId: z.string().uuid(),
+    closingBalance: z.number().nonnegative(),
+    notes: z.string().optional()
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Get journal details to calculate discrepancy
+    const { data: journal } = await supabase
+      .from("cash_journals")
+      .select("theoretical_closing_balance")
+      .eq("id", data.journalId)
+      .single();
+
+    if (!journal) throw new Error("Journal non trouvé.");
+
+    const discrepancy = data.closingBalance - journal.theoretical_closing_balance;
+
+    const { data: closedJournal, error } = await supabase
+      .from("cash_journals")
+      .update({
+        actual_closing_balance: data.closingBalance,
+        closing_discrepancy: discrepancy,
+        closed_by_id: userId,
+        closed_at: new Date().toISOString(),
+        status: "fermé",
+        notes: data.notes
+      })
+      .eq("id", data.journalId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    // If discrepancy > 5000, we could trigger a notification here
+    // for Phase 12.5 requirements
+    
+    return closedJournal;
+  });
