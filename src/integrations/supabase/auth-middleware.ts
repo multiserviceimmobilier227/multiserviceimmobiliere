@@ -54,8 +54,18 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
 
     const authHeader = request.headers.get('authorization');
 
+    // Handle missing authorization header for SSR/Initial Prerender
+    // Note: attachSupabaseAuth must be registered in src/start.ts functionMiddleware
     if (!authHeader) {
-      throw new Error('Unauthorized: No authorization header provided');
+      return next({
+        context: {
+          supabase: createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+            global: { fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY) }
+          }),
+          userId: null,
+          claims: null,
+        }
+      });
     }
 
     if (!authHeader.startsWith('Bearer ')) {

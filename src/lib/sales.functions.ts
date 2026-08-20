@@ -705,7 +705,14 @@ export const getNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+    if (!userId) return [];
+    
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -716,7 +723,13 @@ export const markNotificationRead = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ notificationId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from('notifications').update({ is_read: true } as any).eq('id', data.notificationId).eq('user_id', userId);
+    if (!userId) throw new Error("Non authentifié");
+    
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true } as any)
+      .eq('id', data.notificationId)
+      .eq('user_id', userId);
 
     if (error) throw new Error(error.message);
     return { success: true };
