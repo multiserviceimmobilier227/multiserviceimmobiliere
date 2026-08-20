@@ -29,6 +29,8 @@ function SaleDetailsComponent() {
   const validate = useServerFn(validateSaleFn)
   const adjustPrice = useServerFn(adjustSalePrice)
   const mutateSale = useServerFn(createMutationRequest)
+  const confirmPay = useServerFn(confirmPayment)
+  const correctPay = useServerFn(correctPayment)
 
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
@@ -46,6 +48,21 @@ function SaleDetailsComponent() {
   const [refundAmount, setRefundAmount] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const [isReceiptOpen, setIsReceiptOpen] = useState(false)
+  const [isCorrectOpen, setIsCorrectOpen] = useState(false)
+  const [correctAmount, setCorrectAmount] = useState('')
+  const [correctReason, setCorrectReason] = useState('')
+
+  const { data: userRoles } = useQuery({
+    queryKey: ['user-roles'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+      return data?.map(r => r.role) || [];
+    }
+  });
+
+  const isPdgOrAdmin = userRoles?.some(r => ['pdg', 'admin', 'super_admin'].includes(r as string));
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
