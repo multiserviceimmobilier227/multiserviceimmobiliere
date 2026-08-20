@@ -14,8 +14,10 @@ import {
   Menu,
   X,
   PieChart,
-  ClipboardList
+  ClipboardList,
+  Clock
 } from "lucide-react";
+
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CashJournalStatus } from "@/components/finance/CashJournalStatus";
 import { MsiLogo } from "@/components/ui/msi-logo";
