@@ -289,9 +289,44 @@ function FinanceDashboard() {
         </TabsContent>
 
         <TabsContent value="history">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Card className="bg-emerald-50 border-emerald-100">
+               <CardContent className="pt-6">
+                 <div className="flex items-center justify-between">
+                   <div>
+                     <p className="text-sm font-medium text-emerald-600">Total Entrées</p>
+                     <p className="text-2xl font-bold text-emerald-700">
+                       {formatFCFA(cashOps?.filter(o => o.operation_type === 'ENTREE').reduce((a, c) => a + Number(c.amount), 0) || 0)}
+                     </p>
+                   </div>
+                   <ArrowUpCircle className="h-8 w-8 text-emerald-200" />
+                 </div>
+               </CardContent>
+            </Card>
+            <Card className="bg-red-50 border-red-100">
+               <CardContent className="pt-6">
+                 <div className="flex items-center justify-between">
+                   <div>
+                     <p className="text-sm font-medium text-red-600">Total Sorties</p>
+                     <p className="text-2xl font-bold text-red-700">
+                       {formatFCFA(cashOps?.filter(o => o.operation_type === 'SORTIE').reduce((a, c) => a + Number(c.amount), 0) || 0)}
+                     </p>
+                   </div>
+                   <CreditCard className="h-8 w-8 text-red-200" />
+                 </div>
+               </CardContent>
+            </Card>
+          </div>
+
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Journal Universel des Flux</CardTitle>
+              <div className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-tighter">
+                SOLDE NET : {formatFCFA(
+                  (cashOps?.filter(o => o.operation_type === 'ENTREE').reduce((a, c) => a + Number(c.amount), 0) || 0) - 
+                  (cashOps?.filter(o => o.operation_type === 'SORTIE').reduce((a, c) => a + Number(c.amount), 0) || 0)
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <Table>

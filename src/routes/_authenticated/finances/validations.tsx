@@ -81,6 +81,7 @@ function ExpenseValidations() {
                 <TableHead>Bénéficiaire</TableHead>
                 <TableHead>Montant</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Mode</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -97,6 +98,11 @@ function ExpenseValidations() {
                   <TableCell className="text-xs font-bold">{ex.beneficiary}</TableCell>
                   <TableCell className="font-bold text-[#D1127B]">{formatFCFA(ex.amount)}</TableCell>
                   <TableCell className="text-xs max-w-[200px] truncate">{ex.description}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="text-[10px] uppercase font-mono">
+                      {ex.payment_method}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     {ex.receipt_url ? (
                       <Button variant="ghost" size="icon" asChild>
