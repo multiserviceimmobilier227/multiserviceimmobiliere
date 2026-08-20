@@ -544,6 +544,42 @@ function ClientDetails() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Action PDG Dialog */}
+      <Dialog open={isPdgActionOpen} onOpenChange={setIsPdgActionOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Ban className="h-5 w-5" />
+              {pdgActionType === 'convocation' ? 'Convocation Client' : 'Suspension de Contrat'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-red-50 p-3 rounded text-sm text-red-800 border border-red-100">
+              <strong>Attention :</strong> Cette action sera enregistrée de manière indélébile dans l'historique du client avec votre signature.
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Motif et instructions de la direction</label>
+              <Textarea 
+                placeholder="Précisez les conditions de reprise ou le motif de convocation..."
+                className="h-32"
+                value={pdgActionNotes}
+                onChange={(e) => setPdgActionNotes(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsPdgActionOpen(false)}>Annuler</Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isActionPending}
+              onClick={handlePdgAction}
+            >
+              Confirmer l'Action
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
