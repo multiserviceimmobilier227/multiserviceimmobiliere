@@ -1,43 +1,42 @@
-# Plan d'Implantation Progressive - Phase 12 : Caisse, Dépenses et Flux
+# Plan d'Implantation Progressive - Phase 12 : Caisse, Dépenses et Flux (Diagnostic & Finalisation)
 
-Pour garantir une rigueur maximale, l'implantation de la Phase 12 est divisée en 5 sous-phases indépendantes et vérifiables.
+Ce plan vise à combler les lacunes identifiées dans l'implémentation de la Phase 12, notamment l'absence de certains déclencheurs (triggers), fonctions SQL critiques et la finalisation de l'interface utilisateur pour le PDG.
 
-## Sous-Phase 12.1 : Infrastructure & Référentiels Dépenses
-- **Objectif** : Préparer le terrain SQL et les catégories.
-- **Actions** :
-    - Migration SQL : Création de la table `expenses` et `expense_audit_logs`.
-    - Initialisation des catégories de dépenses système (Loyer, Salaires, Carburant, etc.).
-    - Mise à jour des RLS pour garantir l'isolation multi-agences.
-- **Vérification** : Capacité à lire les catégories de dépenses via une Server Function.
+## 1. Backend & Base de Données (PostgreSQL)
 
-## Sous-Phase 12.2 : Gestion de la Session de Caisse (Journal)
-- **Objectif** : Contrôler l'ouverture et la fermeture des journées financières.
-- **Actions** :
-    - Migration SQL : Table `cash_journals`.
-    - Logique : Fonctions `openCashSession` et `closeCashSession`.
-    - UI : Widget d'état de caisse dans le Header/Sidebar.
-- **Vérification** : Impossibilité de saisir une dépense si la caisse n'est pas ouverte.
+### Fonctions & Triggers de Sécurité
+- **`fn_calculate_theoretical_cash`** : Créer la fonction SQL pour calculer le solde en temps réel (Solde ouverture + Encaissements validés - Dépenses validées).
+- **Triggers d'Intégrité** :
+    - `tr_prevent_expense_deletion` : Interdire `DELETE` sur `expenses`.
+    - `tr_lock_closed_cash_day` : Interdire `INSERT/UPDATE` sur `expenses` si le `cash_journal_id` associé est fermé.
+    - `tr_notify_pdg_on_large_expense` : Créer une notification si dépense > 100 000 FCFA.
+    - `tr_notify_pdg_on_cash_discrepancy` : Créer une notification si écart clôture > 5 000 FCFA.
+- **Synchronisation** :
+    - `tr_sync_cash_journal_balance` : Mettre à jour `theoretical_closing_balance` à chaque mouvement (entrée/sortie).
 
-## Sous-Phase 12.3 : Enregistrement & Justification des Dépenses
-- **Objectif** : Digitaliser les sorties d'argent.
-- **Actions** :
-    - UI : Formulaire de saisie des dépenses avec upload de justificatif.
-    - Logique : Server Function `submitExpense` avec stockage Supabase.
-    - Métier : Statut "En attente" par défaut.
-- **Vérification** : Apparition de la dépense dans le journal d'audit en mode brouillon.
+### RLS & Grants
+- Vérifier et accorder explicitement les droits `EXECUTE` sur les fonctions `SECURITY DEFINER`.
+- Assurer que la table `notifications` est accessible et isolée par utilisateur.
 
-## Sous-Phase 12.4 : Circuit de Validation & Impact Trésorerie
-- **Objectif** : Activer le contrôle du PDG et le calcul des soldes.
-- **Actions** :
-    - Logique : `fn_calculate_theoretical_cash` (calcul dynamique Entrées - Sorties validées).
-    - UI : Liste des dépenses en attente de validation pour le PDG.
-    - Triggers : Verrouillage des dépenses validées.
-- **Vérification** : Le solde théorique de caisse diminue uniquement après validation PDG d'une dépense.
+## 2. Logique Métier (Server Functions)
 
-## Sous-Phase 12.5 : Clôture, Écarts & Reporting
-- **Objectif** : Finaliser la journée et analyser les flux.
-- **Actions** :
-    - UI : Écran de clôture avec saisie du montant physique.
-    - Logique : Gestion des écarts (discrepancy) et notifications PDG automatisées.
-    - Rapports : Vue "Flux de Trésorerie" (Entrées/Sorties consolidées).
-- **Vérification** : Notification envoyée au PDG si écart > 5 000 FCFA à la clôture.
+- **`validateExpense`** : S'assurer que le PDG reçoit une notification lors d'une nouvelle dépense soumise.
+- **`closeCashSession`** : Intégrer la vérification du seuil d'écart pour la notification automatique.
+- **Gestion des Justificatifs** : Implémenter le lien réel avec le stockage (ou placeholder structuré si non configuré).
+
+## 3. Frontend & Interface Utilisateur (React)
+
+### Centre de Validation PDG (`/finances/validations`)
+- Créer une vue dédiée pour que le PDG puisse voir les dépenses `en_attente_validation` et les approuver/rejeter en masse ou individuellement.
+
+### Améliorations `CashJournalStatus` & `ExpenseForm`
+- **Upload** : Ajouter la logique simulée ou réelle d'upload de justificatif dans `ExpenseForm`.
+- **Historique** : Ajouter un onglet "Sessions Passées" dans la vue finances pour voir les clôtures précédentes et les écarts.
+- **Widget Sidebar** : Intégrer un indicateur visuel discret de l'état de la caisse (Ouverte/Fermée) dans la navigation principale.
+
+## 4. Plan de Vérification
+
+- **Test SQL** : Vérifier que le trigger empêche la suppression d'une dépense.
+- **Test Flux** : Créer un encaissement (Phase 11) et vérifier que le solde théorique augmente.
+- **Test Clôture** : Simuler une clôture avec écart et vérifier la création d'une ligne dans `notifications` pour le PDG.
+- **Test Validation** : Valider une dépense et vérifier que le solde théorique diminue uniquement à cet instant.
