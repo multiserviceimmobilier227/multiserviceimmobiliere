@@ -316,9 +316,8 @@ function BilansImmobilierPage() {
 
       <div className="mt-6">
         <Card className="border-border/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
 
-
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle className="text-lg font-sans">Détails des Bilans par Site</CardTitle>
             <CardDescription className="font-sans text-xs">Tableau comparatif de la performance financière.</CardDescription>
