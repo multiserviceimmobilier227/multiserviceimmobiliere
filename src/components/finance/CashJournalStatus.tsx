@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { formatFCFA } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,7 @@ export function CashJournalStatus() {
   const [closingBalance, setClosingBalance] = useState<string>("0");
   const [isOpening, setIsOpening] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [adjustmentReason, setAdjustmentReason] = useState("");
 
   const { data: activeSession, isLoading } = useQuery({
     queryKey: ["active-cash-journal"],
@@ -73,7 +75,8 @@ export function CashJournalStatus() {
       return closeSessionFn({ 
         data: { 
           journalId: (activeSession as any).id,
-          closingBalance: parseFloat(closingBalance)
+          closingBalance: parseFloat(closingBalance),
+          adjustmentReason: adjustmentReason
         } 
       });
     },
@@ -81,6 +84,7 @@ export function CashJournalStatus() {
       toast.success("Caisse clôturée avec succès");
       queryClient.invalidateQueries({ queryKey: ["active-cash-journal"] });
       setIsClosing(false);
+      setAdjustmentReason("");
     },
     onError: (error: any) => {
       toast.error(error.message || "Erreur lors de la clôture");
@@ -184,6 +188,20 @@ export function CashJournalStatus() {
                   className="h-8 text-sm border-emerald-300 focus-visible:ring-emerald-500"
                 />
               </div>
+              
+              {Math.abs(parseFloat(closingBalance) - (activeSession as any).theoretical_closing_balance) > 0 && (
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-red-700 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Justification de l'écart
+                  </label>
+                  <Textarea 
+                    placeholder="Pourquoi y a-t-il un écart ?"
+                    value={adjustmentReason}
+                    onChange={(e) => setAdjustmentReason(e.target.value)}
+                    className="text-xs h-16 border-red-200 bg-red-50 focus-visible:ring-red-500"
+                  />
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button 
                   size="sm" 

@@ -587,6 +587,41 @@ export type Database = {
           },
         ]
       }
+      daily_cash_adjustments: {
+        Row: {
+          adjusted_by: string
+          amount: number
+          created_at: string | null
+          id: string
+          journal_id: string
+          reason: string
+        }
+        Insert: {
+          adjusted_by: string
+          amount: number
+          created_at?: string | null
+          id?: string
+          journal_id: string
+          reason: string
+        }
+        Update: {
+          adjusted_by?: string
+          amount?: number
+          created_at?: string | null
+          id?: string
+          journal_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_cash_adjustments_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "cash_journals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_cash_operations: {
         Row: {
           agency_id: string | null
@@ -676,6 +711,7 @@ export type Database = {
           status: Database["public"]["Enums"]["expense_status"]
           validated_by_id: string | null
           validation_date: string | null
+          validation_notes: string | null
         }
         Insert: {
           agency_id: string
@@ -694,6 +730,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["expense_status"]
           validated_by_id?: string | null
           validation_date?: string | null
+          validation_notes?: string | null
         }
         Update: {
           agency_id?: string
@@ -712,6 +749,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["expense_status"]
           validated_by_id?: string | null
           validation_date?: string | null
+          validation_notes?: string | null
         }
         Relationships: [
           {
