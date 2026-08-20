@@ -135,24 +135,10 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "acquisitions_prepared_by_id_fkey"
-            columns: ["prepared_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "acquisitions_validated_by_id_fkey"
             columns: ["validated_by_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "acquisitions_validated_by_id_fkey"
-            columns: ["validated_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -218,13 +204,6 @@ export type Database = {
             columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "app_settings_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -315,13 +294,6 @@ export type Database = {
             referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
           },
-          {
-            foreignKeyName: "audit_finance_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
         ]
       }
       audit_finance_corrections: {
@@ -361,13 +333,6 @@ export type Database = {
             columns: ["corrected_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "audit_finance_corrections_corrected_by_fkey"
-            columns: ["corrected_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -467,24 +432,10 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "cash_journals_closed_by_id_fkey"
-            columns: ["closed_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "cash_journals_opened_by_id_fkey"
             columns: ["opened_by_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "cash_journals_opened_by_id_fkey"
-            columns: ["opened_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -532,13 +483,6 @@ export type Database = {
             referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
           },
-          {
-            foreignKeyName: "client_documents_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
         ]
       }
       client_interactions: {
@@ -582,13 +526,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "client_interactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -656,13 +593,6 @@ export type Database = {
             referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
           },
-          {
-            foreignKeyName: "clients_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
         ]
       }
       contract_snapshots: {
@@ -699,13 +629,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "contract_snapshots_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
           {
@@ -806,13 +729,6 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "daily_cash_adjustments_adjusted_by_fkey"
-            columns: ["adjusted_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "daily_cash_adjustments_journal_id_fkey"
             columns: ["journal_id"]
             isOneToOne: false
@@ -871,13 +787,6 @@ export type Database = {
             columns: ["performed_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "daily_cash_operations_performed_by_fkey"
-            columns: ["performed_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -994,13 +903,6 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "expenses_created_by_id_fkey"
-            columns: ["created_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "expenses_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -1026,13 +928,6 @@ export type Database = {
             columns: ["validated_by_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "expenses_validated_by_id_fkey"
-            columns: ["validated_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -1100,13 +995,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "lotissement_attachments_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
           {
@@ -1212,13 +1100,6 @@ export type Database = {
             referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
           },
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
         ]
       }
       payment_corrections: {
@@ -1261,13 +1142,6 @@ export type Database = {
             columns: ["corrected_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "payment_corrections_corrected_by_fkey"
-            columns: ["corrected_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
           {
@@ -1382,13 +1256,6 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "payments_confirmed_by_fkey"
-            columns: ["confirmed_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "payments_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
@@ -1457,24 +1324,10 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "plot_pricing_prepared_by_id_fkey"
-            columns: ["prepared_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "plot_pricing_validated_by_id_fkey"
             columns: ["validated_by_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "plot_pricing_validated_by_id_fkey"
-            columns: ["validated_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -1520,13 +1373,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "plot_status_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -1624,6 +1470,35 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "v_commercial_performance"
+            referencedColumns: ["agent_id"]
+          },
+        ]
+      }
       refunds: {
         Row: {
           amount: number
@@ -1658,13 +1533,6 @@ export type Database = {
             columns: ["processed_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "refunds_processed_by_fkey"
-            columns: ["processed_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
           {
@@ -1730,13 +1598,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "reservations_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
           {
@@ -1824,13 +1685,6 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "sale_adjustments_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "sale_adjustments_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
@@ -1849,13 +1703,6 @@ export type Database = {
             columns: ["validated_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "sale_adjustments_validated_by_fkey"
-            columns: ["validated_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -1923,13 +1770,6 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "sale_mutations_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "sale_mutations_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
@@ -1948,13 +1788,6 @@ export type Database = {
             columns: ["validated_by"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "sale_mutations_validated_by_fkey"
-            columns: ["validated_by"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -2127,29 +1960,8 @@ export type Database = {
             referencedColumns: ["agent_id"]
           },
           {
-            foreignKeyName: "sales_prepared_by_id_fkey"
-            columns: ["prepared_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
             foreignKeyName: "sales_price_validated_by_id_fkey"
             columns: ["price_validated_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "sales_price_validated_by_id_fkey"
-            columns: ["price_validated_by_id"]
-            isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
-            referencedColumns: ["agent_id"]
-          },
-          {
-            foreignKeyName: "sales_validated_by_id_fkey"
-            columns: ["validated_by_id"]
             isOneToOne: false
             referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
@@ -2158,7 +1970,7 @@ export type Database = {
             foreignKeyName: "sales_validated_by_id_fkey"
             columns: ["validated_by_id"]
             isOneToOne: false
-            referencedRelation: "v_commercial_performance_detailed"
+            referencedRelation: "v_commercial_performance"
             referencedColumns: ["agent_id"]
           },
         ]
@@ -2321,6 +2133,13 @@ export type Database = {
           total_value: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: true
+            referencedRelation: "v_commercial_performance"
+            referencedColumns: ["agent_id"]
+          },
           {
             foreignKeyName: "sales_agency_id_fkey"
             columns: ["agency_id"]
