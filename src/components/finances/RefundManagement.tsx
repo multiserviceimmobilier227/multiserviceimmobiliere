@@ -104,32 +104,45 @@ export default function RefundManagement() {
           <p className="text-muted-foreground whitespace-pre-wrap">
             '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
             
-            ## Phase 14 — Remboursements
+            Phase 14 — Remboursements
+
+
+
+
+
+
 
 1. Créance de remboursement créée à l'annulation
 
+
+
 2. Remboursement immédiat, intégral, partiel ou échelonné
+
+
 
 3. Plan de remboursement et suivi des versements
 
+
+
 4. Reçus de remboursement
+
+
 
 5. Alerte persistante : parcelle remise en vente avec remboursement encore dû
 
+
+
 6. Décharge finale et clôture à solde zéro
 
+
+
+
+
+
+
 Fait un plan pour l'implémentation de cette fonctionnalité ultra importante mais il faut d'abord analyser ce qui a été fait, ce qui restait à faire et ce qui est mal fait
-
----
-            
-            Générer et enregistrer automatiquement un reçu de remboursement PDF pour chaque versement et chaque remboursement finalisé.
-
-Mettre en place le processus de décharge finale et de clôture à solde zéro avec validation et journalisation complète.
-
-Ajouter une vue de rapprochement qui compare créances dues, versements confirmés et soldes restants par vente et par acquéreur.
-
-Configurer des notifications (in-app et e-mail) pour l’alerte persistante quand une parcelle est remise en vente alors qu’un remboursement est encore dû.
           </p>
+
 
 
 
