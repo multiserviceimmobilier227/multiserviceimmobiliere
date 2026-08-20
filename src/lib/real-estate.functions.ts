@@ -246,14 +246,35 @@ export const getPlotHistory = createServerFn({ method: "GET" })
   .validator((data: unknown) => z.string().uuid().parse(data))
   .handler(async ({ data: plotId }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    
+    // Manual join to avoid relationship detection issues in PostgREST
+    const { data: history, error: historyError } = await supabaseAdmin
       .from("plot_status_history")
-      .select(`
-        *,
-        user_roles(role)
-      `)
+      .select("*")
       .eq("plot_id", plotId)
       .order("created_at", { ascending: false });
+    
+    if (historyError) throw new Error(historyError.message);
+
+    if (!history || history.length === 0) return [];
+
+    // Fetch roles for all users in the history
+    const userIds = [...new Set(history.map(h => h.user_id).filter(Boolean))];
+    
+    if (userIds.length > 0) {
+      const { data: roles } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id, role")
+        .in("user_id", userIds as string[]);
+
+      // Map roles back to history entries
+      return history.map(h => ({
+        ...h,
+        user_roles: roles?.find(r => r.user_id === h.user_id) || null
+      }));
+    }
+
+    return history;
     
     if (error) throw new Error(error.message);
     return data;
