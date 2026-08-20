@@ -67,6 +67,26 @@ export function CashJournalStatus() {
     }
   });
 
+  const closeMutation = useMutation({
+    mutationFn: async () => {
+      if (!activeSession) throw new Error("Aucune session active.");
+      return closeSessionFn({ 
+        data: { 
+          journalId: activeSession.id,
+          closingBalance: parseFloat(closingBalance)
+        } 
+      });
+    },
+    onSuccess: () => {
+      toast.success("Caisse clôturée avec succès");
+      queryClient.invalidateQueries({ queryKey: ["active-cash-journal"] });
+      setIsClosing(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erreur lors de la clôture");
+    }
+  });
+
   if (isLoading) return null;
 
   if (!activeSession) {
