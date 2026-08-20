@@ -292,10 +292,12 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
         .eq("sale_id", data.saleId);
       
       const totalAlreadyPaid = allSchedules?.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
+      
+      // The remaining to schedule is: New Total - Deposit - Total Paid in schedules
       const remainingToSchedule = data.newTotalAmount - (sale.deposit_amount || 0) - totalAlreadyPaid;
       
-      if (remainingToSchedule > 0) {
-        const monthlyAmount = Math.round(remainingToSchedule / unpaidSchedules.length);
+      if (remainingToSchedule >= 0) {
+        const monthlyAmount = Math.floor(remainingToSchedule / unpaidSchedules.length);
         let distributed = 0;
         
         for (let i = 0; i < unpaidSchedules.length; i++) {
@@ -304,7 +306,10 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
           
           const isLast = i === unpaidSchedules.length - 1;
           const currentPaid = Number(schedule.amount_paid) || 0;
-          const newAmountDue = isLast ? (remainingToSchedule - distributed) + currentPaid : monthlyAmount + currentPaid;
+          
+          // New amount_due for this schedule
+          const portion = isLast ? (remainingToSchedule - distributed) : monthlyAmount;
+          const newAmountDue = portion + currentPaid;
           
           await supabase
             .from("payment_schedules")
