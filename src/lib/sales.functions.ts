@@ -577,7 +577,13 @@ export const correctPayment = createServerFn({ method: "POST" })
     // c. Update payment amount and re-impute
     const { error: updateError } = await supabase
       .from("payments")
-      .update({ amount: data.newAmount, notes: `Corrigé: ${data.reason}` })
+      .update({ 
+        amount: data.newAmount, 
+        notes: `Corrigé: ${data.reason}`,
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: userId
+      })
+
       .eq("id", data.paymentId);
 
     if (updateError) throw new Error(updateError.message);
