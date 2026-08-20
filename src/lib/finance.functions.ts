@@ -197,7 +197,7 @@ export const closeCashSession = createServerFn({ method: "POST" })
         closed_by_id: userId,
         closed_at: new Date().toISOString(),
         status: "fermé",
-        discrepancy_reason: data.notes
+        discrepancy_reason: data.notes || null
       })
       .eq("id", data.journalId)
       .select()
