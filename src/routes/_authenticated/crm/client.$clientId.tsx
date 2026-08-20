@@ -4,7 +4,9 @@ import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -164,13 +166,53 @@ function ClientDetails() {
             
             <TabsContent value="acquisitions" className="mt-4">
               <Card>
-                <CardContent className="pt-6 text-center text-gray-500 py-12">
-                  <LayoutGrid className="mx-auto h-12 w-12 text-gray-200 mb-4" />
-                  <p>Aucune acquisition en cours.</p>
-                  <Button className="mt-4 bg-[#D1127B] hover:bg-[#b00e68]">Nouvelle Réservation</Button>
+                <CardContent className="pt-6">
+                  {client.sales?.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <LayoutGrid className="mx-auto h-12 w-12 text-gray-200 mb-4" />
+                      <p>Aucune acquisition en cours.</p>
+                      <Button className="mt-4 bg-[#D1127B] hover:bg-[#b00e68]" asChild>
+                        <Link to="/ventes/nouvelle" search={{ clientId: client.id }}>
+                          Nouvelle Réservation
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {client.sales?.map((sale: any) => (
+                        <div key={sale.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700">
+                              <ShoppingCart className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <div className="text-sm font-bold">
+                                Parcelle {sale.plots?.plot_number} - {sale.plots?.lotissements?.name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Statut: <Badge variant="outline" className="ml-1 scale-75 origin-left">{sale.status}</Badge> • 
+                                Prix: {new Intl.NumberFormat('fr-FR').format(sale.total_amount)} FCFA
+                              </div>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link to="/ventes/$saleId" params={{ saleId: sale.id }}>
+                              <Eye className="mr-2 h-4 w-4" /> Détails
+                            </Link>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button className="w-full mt-4 bg-[#D1127B] hover:bg-[#b00e68]" asChild>
+                        <Link to="/ventes/nouvelle" search={{ clientId: client.id }}>
+                          <Plus className="mr-2 h-4 w-4" /> Nouvelle Acquisition
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
+
 
             <TabsContent value="documents" className="mt-4">
               <Card>

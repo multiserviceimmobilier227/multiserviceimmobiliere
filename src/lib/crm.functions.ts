@@ -26,36 +26,62 @@ export const getClients = createServerFn({ method: "GET" })
   }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
-    let query = supabase.from("clients").select("*");
+    let query = supabase.from("clients").select(`
+      *,
+      sales:sales(count)
+    `);
     
     if (data.search) {
       query = query.or(`first_name.ilike.%${data.search}%,last_name.ilike.%${data.search}%,phone.ilike.%${data.search}%`);
     }
     
-    const { data: clients, error } = await query.order("last_name", { ascending: true });
+    const { data: clients, error } = await query.order("created_at", { ascending: false });
     if (error) throw error;
-    return clients;
+    
+    // Transform count object to a simple number
+    return clients.map(c => ({
+      ...c,
+      sales_count: (c.sales as any)?.[0]?.count || 0
+    }));
   });
+
 
 export const getClientDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
-    const [clientRes, docsRes, interactionsRes] = await Promise.all([
-      supabase.from("clients").select("*").eq("id", data.id).single(),
+    
+    // First, verify the client exists
+    const { data: client, error: clientError } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (clientError) {
+      console.error("Error fetching client:", clientError);
+      throw new Error("Client introuvable dans la base de données.");
+    }
+
+    // Then fetch related data
+    const [docsRes, interactionsRes, salesRes] = await Promise.all([
       supabase.from("client_documents").select("*").eq("client_id", data.id).order("created_at", { ascending: false }),
-      supabase.from("client_interactions").select("*").eq("client_id", data.id).order("interaction_date", { ascending: false })
+      supabase.from("client_interactions").select("*").eq("client_id", data.id).order("interaction_date", { ascending: false }),
+      supabase.from("sales").select(`
+        *,
+        plots (plot_number, surface_area, lotissements (name))
+      `).eq("client_id", data.id).order("created_at", { ascending: false })
     ]);
 
-    if (clientRes.error) throw clientRes.error;
-
     return {
-      ...clientRes.data,
+      ...client,
       documents: docsRes.data || [],
-      interactions: interactionsRes.data || []
+      interactions: interactionsRes.data || [],
+      sales: salesRes.data || []
     };
   });
+
 
 export const upsertClient = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
