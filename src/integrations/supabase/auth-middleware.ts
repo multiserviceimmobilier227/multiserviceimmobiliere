@@ -1,4 +1,5 @@
 import { createMiddleware } from '@tanstack/react-start';
+import { getRequest } from '@tanstack/react-start/server';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -32,19 +33,8 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       throw new Error(message);
     }
 
-    // In TanStack Start v1 with Nitro, we can use globalThis.getRequest() 
-    // or import from @tanstack/react-start/server.
-    // If vinxi/http is missing, we'll try to get it from the Nitro event or context if possible.
-    // For now, let's use a safer check for the header.
-    
-    let authHeader: string | null = null;
-    try {
-      // @ts-ignore - getRequest is often available globally in Nitro environments
-      const request = typeof getRequest !== 'undefined' ? getRequest() : null;
-      authHeader = request?.headers?.get('authorization') || null;
-    } catch (e) {
-      console.warn('[Auth Middleware] Could not get request headers:', e);
-    }
+    const request = getRequest();
+    const authHeader = request?.headers?.get('authorization') || null;
 
     if (!authHeader) {
       // Allow SSR to proceed without crashing, handlers must check userId
