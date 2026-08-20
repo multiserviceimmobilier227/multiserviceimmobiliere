@@ -114,6 +114,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "acquisitions_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotissement_profitability"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "acquisitions_plot_id_fkey"
             columns: ["plot_id"]
             isOneToOne: false
@@ -808,6 +815,13 @@ export type Database = {
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotissement_profitability"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ilots: {
@@ -880,6 +894,13 @@ export type Database = {
             columns: ["lotissement_id"]
             isOneToOne: false
             referencedRelation: "lotissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotissement_profitability"
             referencedColumns: ["id"]
           },
         ]
@@ -1803,6 +1824,13 @@ export type Database = {
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "zones_lotissement_id_fkey"
+            columns: ["lotissement_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotissement_profitability"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -1833,6 +1861,34 @@ export type Database = {
           total_plots_in_system: number | null
         }
         Relationships: []
+      }
+      v_lotissement_profitability: {
+        Row: {
+          acquisition_cost: number | null
+          agence_id: string | null
+          agence_name: string | null
+          collected_amount: number | null
+          id: string | null
+          location: string | null
+          name: string | null
+          net_profit: number | null
+          operational_expenses: number | null
+          potential_value: number | null
+          roi_percent: number | null
+          sold_plots: number | null
+          sold_value: number | null
+          total_costs: number | null
+          total_plots: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotissements_agence_id_fkey"
+            columns: ["agence_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       v_sale_arrears: {
         Row: {
