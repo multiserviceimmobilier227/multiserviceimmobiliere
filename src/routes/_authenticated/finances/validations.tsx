@@ -41,9 +41,36 @@ export const Route = createFileRoute('/_authenticated/finances/validations')({
 
 function ExpenseValidations() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const validateFn = useServerFn(validateExpense);
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
   const [validationNote, setValidationNote] = useState("");
+
+  const { data: userRole, isLoading: isRoleLoading } = useQuery({
+    queryKey: ['user-role-check'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      return data;
+    }
+  });
+
+  // Security guard
+  if (!isRoleLoading && userRole?.role !== 'pdg') {
+    return (
+      <div className="container mx-auto py-20 text-center space-y-4">
+        <ShieldCheck className="h-16 w-16 text-red-500 mx-auto opacity-50" />
+        <h2 className="text-2xl font-bold">Accès Refusé</h2>
+        <p className="text-muted-foreground">Cette interface est réservée à la Direction Générale (PDG).</p>
+        <Button onClick={() => navigate({ to: '/finances' })}>Retour aux finances</Button>
+      </div>
+    );
+  }
 
   const { data: pendingExpenses, isLoading } = useQuery({
     queryKey: ['pending-expenses'],
