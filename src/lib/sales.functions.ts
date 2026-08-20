@@ -370,10 +370,23 @@ export const registerPayment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Phase 11.1 & 11.2: Advanced Imputation & FIFO
+    // Phase 11.1: Permissions & Roles
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
     
-    // 1. Record the payment first
-    // Note: prepared_by_id is checked in DB types. Assuming generic 'auth.uid()' or a field.
+    const financeRoles = ["pdg", "comptable", "admin", "super_admin"];
+    const userRoles = roles?.map(r => r.role) || [];
+    const canRegister = userRoles.some(r => financeRoles.includes(r as string));
+    
+    if (!canRegister) {
+      throw new Error("Droit d'encaissement insuffisant.");
+    }
+
+    const isPdgOrAdmin = userRoles.some(r => ["pdg", "admin", "super_admin"].includes(r as string));
+
+    // 1. Record the payment
     const { data: payment, error: paymentError } = await supabase
       .from("payments")
       .insert({
@@ -382,7 +395,10 @@ export const registerPayment = createServerFn({ method: "POST" })
         payment_date: data.paymentDate,
         method: data.method,
         reference: data.reference ?? null,
-        notes: data.notes ?? null
+        notes: data.notes ?? null,
+        // Phase 11.1: Confirmation logic
+        confirmed_at: isPdgOrAdmin ? new Date().toISOString() : null,
+        confirmed_by: isPdgOrAdmin ? userId : null
       })
       .select()
       .single();
@@ -426,6 +442,143 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     return { ...payment, imputed_data: imputedData };
   });
+
+export const confirmPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ paymentId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Role check: Only PDG or Admin can confirm
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    
+    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    if (!isPdgOrAdmin) throw new Error("Seul le PDG peut confirmer un encaissement.");
+
+    const { error } = await supabase
+      .from("payments")
+      .update({
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: userId
+      })
+      .eq("id", data.paymentId);
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const correctPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    paymentId: z.string().uuid(),
+    newAmount: z.number().positive(),
+    reason: z.string().min(5)
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Role check
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    
+    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    if (!isPdgOrAdmin) throw new Error("Seul le PDG peut corriger un montant déjà encaissé.");
+
+    // 1. Get old payment data
+    const { data: oldPayment } = await supabase
+      .from("payments")
+      .select("*")
+      .eq("id", data.paymentId)
+      .single();
+
+    if (!oldPayment) throw new Error("Paiement non trouvé.");
+
+    // 2. Record the correction (Audit Ledger)
+    const { error: correctionError } = await supabase
+      .from("payment_corrections")
+      .insert({
+        payment_id: data.paymentId,
+        old_amount: oldPayment.amount,
+        new_amount: data.newAmount,
+        old_data: oldPayment as any,
+        reason: data.reason,
+        corrected_by: userId
+      });
+
+    if (correctionError) throw new Error(correctionError.message);
+
+    // 3. Reverse previous imputation and balance
+    // This is complex. In MSI 2.0, we prefer "Annule et Remplace" logic.
+    // For simplicity here, we update and re-run imputation.
+    
+    // a. Reset schedules affected by this payment
+    if (oldPayment.imputed_data && Array.isArray(oldPayment.imputed_data)) {
+      for (const item of (oldPayment.imputed_data as any[])) {
+        if (!item?.schedule_id) continue;
+        
+        const { data: schedule } = await supabase
+          .from("payment_schedules")
+          .select("amount_paid, amount_due")
+          .eq("id", item.schedule_id)
+          .single();
+        
+        if (schedule) {
+          const newPaid = Math.max(0, Number(schedule.amount_paid) - Number(item.amount_applied || 0));
+          await supabase
+            .from("payment_schedules")
+            .update({
+              amount_paid: newPaid,
+              status: newPaid >= schedule.amount_due ? "Payé" : (newPaid > 0 ? "Partiel" : "En attente")
+            })
+            .eq("id", item.schedule_id);
+        }
+      }
+    }
+
+    // b. Update sale balance (add old amount back)
+    const { data: sale } = await supabase
+      .from("sales")
+      .select("balance")
+      .eq("id", oldPayment.sale_id)
+      .single();
+
+    if (sale) {
+      await supabase
+        .from("sales")
+        .update({ balance: Number(sale.balance) + Number(oldPayment.amount) - data.newAmount })
+        .eq("id", oldPayment.sale_id);
+    }
+
+    // c. Update payment amount and re-impute
+    const { error: updateError } = await supabase
+      .from("payments")
+      .update({ amount: data.newAmount, notes: `Corrigé: ${data.reason}` })
+      .eq("id", data.paymentId);
+
+    if (updateError) throw new Error(updateError.message);
+
+    const { data: newImputedData } = await supabase.rpc(
+      'fn_impute_payment_on_schedule',
+      {
+        p_payment_id: data.paymentId,
+        p_sale_id: oldPayment.sale_id,
+        p_amount: data.newAmount
+      }
+    );
+
+    await supabase
+      .from("payments")
+      .update({ imputed_data: newImputedData })
+      .eq("id", data.paymentId);
+
+    return { success: true };
+  });
+
 
 
 

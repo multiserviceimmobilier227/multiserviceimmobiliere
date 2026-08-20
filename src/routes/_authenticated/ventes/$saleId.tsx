@@ -1,6 +1,7 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
+import { supabase } from '@/integrations/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale, confirmPayment, correctPayment } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +30,8 @@ function SaleDetailsComponent() {
   const validate = useServerFn(validateSaleFn)
   const adjustPrice = useServerFn(adjustSalePrice)
   const mutateSale = useServerFn(createMutationRequest)
+  const confirmPay = useServerFn(confirmPayment)
+  const correctPay = useServerFn(correctPayment)
 
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
@@ -46,6 +49,21 @@ function SaleDetailsComponent() {
   const [refundAmount, setRefundAmount] = useState('')
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const [isReceiptOpen, setIsReceiptOpen] = useState(false)
+  const [isCorrectOpen, setIsCorrectOpen] = useState(false)
+  const [correctAmount, setCorrectAmount] = useState('')
+  const [correctReason, setCorrectReason] = useState('')
+
+  const { data: userRoles } = useQuery({
+    queryKey: ['user-roles'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+      return data?.map((r: any) => r.role) || [];
+    }
+  });
+
+  const isPdgOrAdmin = userRoles?.some((r: any) => ['pdg', 'admin', 'super_admin'].includes(r as string));
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
@@ -105,6 +123,34 @@ function SaleDetailsComponent() {
     }
   })
 
+  const confirmPaymentMutation = useMutation({
+    mutationFn: (paymentId: string) => confirmPay({ data: { paymentId } }),
+    onSuccess: () => {
+      toast.success('Paiement confirmé par le PDG');
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+    },
+    onError: (error: any) => toast.error(error.message)
+  });
+
+  const correctPaymentMutation = useMutation({
+    mutationFn: () => correctPay({
+      data: {
+        paymentId: selectedPayment?.id,
+        newAmount: parseFloat(correctAmount),
+        reason: correctReason
+      }
+    }),
+    onSuccess: () => {
+      toast.success('Montant corrigé et journalisé');
+      setIsCorrectOpen(false);
+      setCorrectAmount('');
+      setCorrectReason('');
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+    },
+    onError: (error: any) => toast.error(error.message)
+  });
+
+
   const cancelMutation = useMutation({
     mutationFn: () => cancelSaleFn({
       data: {
@@ -128,7 +174,7 @@ function SaleDetailsComponent() {
     onError: (error: any) => {
       toast.error(`Erreur : ${error.message}`)
     }
-  })
+  });
 
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
@@ -516,23 +562,53 @@ function SaleDetailsComponent() {
               <CardContent>
                 <div className="space-y-3">
                   {(sale as any).payments.map((p: any) => (
-                    <div key={p.id} className="text-xs p-2 border-l-2 border-green-400 bg-green-50/30 flex justify-between items-center">
-                      <div>
-                        <p className="font-semibold">{new Intl.NumberFormat('fr-FR').format(p.amount)} FCFA</p>
+                    <div key={p.id} className={`text-xs p-2 border-l-2 ${p.confirmed_at ? 'border-green-400 bg-green-50/30' : 'border-orange-400 bg-orange-50/30'} flex justify-between items-center`}>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold">{new Intl.NumberFormat('fr-FR').format(p.amount)} FCFA</p>
+                          {!p.confirmed_at && <Badge variant="outline" className="text-[8px] h-3 px-1 border-orange-200 text-orange-600 bg-white">En attente PDG</Badge>}
+                        </div>
                         <p className="text-muted-foreground">{format(new Date(p.payment_date), 'dd/MM/yyyy')} - {p.method}</p>
                         {p.reference && <p className="text-[10px] text-muted-foreground">Réf: {p.reference}</p>}
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
-                        onClick={() => {
-                          setSelectedPayment(p);
-                          setIsReceiptOpen(true);
-                        }}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        {isPdgOrAdmin && !p.confirmed_at && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                            onClick={() => confirmPaymentMutation.mutate(p.id)}
+                            disabled={confirmPaymentMutation.isPending}
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {isPdgOrAdmin && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-100"
+                            onClick={() => {
+                              setSelectedPayment(p);
+                              setCorrectAmount(p.amount.toString());
+                              setIsCorrectOpen(true);
+                            }}
+                          >
+                            <DollarSign className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
+                          onClick={() => {
+                            setSelectedPayment(p);
+                            setIsReceiptOpen(true);
+                          }}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -541,6 +617,48 @@ function SaleDetailsComponent() {
           )}
         </div>
       </div>
+      
+      {/* Correction de Paiement (PDG) */}
+      <Dialog open={isCorrectOpen} onOpenChange={setIsCorrectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Correction de Versement (Audit)</DialogTitle>
+            <DialogDescription>
+              Toute modification du montant est historisée. Le solde et l'échéancier seront recalculés.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="correctAmount">Nouveau Montant (FCFA)</Label>
+              <Input 
+                id="correctAmount" 
+                type="number" 
+                value={correctAmount} 
+                onChange={(e) => setCorrectAmount(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="correctReason">Motif de la correction</Label>
+              <Input 
+                id="correctReason" 
+                value={correctReason} 
+                onChange={(e) => setCorrectReason(e.target.value)}
+                placeholder="Ex: Erreur de saisie comptable" 
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCorrectOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={() => correctPaymentMutation.mutate()} 
+              disabled={!correctAmount || !correctReason || correctPaymentMutation.isPending}
+            >
+              {correctPaymentMutation.isPending ? 'Correction...' : 'Valider la Correction'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ReceiptGenerator 
         isOpen={isReceiptOpen} 
         onOpenChange={setIsReceiptOpen} 
