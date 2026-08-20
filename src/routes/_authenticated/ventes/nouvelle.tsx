@@ -312,9 +312,16 @@ function NewSaleComponent() {
                       (formData.durationMonths === 0 && !formData.justification)
                     ))
                   } 
-                  onClick={() => mutation.mutate({ data: formData })}
+                  onClick={() => {
+                    const availablePlots = plots?.map(p => p.id) || [];
+                    if (!availablePlots.includes(formData.plotId)) {
+                      toast.error("La parcelle sélectionnée n'est plus disponible.");
+                      queryClient.invalidateQueries({ queryKey: ['available-plots'] });
+                      return;
+                    }
+                    mutation.mutate({ data: formData });
+                  }}
                 >
-
                   {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
                     formData.paymentPlanType === 'Échéancier' && formData.customSchedules.reduce((acc, curr) => acc + curr.amount_due, 0) !== (formData.totalAmount - formData.depositAmount) ? 
                     <AlertCircle className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />
