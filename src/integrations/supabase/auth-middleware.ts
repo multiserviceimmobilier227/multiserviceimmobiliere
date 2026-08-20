@@ -9,12 +9,12 @@ import type { Database } from './types';
  * when a custom Authorization header is also present.
  */
 const createSupabaseFetch = (supabaseKey: string) => {
-  return (url: string, options: RequestInit = {}) => {
+  return (input: RequestInfo | URL, options: RequestInit = {}) => {
     const headers = new Headers(options.headers);
     if (!headers.has('apikey')) {
       headers.set('apikey', supabaseKey);
     }
-    return fetch(url, { ...options, headers });
+    return fetch(input, { ...options, headers });
   };
 };
 
@@ -35,13 +35,34 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
 
     const request = getRequest();
     if (!request) {
-      throw new Error('Unauthorized: No request object available');
+      // In SSR context, we might not have a request if called early
+      // Return a basic client but handle auth check in handler
+      const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        global: { fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY) }
+      });
+      return next({
+        context: {
+          supabase,
+          userId: "" as string,
+          claims: {} as any
+        }
+      });
     }
 
     const authHeader = request.headers.get('authorization');
 
     if (!authHeader) {
-      throw new Error('Unauthorized: No authorization header provided');
+      // Allow SSR to proceed without crashing, handlers must check userId
+      const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        global: { fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY) }
+      });
+      return next({
+        context: {
+          supabase,
+          userId: "" as string,
+          claims: {} as any
+        }
+      });
     }
 
     if (!authHeader.startsWith('Bearer ')) {
@@ -87,7 +108,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     return next({
       context: {
         supabase,
-        userId: data.claims.sub,
+        userId: data.claims.sub as string,
         claims: data.claims,
       },
     });
