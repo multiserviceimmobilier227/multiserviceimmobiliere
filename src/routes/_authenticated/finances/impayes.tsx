@@ -53,7 +53,7 @@ function ArrearsPage() {
             <CardTitle className="text-sm font-medium text-gray-500 uppercase">Total des Arriérés</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(totalArrearsAmount)}</div>
+            <div className="text-2xl font-bold text-red-600">{formatFCFA(totalArrearsAmount)}</div>
             <p className="text-xs text-gray-400 mt-1">Cumul des sommes attendues non payées</p>
           </CardContent>
         </Card>
