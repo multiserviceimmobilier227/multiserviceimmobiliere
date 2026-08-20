@@ -53,14 +53,14 @@ import { Input } from '@/components/ui/input';
 export const Route = createFileRoute('/_authenticated/immobilier/bilans')({
   head: () => ({
     meta: [
-      { title: 'Rentabilité & Bilans | MSI 2.0' },
-      { name: 'description', content: 'Tableau de bord de rentabilité nette par lotissement pour la Direction.' }
+      { title: 'Bilans Stratégiques | MSI 2.0' },
+      { name: 'description', content: 'Analyse de la rentabilité réelle par lotissement.' }
     ]
   }),
-  component: PerformanceDirectionPage,
+  component: BilansImmobilierPage,
 });
 
-function PerformanceDirectionPage() {
+function BilansImmobilierPage() {
   const [agenceId, setAgenceId] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
