@@ -83,12 +83,20 @@ function CRMIndex() {
               ) : (
                 (clients as any[])?.map((client: any) => (
                   <TableRow key={client.id}>
-                    <TableCell>
-                      <div className="font-medium text-gray-900">
-                        {client.first_name} {client.last_name}
+                    <TableCell className="relative">
+                      <div className="flex items-center gap-2">
+                        <div className="font-medium text-gray-900">
+                          {client.first_name} {client.last_name}
+                        </div>
+                        {client.has_critical_delay && (
+                          <Badge variant="destructive" className="h-5 px-1 animate-pulse" title="RETARD CRITIQUE">
+                            <AlertTriangle className="h-3 w-3" />
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-xs text-gray-500">{client.occupation || "N/A"}</div>
                     </TableCell>
+
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center text-sm">
