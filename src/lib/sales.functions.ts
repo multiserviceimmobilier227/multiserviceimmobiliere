@@ -743,6 +743,13 @@ export const getArrearsList = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase } = context!;
     
+    // Auto-check and trigger notifications before returning the list
+    try {
+      await supabase.rpc('fn_check_and_notify_arrears');
+    } catch (e) {
+      console.error("Erreur lors de la vérification des notifications d'arriérés:", e);
+    }
+    
     const { data, error } = await (supabase as any)
       .from('v_sale_arrears')
       .select('*')
