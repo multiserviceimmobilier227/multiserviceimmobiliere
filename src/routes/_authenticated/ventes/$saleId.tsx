@@ -32,7 +32,8 @@ function SaleDetailsComponent() {
   const adjustPrice = useServerFn(adjustSalePrice)
   const mutateSale = useServerFn(createMutationRequest)
   const confirmPay = useServerFn(confirmPayment)
-  const correctPay = useServerFn(correctPayment)
+  const correctPay = useServerFn(correctPayFn)
+  const getPreview = useServerFn(getImputationPreview)
 
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
@@ -44,7 +45,7 @@ function SaleDetailsComponent() {
   const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   
   const registerPaymentFn = useServerFn(registerPayment)
-  const cancelSaleFn = useServerFn(cancelSale)
+  const cancelSaleFn = useServerFn(cancelSaleOrigin)
   const [isCancelOpen, setIsCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
@@ -53,6 +54,7 @@ function SaleDetailsComponent() {
   const [isCorrectOpen, setIsCorrectOpen] = useState(false)
   const [correctAmount, setCorrectAmount] = useState('')
   const [correctReason, setCorrectReason] = useState('')
+
 
   const { data: userRoles } = useQuery({
     queryKey: ['user-roles'],
