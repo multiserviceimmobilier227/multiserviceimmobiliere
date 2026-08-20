@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Printer, Download, CheckCircle2, FileText, AlertTriangle } from "lucide-react";
-import { MSILogo } from "@/components/ui/msi-logo";
+import { MsiLogo } from "@/components/ui/msi-logo";
 
 interface ReceiptGeneratorProps {
   isOpen: boolean;
