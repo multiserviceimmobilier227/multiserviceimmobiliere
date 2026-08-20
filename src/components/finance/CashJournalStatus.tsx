@@ -21,8 +21,11 @@ export function CashJournalStatus() {
   const queryClient = useQueryClient();
   const getActiveSession = useServerFn(getActiveCashJournal);
   const openSessionFn = useServerFn(openCashSession);
+  const closeSessionFn = useServerFn(closeCashSession);
   const [openingBalance, setOpeningBalance] = useState<string>("0");
+  const [closingBalance, setClosingBalance] = useState<string>("0");
   const [isOpening, setIsOpening] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const { data: activeSession, isLoading } = useQuery({
     queryKey: ["active-cash-journal"],
