@@ -490,6 +490,33 @@ export const getCommercialPerformance = createServerFn({ method: "GET" })
     return data;
   });
 
+export const getCashFlowProjections = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    const { data, error } = await supabaseAdmin
+      .from("payment_schedules")
+      .select("due_date, amount_due")
+      .neq("status", "Payé")
+      .gte("due_date", new Date().toISOString().split('T')[0])
+      .order("due_date", { ascending: true });
+    
+    if (error) throw new Error(error.message);
+    
+    const projections: Record<string, number> = {};
+    data.forEach(item => {
+      const month = item.due_date.substring(0, 7);
+      projections[month] = (projections[month] || 0) + Number(item.amount_due);
+    });
+    
+    return Object.entries(projections)
+      .map(([month, amount]) => ({ month, amount }))
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .slice(0, 12);
+  });
+
+
 
 export const confirmPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
