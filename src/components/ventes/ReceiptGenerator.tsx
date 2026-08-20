@@ -44,7 +44,7 @@ export function ReceiptGenerator({
           {/* Header */}
           <div className="flex justify-between items-start border-b pb-4">
             <div className="flex items-center gap-3">
-              <MSILogo className="h-12 w-12 text-[#D1127B]" />
+              <MsiLogo className="h-12 w-12 text-[#D1127B]" />
               <div>
                 <h2 className="text-xl font-black text-[#D1127B]">MULTI SERVICES IMMOBILIERE</h2>
                 <p className="text-[10px] text-muted-foreground leading-tight">
