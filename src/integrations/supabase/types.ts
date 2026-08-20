@@ -253,6 +253,39 @@ export type Database = {
           },
         ]
       }
+      audit_finance_corrections: {
+        Row: {
+          corrected_by: string
+          created_at: string | null
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          reason: string
+          record_id: string
+          record_type: string
+        }
+        Insert: {
+          corrected_by: string
+          created_at?: string | null
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          reason: string
+          record_id: string
+          record_type: string
+        }
+        Update: {
+          corrected_by?: string
+          created_at?: string | null
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          reason?: string
+          record_id?: string
+          record_type?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -285,6 +318,62 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      cash_journals: {
+        Row: {
+          actual_closing_balance: number | null
+          agency_id: string
+          closed_at: string | null
+          closed_by_id: string | null
+          created_at: string | null
+          discrepancy: number | null
+          discrepancy_reason: string | null
+          id: string
+          opened_at: string | null
+          opened_by_id: string
+          opening_balance: number
+          status: string
+          theoretical_closing_balance: number
+        }
+        Insert: {
+          actual_closing_balance?: number | null
+          agency_id: string
+          closed_at?: string | null
+          closed_by_id?: string | null
+          created_at?: string | null
+          discrepancy?: number | null
+          discrepancy_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          opened_by_id: string
+          opening_balance?: number
+          status?: string
+          theoretical_closing_balance?: number
+        }
+        Update: {
+          actual_closing_balance?: number | null
+          agency_id?: string
+          closed_at?: string | null
+          closed_by_id?: string | null
+          created_at?: string | null
+          discrepancy?: number | null
+          discrepancy_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          opened_by_id?: string
+          opening_balance?: number
+          status?: string
+          theoretical_closing_balance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_journals_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       client_documents: {
         Row: {
@@ -568,6 +657,99 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      expenses: {
+        Row: {
+          agency_id: string
+          amount: number
+          beneficiary: string | null
+          cash_journal_id: string | null
+          category_id: string
+          created_at: string | null
+          created_by_id: string
+          date: string
+          description: string
+          id: string
+          payment_method: string
+          project_id: string | null
+          receipt_url: string | null
+          status: Database["public"]["Enums"]["expense_status"]
+          validated_by_id: string | null
+          validation_date: string | null
+        }
+        Insert: {
+          agency_id: string
+          amount: number
+          beneficiary?: string | null
+          cash_journal_id?: string | null
+          category_id: string
+          created_at?: string | null
+          created_by_id: string
+          date?: string
+          description: string
+          id?: string
+          payment_method: string
+          project_id?: string | null
+          receipt_url?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          validated_by_id?: string | null
+          validation_date?: string | null
+        }
+        Update: {
+          agency_id?: string
+          amount?: number
+          beneficiary?: string | null
+          cash_journal_id?: string | null
+          category_id?: string
+          created_at?: string | null
+          created_by_id?: string
+          date?: string
+          description?: string
+          id?: string
+          payment_method?: string
+          project_id?: string | null
+          receipt_url?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          validated_by_id?: string | null
+          validation_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_cash_journal_id_fkey"
+            columns: ["cash_journal_id"]
+            isOneToOne: false
+            referencedRelation: "cash_journals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "lotissement_profitability"
+            referencedColumns: ["lotissement_id"]
+          },
+          {
+            foreignKeyName: "expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "lotissements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ilots: {
         Row: {
@@ -1611,6 +1793,11 @@ export type Database = {
         | "informaticien"
         | "client"
         | "super_admin"
+      expense_status:
+        | "brouillon"
+        | "en_attente_validation"
+        | "validé"
+        | "rejeté"
       id_type: "cni" | "passeport" | "permis" | "autre"
       payment_method: "espece" | "virement" | "cheque" | "mobile_money"
       payment_plan_type: "comptant" | "echelonne"
@@ -1778,6 +1965,12 @@ export const Constants = {
         "informaticien",
         "client",
         "super_admin",
+      ],
+      expense_status: [
+        "brouillon",
+        "en_attente_validation",
+        "validé",
+        "rejeté",
       ],
       id_type: ["cni", "passeport", "permis", "autre"],
       payment_method: ["espece", "virement", "cheque", "mobile_money"],
