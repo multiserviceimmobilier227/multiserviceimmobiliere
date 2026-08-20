@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
+import { Route as AuthenticatedFinancesIndexRouteImport } from './routes/_authenticated/finances/index'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierInventaireRouteImport } from './routes/_authenticated/immobilier/inventaire'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
@@ -69,6 +70,12 @@ const AuthenticatedCrmIndexRoute = AuthenticatedCrmIndexRouteImport.update({
   path: '/crm/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFinancesIndexRoute =
+  AuthenticatedFinancesIndexRouteImport.update({
+    id: '/finances/',
+    path: '/finances/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImmobilierAcquisitionsRoute =
   AuthenticatedImmobilierAcquisitionsRouteImport.update({
     id: '/immobilier/acquisitions',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/ventes/liste': typeof AuthenticatedVentesListeRoute
   '/ventes/nouvelle': typeof AuthenticatedVentesNouvelleRoute
   '/crm/': typeof AuthenticatedCrmIndexRoute
+  '/finances/': typeof AuthenticatedFinancesIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/ventes/liste': typeof AuthenticatedVentesListeRoute
   '/ventes/nouvelle': typeof AuthenticatedVentesNouvelleRoute
   '/crm': typeof AuthenticatedCrmIndexRoute
+  '/finances': typeof AuthenticatedFinancesIndexRoute
   '/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/ventes/liste': typeof AuthenticatedVentesListeRoute
   '/_authenticated/ventes/nouvelle': typeof AuthenticatedVentesNouvelleRoute
   '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
+  '/_authenticated/finances/': typeof AuthenticatedFinancesIndexRoute
   '/_authenticated/crm/client/$clientId': typeof AuthenticatedCrmClientClientIdRoute
   '/_authenticated/immobilier/parcelles/$plotId/prix': typeof AuthenticatedImmobilierParcellesPlotIdPrixRoute
 }
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/ventes/liste'
     | '/ventes/nouvelle'
     | '/crm/'
+    | '/finances/'
     | '/crm/client/$clientId'
     | '/immobilier/parcelles/$plotId/prix'
   fileRoutesByTo: FileRoutesByTo
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/ventes/liste'
     | '/ventes/nouvelle'
     | '/crm'
+    | '/finances'
     | '/crm/client/$clientId'
     | '/immobilier/parcelles/$plotId/prix'
   id:
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ventes/liste'
     | '/_authenticated/ventes/nouvelle'
     | '/_authenticated/crm/'
+    | '/_authenticated/finances/'
     | '/_authenticated/crm/client/$clientId'
     | '/_authenticated/immobilier/parcelles/$plotId/prix'
   fileRoutesById: FileRoutesById
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm/'
       preLoaderRoute: typeof AuthenticatedCrmIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/': {
+      id: '/_authenticated/finances/'
+      path: '/finances'
+      fullPath: '/finances/'
+      preLoaderRoute: typeof AuthenticatedFinancesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/immobilier/acquisitions': {
@@ -416,6 +436,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedVentesListeRoute: typeof AuthenticatedVentesListeRoute
   AuthenticatedVentesNouvelleRoute: typeof AuthenticatedVentesNouvelleRoute
   AuthenticatedCrmIndexRoute: typeof AuthenticatedCrmIndexRoute
+  AuthenticatedFinancesIndexRoute: typeof AuthenticatedFinancesIndexRoute
   AuthenticatedCrmClientClientIdRoute: typeof AuthenticatedCrmClientClientIdRoute
 }
 
@@ -438,6 +459,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedVentesListeRoute: AuthenticatedVentesListeRoute,
   AuthenticatedVentesNouvelleRoute: AuthenticatedVentesNouvelleRoute,
   AuthenticatedCrmIndexRoute: AuthenticatedCrmIndexRoute,
+  AuthenticatedFinancesIndexRoute: AuthenticatedFinancesIndexRoute,
   AuthenticatedCrmClientClientIdRoute: AuthenticatedCrmClientClientIdRoute,
 }
 
