@@ -381,7 +381,6 @@ export const registerPayment = createServerFn({ method: "POST" })
       amount: data.amount,
       previous_balance: initialBalance,
       new_balance: Math.max(0, initialBalance - data.amount),
-      entity_id: payment.id, // Keep this for reference in details or if entity_id exists
       payment_id: payment.id,
       sale_id: data.saleId,
       user_id: context.userId
