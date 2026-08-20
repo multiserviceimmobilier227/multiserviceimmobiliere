@@ -1404,6 +1404,16 @@ export type Database = {
       }
     }
     Functions: {
+      check_financial_integrity: {
+        Args: never
+        Returns: {
+          audit_sum: number
+          is_consistent: boolean
+          mismatch_amount: number
+          total_payments: number
+          total_refunds: number
+        }[]
+      }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
       handle_plot_transfer: {
         Args: {
