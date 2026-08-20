@@ -2,21 +2,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getLotissementProfitability } from '@/lib/real-estate.functions';
-import { getCommercialPerformance } from '@/lib/sales.functions';
 import { getAgences } from '@/lib/settings.functions';
 import { formatFCFA } from '@/lib/utils';
 import { 
   TrendingUp, 
-  DollarSign, 
   Map, 
   Download,
   Building2,
-  PieChart as PieIcon,
   Search,
   ArrowUpRight,
   Target,
-  Users,
-  Award,
   Zap
 } from 'lucide-react';
 import { 
@@ -69,17 +64,10 @@ function BilansImmobilierPage() {
     queryFn: () => getAgences(),
   });
 
-  const { data: profitability, isLoading: loadingProfitability } = useQuery({
+  const { data: profitability, isLoading } = useQuery({
     queryKey: ['lotissement-profitability', agenceId],
     queryFn: () => getLotissementProfitability({ 
       data: { agenceId: agenceId === "all" ? undefined : agenceId } 
-    }),
-  });
-
-  const { data: commercialPerf, isLoading: loadingCommercial } = useQuery({
-    queryKey: ['commercial-performance', agenceId],
-    queryFn: () => getCommercialPerformance({
-      data: { agenceId: agenceId === "all" ? undefined : agenceId }
     }),
   });
 
@@ -90,8 +78,6 @@ function BilansImmobilierPage() {
       (item.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   }, [profitability, searchTerm]);
-
-  const isLoading = loadingProfitability || loadingCommercial;
 
   const stats = useMemo(() => {
     if (!filteredData.length) return {
@@ -129,7 +115,7 @@ function BilansImmobilierPage() {
     { name: 'Coûts (Acq + Dép)', value: stats.totalCosts, color: '#ef4444' },
   ];
 
-  if (isLoading) return <div className="p-8 text-center font-sans">Chargement des analyses stratégiques...</div>;
+  if (isLoading) return <div className="p-8 text-center font-sans">Chargement des bilans...</div>;
 
   return (
     <div className="space-y-6">
@@ -250,7 +236,6 @@ function BilansImmobilierPage() {
           </CardContent>
         </Card>
 
-
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -259,7 +244,7 @@ function BilansImmobilierPage() {
             </CardTitle>
             <CardDescription className="font-sans text-xs">Recouvrement vs Investissement.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col md:flex-row items-center justify-between">
+          <CardContent className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="h-[250px] w-full md:w-1/2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -317,67 +302,67 @@ function BilansImmobilierPage() {
       <div className="mt-6">
         <Card className="border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-
-          <div>
-            <CardTitle className="text-lg font-sans">Détails des Bilans par Site</CardTitle>
-            <CardDescription className="font-sans text-xs">Tableau comparatif de la performance financière.</CardDescription>
-          </div>
-          <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Rechercher un site..." 
-              className="pl-8 font-sans h-9" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border overflow-hidden">
-            <table className="w-full text-xs font-sans">
-              <thead className="bg-muted/50 border-b">
-                <tr className="text-muted-foreground uppercase font-medium">
-                  <th className="text-left p-3">Lotissement</th>
-                  <th className="text-right p-3">Parcelles</th>
-                  <th className="text-right p-3">CA Vendu</th>
-                  <th className="text-right p-3">Encaissé</th>
-                  <th className="text-right p-3">Coûts</th>
-                  <th className="text-right p-3">Profit Net</th>
-                  <th className="text-right p-3">ROI</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filteredData.map((item) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="p-3">
-                      <div className="font-bold text-primary">{item.name}</div>
-                      <div className="text-[10px] text-muted-foreground">{item.location}</div>
-                    </td>
-                    <td className="p-3 text-right">
-                      <div className="font-medium">{item.sold_plots} / {item.total_plots}</div>
-                      <div className="text-[10px] text-muted-foreground">vendues</div>
-                    </td>
-                    <td className="p-3 text-right font-medium">{formatFCFA(item.sold_value || 0)}</td>
-                    <td className="p-3 text-right text-emerald-600 font-bold">{formatFCFA(item.collected_amount || 0)}</td>
-                    <td className="p-3 text-right text-red-600">{formatFCFA(item.total_costs || 0)}</td>
-                    <td className={`p-3 text-right font-bold ${(item.net_profit || 0) >= 0 ? 'text-[#D1127B]' : 'text-red-700'}`}>
-                      {formatFCFA(item.net_profit || 0)}
-                    </td>
-                    <td className="p-3 text-right">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        (item.roi_percent || 0) >= 150 ? 'bg-emerald-100 text-emerald-700' : 
-                        (item.roi_percent || 0) >= 100 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
-                      }`}>
-                        {(item.roi_percent || 0).toFixed(1)}%
-                      </span>
-                    </td>
+            <div>
+              <CardTitle className="text-lg font-sans">Détails des Bilans par Site</CardTitle>
+              <CardDescription className="font-sans text-xs">Tableau comparatif de la performance financière.</CardDescription>
+            </div>
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Rechercher un site..." 
+                className="pl-8 font-sans h-9" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border overflow-hidden">
+              <table className="w-full text-xs font-sans">
+                <thead className="bg-muted/50 border-b">
+                  <tr className="text-muted-foreground uppercase font-medium">
+                    <th className="text-left p-3">Lotissement</th>
+                    <th className="text-right p-3">Parcelles</th>
+                    <th className="text-right p-3">CA Vendu</th>
+                    <th className="text-right p-3">Encaissé</th>
+                    <th className="text-right p-3">Coûts</th>
+                    <th className="text-right p-3">Profit Net</th>
+                    <th className="text-right p-3">ROI</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </thead>
+                <tbody className="divide-y">
+                  {filteredData.map((item) => (
+                    <tr key={item.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-3">
+                        <div className="font-bold text-primary">{item.name}</div>
+                        <div className="text-[10px] text-muted-foreground">{item.location}</div>
+                      </td>
+                      <td className="p-3 text-right">
+                        <div className="font-medium">{item.sold_plots} / {item.total_plots}</div>
+                        <div className="text-[10px] text-muted-foreground">vendues</div>
+                      </td>
+                      <td className="p-3 text-right font-medium">{formatFCFA(item.sold_value || 0)}</td>
+                      <td className="p-3 text-right text-emerald-600 font-bold">{formatFCFA(item.collected_amount || 0)}</td>
+                      <td className="p-3 text-right text-red-600">{formatFCFA(item.total_costs || 0)}</td>
+                      <td className={`p-3 text-right font-bold ${(item.net_profit || 0) >= 0 ? 'text-[#D1127B]' : 'text-red-700'}`}>
+                        {formatFCFA(item.net_profit || 0)}
+                      </td>
+                      <td className="p-3 text-right">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          (item.roi_percent || 0) >= 150 ? 'bg-emerald-100 text-emerald-700' : 
+                          (item.roi_percent || 0) >= 100 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
+                        }`}>
+                          {(item.roi_percent || 0).toFixed(1)}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
