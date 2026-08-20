@@ -93,37 +93,10 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       console.error("Error fetching financial summary:", summaryError);
     }
 
-    // 2. Stats du mois en cours (pour les tendances)
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const startOfMonthStr = startOfMonth.toISOString();
-
-    const { data: monthlySalesData } = await supabaseAdmin
-      .from("sales")
-      .select("total_amount")
-      .neq("status", "annule")
-      .gte("sale_date", startOfMonthStr);
-
-    const { data: monthlyPaymentsData } = await supabaseAdmin
-      .from("payments")
-      .select("amount")
-      .gte("payment_date", startOfMonthStr);
-
-    // Dépôts des ventes créées ce mois
-    const { data: monthlyDepositsData } = await supabaseAdmin
-      .from("sales")
-      .select("deposit_amount")
-      .neq("status", "annule")
-      .gte("sale_date", startOfMonthStr);
-
-    const monthlySales = monthlySalesData?.reduce((sum, s) => sum + Number(s.total_amount || 0), 0) || 0;
-    const monthlyCollections = (monthlyPaymentsData?.reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0) +
-                               (monthlyDepositsData?.reduce((sum, s) => sum + Number(s.deposit_amount || 0), 0) || 0);
-
+    // 2. Les stats mensuelles sont maintenant incluses dans la vue
     return {
-      monthlySales,
-      monthlyCollections,
+      monthlySales: summary?.monthly_sales || 0,
+      monthlyCollections: summary?.monthly_collections || 0,
       totalCAPotential: summary?.total_ca_potential || 0,
       totalCollected: summary?.total_collected_net || 0,
       totalOutstanding: summary?.total_outstanding || 0,

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from "@tanstack/react-start";
 import { getClients } from "@/lib/crm.functions";
-import { getPlots, getLotissements } from "@/lib/real-estate.functions";
+import { getPlots } from "@/lib/real-estate.functions";
 import { getDashboardStats } from "@/lib/acquisitions.functions";
 import { formatFCFA } from "@/lib/utils";
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,7 +14,10 @@ import {
   Tooltip, 
   ResponsiveContainer,
   Cell,
-  Legend
+  LineChart,
+  Line,
+  AreaChart,
+  Area
 } from 'recharts';
 
 export const Route = createFileRoute('/_authenticated/')({
@@ -120,8 +123,8 @@ function Dashboard() {
           </div>
 
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Activités & Stock</h3>
-            <div className="mt-4 space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Performance Commerciale</h3>
+            <div className="space-y-4">
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-lg font-bold text-[#D1127B]">{clients?.filter(c => c.sales_count > 0).length || 0}</p>
@@ -132,7 +135,20 @@ function Dashboard() {
                   <p className="text-[10px] text-muted-foreground uppercase">Parcelles Libres</p>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
+              
+              <div className="pt-2">
+                <p className="text-xs text-muted-foreground mb-2 italic">Tendance Recouvrement (Potentiel vs Réel)</p>
+                <div className="h-[100px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData.filter(d => ['Potentiel', 'Encaissé'].includes(d.name))}>
+                      <Area type="monotone" dataKey="montant" stroke="#D1127B" fill="#fce7f3" />
+                      <Tooltip formatter={(value: number) => formatFCFA(value)} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t">
                 <p className="text-xs text-muted-foreground">Reste à recouvrer</p>
                 <p className="text-sm font-bold text-orange-500">{formatFCFA(stats?.totalOutstanding || 0)}</p>
               </div>
@@ -145,10 +161,10 @@ function Dashboard() {
         <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
         <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
           <p className="text-emerald-800 font-medium">
-            Statut : Système de confiance financière Phase A-02 Déployé.
+            Statut : Système d'Excellence Analytique (Phase A-03) Déployé.
           </p>
           <p className="mt-1 text-sm text-emerald-700">
-            Intégrité garantie : Les ventes annulées libèrent les parcelles et ajustent le CA en temps réel via triggers SQL sécurisés.
+            Vision cristalline : Les indicateurs de CA Contracté, Recouvrement Réel et Valeur du Stock sont consolidés en temps réel.
           </p>
         </div>
       </div>

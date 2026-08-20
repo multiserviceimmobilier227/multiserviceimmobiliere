@@ -1392,6 +1392,8 @@ export type Database = {
       v_financial_summary: {
         Row: {
           active_sales_count: number | null
+          monthly_collections: number | null
+          monthly_sales: number | null
           recovery_rate: number | null
           stock_value: number | null
           total_ca_potential: number | null
