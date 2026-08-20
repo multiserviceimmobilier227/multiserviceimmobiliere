@@ -47,7 +47,9 @@ function Dashboard() {
         </div>
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Clients actifs</h3>
-          <p className="mt-2 text-2xl font-bold text-[#D1127B]">{clients?.length || 0}</p>
+          <p className="mt-2 text-2xl font-bold text-[#D1127B]">
+            {clients?.filter(c => c.sales_count > 0).length || 0}
+          </p>
         </div>
       </div>
       
