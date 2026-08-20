@@ -4,7 +4,7 @@ import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { formatDateNiamey } from "@/lib/utils";
@@ -110,12 +110,25 @@ function ClientDetails() {
             {client.first_name[0]}{client.last_name[0]}
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{client.civilite} {client.first_name} {client.last_name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900">{client.civilite} {client.first_name} {client.last_name}</h1>
+              {client.has_critical_delay && (
+                <Badge variant="destructive" className="animate-pulse flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" /> RETARD CRITIQUE
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2 mt-1">
               <Badge variant="secondary">{client.occupation || "Profession non renseignée"}</Badge>
               <Badge variant="outline">Client ID: {client.id.slice(0, 8)}</Badge>
+              {client.total_arrears > 0 && (
+                <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
+                  Arriéré : {new Intl.NumberFormat('fr-FR').format(client.total_arrears)} FCFA
+                </Badge>
+              )}
             </div>
           </div>
+
         </div>
         <Button variant="outline" onClick={() => setIsEditingClient(true)}>Modifier la fiche</Button>
       </div>

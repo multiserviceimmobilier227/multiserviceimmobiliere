@@ -465,7 +465,14 @@ function SaleDetailsComponent() {
             <div className="text-xl font-bold text-primary">{new Intl.NumberFormat('fr-FR').format(sale.total_price ?? 0)} FCFA</div>
             <div className="text-xs text-muted-foreground mt-1 text-green-600 font-medium">Apport : {new Intl.NumberFormat('fr-FR').format(sale.deposit_amount || 0)} FCFA</div>
             <div className="text-xs font-bold text-red-600 mt-1 border-t pt-1">Reste à payer : {new Intl.NumberFormat('fr-FR').format(sale.balance ?? 0)} FCFA</div>
+            {(sale as any).arrears_details?.total_arrears > 0 && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-[10px] text-red-700 font-bold flex items-center gap-2">
+                <AlertTriangle className="h-3 w-3" />
+                ARRIÉRÉ À DATE : {new Intl.NumberFormat('fr-FR').format((sale as any).arrears_details.total_arrears)} FCFA
+              </div>
+            )}
           </CardContent>
+
         </Card>
       </div>
 
