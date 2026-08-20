@@ -12,7 +12,8 @@ import {
   Search,
   ArrowUpRight,
   Target,
-  Zap
+  Zap,
+  FileSpreadsheet
 } from 'lucide-react';
 import { 
   Card, 
@@ -79,6 +80,33 @@ function BilansImmobilierPage() {
     );
   }, [profitability, searchTerm]);
 
+  const exportCSV = () => {
+    if (!filteredData.length) return;
+    const headers = ["Lotissement", "Emplacement", "Ventes", "CA Vendu", "CA Encaissé", "Coûts", "Profit Net", "ROI"];
+    const rows = filteredData.map((p: any) => [
+      p.name,
+      p.location,
+      `${p.sold_plots}/${p.total_plots}`,
+      p.sold_value,
+      p.collected_amount,
+      p.total_costs,
+      p.net_profit,
+      `${p.roi_percent?.toFixed(1)}%`
+    ]);
+    
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `bilans_lotissements_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const stats = useMemo(() => {
     if (!filteredData.length) return {
       totalPotential: 0,
@@ -139,7 +167,11 @@ function BilansImmobilierPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" className="gap-2 font-sans">
+          <Button variant="outline" className="gap-2 font-sans" onClick={exportCSV}>
+            <FileSpreadsheet className="h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button variant="outline" className="gap-2 font-sans" onClick={() => window.print()}>
             <Download className="h-4 w-4" />
             Rapport PDF
           </Button>
