@@ -101,8 +101,8 @@ export const upsertClient = createServerFn({ method: "POST" })
     const { data: authData, error: authError } = await supabase.auth.getUser();
     const user = authData?.user;
     
-    if (authError || !user) {
-      console.error("Auth error in upsertClient:", authError);
+    if (!user) {
+      console.error("No user in upsertClient. Auth error:", authError);
       throw new Error("Vous devez être connecté pour effectuer cette opération.");
     }
 
