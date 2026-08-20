@@ -336,7 +336,8 @@ function SaleDetailsComponent() {
                   <div className="mt-2 space-y-2 border rounded-md p-3 bg-muted/20">
                     <p className="text-[10px] font-bold uppercase text-muted-foreground">Prévisualisation de l'imputation</p>
                     <div className="space-y-1">
-                      {imputationPreview.map((item: any, idx: number) => (
+                      {(imputationPreview as any[]).map((item: any, idx: number) => (
+
                         <div key={idx} className="flex justify-between text-[11px]">
                           <span>
                             {item.due_date ? `Mois du ${format(new Date(item.due_date), 'dd/MM/yy')}` : item.type}
