@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -42,6 +43,7 @@ function ExpenseValidations() {
   const queryClient = useQueryClient();
   const validateFn = useServerFn(validateExpense);
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
+  const [validationNote, setValidationNote] = useState("");
 
   const { data: pendingExpenses, isLoading } = useQuery({
     queryKey: ['pending-expenses'],
@@ -77,13 +79,14 @@ function ExpenseValidations() {
 
   const validateMutation = useMutation({
     mutationFn: async ({ expenseId, approve }: { expenseId: string; approve: boolean }) => {
-      return validateFn({ data: { expenseId, approve } });
+      return validateFn({ data: { expenseId, approve, notes: validationNote } });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.approve ? "Dépense validée" : "Dépense rejetée");
       queryClient.invalidateQueries({ queryKey: ['pending-expenses'] });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       setSelectedExpense(null);
+      setValidationNote("");
     },
     onError: (error: any) => {
       toast.error("Erreur : " + error.message);
@@ -221,7 +224,17 @@ function ExpenseValidations() {
                                 </div>
                               </div>
                             )}
-                          </div>
+                            </div>
+
+                            <div className="col-span-2 space-y-2">
+                              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Commentaire PDG (Optionnel)</label>
+                              <Textarea 
+                                placeholder="Ajouter un motif pour l'approbation ou le rejet..."
+                                value={validationNote}
+                                onChange={(e) => setValidationNote(e.target.value)}
+                                className="text-sm min-h-[80px]"
+                              />
+                            </div>
                         )}
 
                         <DialogFooter className="gap-2 sm:gap-0">
