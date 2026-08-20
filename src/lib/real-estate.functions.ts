@@ -240,3 +240,21 @@ export const getSites = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data;
   });
+
+export const getPlotHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => z.string().uuid().parse(data))
+  .handler(async ({ data: plotId }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("plot_status_history")
+      .select(`
+        *,
+        user_roles(role)
+      `)
+      .eq("plot_id", plotId)
+      .order("created_at", { ascending: false });
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
