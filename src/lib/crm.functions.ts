@@ -48,8 +48,11 @@ export const getClients = createServerFn({ method: "GET" })
     
     return clients.map((c: any) => ({
       ...c,
-      sales_count: (c.sales as any)?.[0]?.count || 0
+      sales_count: (c.sales as any)?.[0]?.count || 0,
+      has_critical_delay: (c.arrears as any[])?.some((a: any) => a.is_critical_delay) || false,
+      total_arrears: (c.arrears as any[])?.reduce((acc: number, curr: any) => acc + (Number(curr.total_arrears) || 0), 0) || 0
     }));
+
   });
 
 export const getClientDetails = createServerFn({ method: "GET" })
