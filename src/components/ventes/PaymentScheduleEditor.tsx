@@ -172,37 +172,41 @@ export function PaymentScheduleEditor({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {schedules.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-bold text-muted-foreground">M{index + 1}</TableCell>
-                <TableCell>
-                  <Input 
-                    type="date" 
-                    value={item.due_date} 
-                    onChange={(e) => handleDateChange(index, e.target.value)}
-                    className="h-8 py-1"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input 
-                    type="number" 
-                    value={item.amount_due} 
-                    onChange={(e) => handleAmountChange(index, Number(e.target.value))}
-                    className="h-8 py-1 font-mono"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => removeInstallment(index)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {schedules.map((item, index) => {
+              const isLast = index === schedules.length - 1;
+              return (
+                <TableRow key={index}>
+                  <TableCell className="font-bold text-muted-foreground">M{index + 1}</TableCell>
+                  <TableCell>
+                    <Input 
+                      type="date" 
+                      value={item.due_date} 
+                      onChange={(e) => handleDateChange(index, e.target.value)}
+                      className="h-8 py-1"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input 
+                      type="number" 
+                      value={item.amount_due} 
+                      onChange={(e) => handleAmountChange(index, Number(e.target.value))}
+                      className={`h-8 py-1 font-mono ${isLast && diff !== 0 ? 'border-orange-500 bg-orange-50' : ''}`}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => removeInstallment(index)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+
             {schedules.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground italic">
@@ -241,11 +245,33 @@ export function PaymentScheduleEditor({
       {diff !== 0 && (
         <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 flex items-start gap-3">
           <Info className="h-5 w-5 text-orange-600 mt-0.5" />
-          <p className="text-xs text-orange-800 leading-relaxed">
-            Attention : Le montant total des mensualités ({new Intl.NumberFormat('fr-FR').format(totalScheduled)} FCFA) ne correspond pas au reste à payer ({new Intl.NumberFormat('fr-FR').format(remainingAmount)} FCFA). Veuillez ajuster les montants avant de valider.
-          </p>
+          <div className="flex-1 space-y-2">
+            <p className="text-xs text-orange-800 leading-relaxed font-bold">
+              Attention : Déséquilibre de {new Intl.NumberFormat('fr-FR').format(Math.abs(diff))} FCFA.
+            </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-7 text-[10px] bg-white border-orange-300 text-orange-700 hover:bg-orange-50"
+              onClick={() => {
+                const newSchedules = [...schedules];
+                if (newSchedules.length > 0) {
+                  const lastIdx = newSchedules.length - 1;
+                  const lastItem = newSchedules[lastIdx];
+                  if (lastItem) {
+                    lastItem.amount_due = Math.max(0, lastItem.amount_due + diff);
+                    setSchedules(newSchedules);
+                    onChange(newSchedules);
+                  }
+                }
+              }}
+            >
+              Équilibrer sur la dernière mensualité
+            </Button>
+          </div>
         </div>
       )}
+
     </div>
   );
 }

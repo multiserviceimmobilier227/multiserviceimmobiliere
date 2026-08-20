@@ -31,7 +31,7 @@ export function ReceiptGenerator({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto sm:max-w-[700px] print:p-0 print:max-w-full print:shadow-none print:border-none">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto sm:max-w-[700px] print:p-0 print:max-w-full print:shadow-none print:border-none print:bg-white print:fixed print:inset-0 print:z-[9999]">
         <DialogHeader className="print:hidden">
           <DialogTitle>Reçu Officiel MSI 2.0</DialogTitle>
           <DialogDescription>
@@ -40,7 +40,7 @@ export function ReceiptGenerator({
         </DialogHeader>
 
         {/* Reçu Design */}
-        <div id="receipt-content" className="p-6 border rounded-lg bg-white space-y-6 print:border-none print:p-0">
+        <div id="receipt-content" className="p-6 border rounded-lg bg-white space-y-6 print:border-none print:p-0 print:w-[148mm] print:mx-auto">
           {/* Header */}
           <div className="flex justify-between items-start border-b pb-4">
             <div className="flex items-center gap-3">
@@ -138,19 +138,24 @@ export function ReceiptGenerator({
 
           {/* Signatures */}
           <div className="grid grid-cols-2 gap-12 pt-8">
-            <div className="text-center space-y-8">
+            <div className="text-center space-y-4">
               <p className="text-xs font-bold underline">Le Caissier / Comptable</p>
-              <div className="h-16 flex items-end justify-center">
-                <p className="text-[10px] text-muted-foreground italic">(Signature & Cachet)</p>
+              <div className="h-24 border-2 border-dashed border-muted flex items-center justify-center rounded-lg relative overflow-hidden">
+                <p className="text-[10px] text-muted-foreground italic z-10">(Signature & Cachet)</p>
+                {/* Visual watermark for stamp */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                   <MsiLogo className="h-16 w-16 rotate-12" />
+                </div>
               </div>
             </div>
-            <div className="text-center space-y-8 border-l">
+            <div className="text-center space-y-4">
               <p className="text-xs font-bold underline">Le Client</p>
-              <div className="h-16 flex items-end justify-center">
-                <p className="text-[10px] text-muted-foreground italic">(Lu et Approuvé)</p>
+              <div className="h-24 border-2 border-dashed border-muted flex items-center justify-center rounded-lg">
+                <p className="text-[10px] text-muted-foreground italic">(Signature : Lu et Approuvé)</p>
               </div>
             </div>
           </div>
+
 
           {/* Footer Footer */}
           <div className="text-center border-t pt-2 mt-4">
@@ -169,6 +174,29 @@ export function ReceiptGenerator({
             <Download className="mr-2 h-4 w-4" /> Télécharger PDF
           </Button>
         </DialogFooter>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            #receipt-content, #receipt-content * {
+              visibility: visible;
+            }
+            #receipt-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              border: none !important;
+              padding: 0 !important;
+            }
+            @page {
+              size: auto;
+              margin: 0mm;
+            }
+          }
+        `}} />
+
       </DialogContent>
     </Dialog>
   );

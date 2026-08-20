@@ -577,7 +577,13 @@ export const correctPayment = createServerFn({ method: "POST" })
     // c. Update payment amount and re-impute
     const { error: updateError } = await supabase
       .from("payments")
-      .update({ amount: data.newAmount, notes: `Corrigé: ${data.reason}` })
+      .update({ 
+        amount: data.newAmount, 
+        notes: `Corrigé: ${data.reason}`,
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: userId
+      })
+
       .eq("id", data.paymentId);
 
     if (updateError) throw new Error(updateError.message);
@@ -676,17 +682,46 @@ export const cancelSale = createServerFn({ method: "POST" })
 
 export const getSaleFinancialLedger = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ saleId: z.string().uuid().optional() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { data: ledger, error } = await context.supabase
+    let query = context.supabase
       .from("audit_finance")
       .select("*")
-      .eq("sale_id", data.saleId)
       .order("created_at", { ascending: false });
+
+    if (data.saleId) {
+      query = query.eq("sale_id", data.saleId);
+    } else {
+      query = query.limit(50);
+    }
+
+    const { data: ledger, error } = await query;
 
     if (error) throw new Error(error.message);
     return ledger ?? [];
   });
+
+export const getNotifications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const markNotificationRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ notificationId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase.from('notifications').update({ is_read: true } as any).eq('id', data.notificationId).eq('user_id', userId);
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
 
 
 
