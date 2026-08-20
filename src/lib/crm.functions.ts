@@ -44,7 +44,7 @@ export const getClients = createServerFn({ method: "GET" })
       throw error;
     }
     
-    return clients.map(c => ({
+    return clients.map((c: any) => ({
       ...c,
       sales_count: (c.sales as any)?.[0]?.count || 0
     }));

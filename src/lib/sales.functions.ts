@@ -311,7 +311,7 @@ export const adjustSalePrice = createServerFn({ method: "POST" })
         .select("amount_paid")
         .eq("sale_id", data.saleId);
       
-      const totalAlreadyPaid = allSchedules?.reduce((acc, curr) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
+      const totalAlreadyPaid = allSchedules?.reduce((acc: number, curr: any) => acc + (Number(curr.amount_paid) || 0), 0) || 0;
       
       // The remaining to schedule is: New Total - Deposit - Total Paid in schedules
       const remainingToSchedule = data.newTotalAmount - (sale.deposit_amount || 0) - totalAlreadyPaid;
@@ -397,14 +397,14 @@ export const registerPayment = createServerFn({ method: "POST" })
       .eq("user_id", userId);
     
     const financeRoles = ["pdg", "comptable", "admin", "super_admin"];
-    const userRoles = roles?.map(r => r.role) || [];
-    const canRegister = userRoles.some(r => financeRoles.includes(r as string));
+    const userRoles = roles?.map((r: any) => r.role) || [];
+    const canRegister = userRoles.some((r: any) => financeRoles.includes(r as string));
     
     if (!canRegister) {
       throw new Error("Droit d'encaissement insuffisant.");
     }
 
-    const isPdgOrAdmin = userRoles.some(r => ["pdg", "admin", "super_admin"].includes(r as string));
+    const isPdgOrAdmin = userRoles.some((r: any) => ["pdg", "admin", "super_admin"].includes(r as string));
 
     // 1. Record the payment
     const { data: payment, error: paymentError } = await supabase
@@ -475,7 +475,7 @@ export const confirmPayment = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", userId);
     
-    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    const isPdgOrAdmin = roles?.some((r: any) => ["pdg", "admin", "super_admin"].includes(r.role as string));
     if (!isPdgOrAdmin) throw new Error("Seul le PDG peut confirmer un encaissement.");
 
     const { error } = await supabase
@@ -506,7 +506,7 @@ export const correctPayment = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", userId);
     
-    const isPdgOrAdmin = roles?.some(r => ["pdg", "admin", "super_admin"].includes(r.role as string));
+    const isPdgOrAdmin = roles?.some((r: any) => ["pdg", "admin", "super_admin"].includes(r.role as string));
     if (!isPdgOrAdmin) throw new Error("Seul le PDG peut corriger un montant déjà encaissé.");
 
     // 1. Get old payment data
@@ -627,7 +627,7 @@ export const cancelSale = createServerFn({ method: "POST" })
       .eq("user_id", userId);
 
     const financeRoles = ["pdg", "admin", "super_admin", "comptable"];
-    const allowed = (roles ?? []).some((r) => financeRoles.includes(r.role));
+    const allowed = (roles ?? []).some((r: any) => financeRoles.includes(r.role));
     if (!allowed) throw new Error("Seuls le PDG, l'administrateur ou le comptable peuvent annuler une vente.");
 
     const { data: sale, error: saleError } = await supabase
