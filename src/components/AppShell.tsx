@@ -91,7 +91,14 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         <NavItem to="/finances" icon={Wallet}>Journal de Caisse</NavItem>
         <NavItem to="/finances/impayes" icon={Clock}>Retards & Impayés</NavItem>
         <NavItem to="/direction/performance" icon={PieChart}>Analyses & Performance</NavItem>
+        <NavItem to="/finances" icon={Undo2} onClick={() => {
+          // This hack is just for direct access since we added the tab
+          const tabs = document.querySelector('[role="tablist"]');
+          const refundTab = tabs?.querySelector('[value="refunds"]') as HTMLElement;
+          if (refundTab) refundTab.click();
+        }}>Remboursements</NavItem>
         <NavItem to="/finances" icon={ClipboardList}>Audit & Flux</NavItem>
+
       </div>
 
     </div>
