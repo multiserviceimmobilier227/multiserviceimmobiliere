@@ -173,13 +173,56 @@ export function CashJournalStatus() {
             <span className="text-emerald-700 font-bold">Solde Théorique :</span>
             <span className="font-black text-emerald-900">{formatFCFA(activeSession.theoretical_closing_balance)}</span>
           </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="w-full mt-2 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
-          >
-            Détails des flux
-          </Button>
+          {isClosing ? (
+            <div className="space-y-3 mt-2 pt-2 border-t border-emerald-200">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-emerald-700">Solde Physique (Réel)</label>
+                <Input 
+                  type="number" 
+                  value={closingBalance} 
+                  onChange={(e) => setClosingBalance(e.target.value)}
+                  className="h-8 text-sm border-emerald-300 focus-visible:ring-emerald-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  onClick={() => closeMutation.mutate()}
+                  disabled={closeMutation.isPending}
+                >
+                  {closeMutation.isPending ? "Clôture..." : "Confirmer la clôture"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setIsClosing(false)}
+                >
+                  Annuler
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2 mt-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+              >
+                Flux
+              </Button>
+              <Button 
+                size="sm" 
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => {
+                  setClosingBalance(activeSession.theoretical_closing_balance.toString());
+                  setIsClosing(true);
+                }}
+              >
+                Clôturer
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
