@@ -1417,6 +1417,7 @@ export type Database = {
           total_refunds: number
         }[]
       }
+      fn_update_late_schedules: { Args: never; Returns: undefined }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
       handle_plot_transfer: {
         Args: {
@@ -1474,6 +1475,8 @@ export type Database = {
         | "Annulée"
       reservation_status: "active" | "converted" | "expired" | "cancelled"
       sale_status: "reservation" | "en_cours" | "termine" | "annule"
+      schedule_status: "En attente" | "Partiel" | "Payé" | "Retard"
+      schedule_type: "automatique" | "manuel"
       site_status: "actif" | "inactif" | "termine"
     }
     CompositeTypes: {
@@ -1641,6 +1644,8 @@ export const Constants = {
       ],
       reservation_status: ["active", "converted", "expired", "cancelled"],
       sale_status: ["reservation", "en_cours", "termine", "annule"],
+      schedule_status: ["En attente", "Partiel", "Payé", "Retard"],
+      schedule_type: ["automatique", "manuel"],
       site_status: ["actif", "inactif", "termine"],
     },
   },
