@@ -5,10 +5,8 @@ import { getAgences } from '@/lib/settings.functions';
 import { formatFCFA } from '@/lib/utils';
 import { 
   TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   Map, 
-  Filter,
   Download,
   Building2,
   PieChart as PieIcon,
@@ -48,6 +46,12 @@ import {
 import { Input } from '@/components/ui/input';
 
 export const Route = createFileRoute('/_authenticated/direction/performance')({
+  head: () => ({
+    meta: [
+      { title: 'Rentabilité & Bilans | MSI 2.0' },
+      { name: 'description', content: 'Tableau de bord de rentabilité nette par lotissement pour la Direction.' }
+    ]
+  }),
   component: PerformanceDirectionPage,
 });
 
@@ -75,7 +79,6 @@ function PerformanceDirectionPage() {
     );
   }, [profitability, searchTerm]);
 
-  // Global Stats from current view
   const stats = useMemo(() => {
     if (!filteredData.length) return {
       totalPotential: 0,
@@ -143,7 +146,6 @@ function PerformanceDirectionPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border-border/50">
           <CardHeader className="pb-2">
@@ -209,7 +211,6 @@ function PerformanceDirectionPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profitability Chart */}
         <Card className="lg:col-span-2 border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -245,7 +246,6 @@ function PerformanceDirectionPage() {
           </CardContent>
         </Card>
 
-        {/* Structure des Flux */}
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -293,7 +293,6 @@ function PerformanceDirectionPage() {
         </Card>
       </div>
 
-      {/* Detailed Table */}
       <Card className="border-border/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
