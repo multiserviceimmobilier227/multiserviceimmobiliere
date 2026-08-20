@@ -400,8 +400,9 @@ function SaleDetailsComponent() {
               <DialogHeader>
                 <DialogTitle>Annulation du contrat</DialogTitle>
                 <DialogDescription>
-                  La parcelle sera libérée, les échéances non payées annulées et le chiffre d'affaires contracté ajusté. Seules les sommes réellement encaissées peuvent être remboursées.
+                  Attention : La parcelle sera remise en vente. Le montant encaissé sera transformé en une créance de remboursement que le PDG devra valider et ordonner dans le module financier.
                 </DialogDescription>
+
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="rounded-md border p-3 text-sm">
