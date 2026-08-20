@@ -1391,9 +1391,11 @@ export type Database = {
       }
       v_financial_summary: {
         Row: {
-          inventory_value: number | null
+          active_sales_count: number | null
+          recovery_rate: number | null
+          stock_value: number | null
           total_ca_potential: number | null
-          total_collected: number | null
+          total_collected_net: number | null
           total_outstanding: number | null
         }
         Relationships: []
