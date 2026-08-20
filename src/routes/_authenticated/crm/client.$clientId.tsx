@@ -4,7 +4,9 @@ import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
