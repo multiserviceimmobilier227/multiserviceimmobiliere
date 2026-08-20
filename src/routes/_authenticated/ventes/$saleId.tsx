@@ -51,6 +51,8 @@ function SaleDetailsComponent() {
   
   const registerPaymentFn = useServerFn(registerPayment)
   const cancelSaleFn = useServerFn(cancelSaleOrigin)
+  const cancelRefundFn = useServerFn(cancelSaleWithRefund)
+
   const [isCancelOpen, setIsCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
