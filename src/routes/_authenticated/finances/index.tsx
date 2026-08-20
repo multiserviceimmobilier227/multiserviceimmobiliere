@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard } from 'lucide-react';
+import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveCashJournal } from '@/lib/finance.functions';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
