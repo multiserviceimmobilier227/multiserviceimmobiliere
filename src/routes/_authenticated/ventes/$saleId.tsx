@@ -423,10 +423,11 @@ function SaleDetailsComponent() {
                   <Label htmlFor="cancel-reason">Motif de l'annulation</Label>
                   <Input id="cancel-reason" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Désistement du client, litige..." />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="refund-amount">Montant à rembourser (FCFA)</Label>
-                  <Input id="refund-amount" type="number" min={0} max={refundableAmount} value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} placeholder="0" />
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+                  <AlertCircle className="h-4 w-4 inline mr-2" />
+                  Le remboursement ne sera pas immédiat. Il sera géré dans le menu <strong>Finances &gt; Remboursements</strong> après cette validation.
                 </div>
+
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCancelOpen(false)}>Fermer</Button>
