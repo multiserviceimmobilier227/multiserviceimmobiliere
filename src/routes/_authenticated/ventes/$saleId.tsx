@@ -37,6 +37,8 @@ function SaleDetailsComponent() {
   const correctPay = useServerFn(correctPayFn)
 
   const getPreview = useServerFn(getImputationPreview)
+  const getLedger = useServerFn(getSaleFinancialLedger)
+
 
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
