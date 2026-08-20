@@ -124,7 +124,9 @@ export const submitExpense = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    // Phase 12.4 : Notification PDG gérée par trigger (SQL fn_tr_notify_pdg_large_expense)
+    // Nous n'avons pas besoin d'insertion manuelle ici pour éviter les erreurs de type et les duplications.
+    
     return expense;
   });
 

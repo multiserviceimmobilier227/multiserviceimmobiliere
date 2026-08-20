@@ -191,7 +191,7 @@ export function CashJournalStatus() {
                   onClick={() => closeMutation.mutate()}
                   disabled={closeMutation.isPending}
                 >
-                  {closeMutation.isPending ? "Clôture..." : "Confirmer la clôture"}
+                  {closeMutation.isPending ? "Clôture..." : "Confirmer"}
                 </Button>
                 <Button 
                   size="sm" 
@@ -203,26 +203,20 @@ export function CashJournalStatus() {
               </div>
             </div>
           ) : (
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col gap-2 mt-2">
               <Button 
                 size="sm" 
-                variant="outline" 
-                className="flex-1 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
-              >
-                Flux
-              </Button>
-              <Button 
-                size="sm" 
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
                 onClick={() => {
                   setClosingBalance((activeSession as any).theoretical_closing_balance.toString());
                   setIsClosing(true);
                 }}
               >
-                Clôturer
+                Clôturer la journée
               </Button>
             </div>
           )}
+
         </div>
       </CardContent>
     </Card>

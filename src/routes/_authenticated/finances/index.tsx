@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard } from 'lucide-react';
+import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveCashJournal } from '@/lib/finance.functions';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
@@ -177,7 +177,23 @@ function FinanceDashboard() {
                      Journal Récent (Ventes & Dépenses)
                    </CardTitle>
                  </CardHeader>
-                 <CardContent>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+           <Button 
+             variant="outline" 
+             size="sm" 
+             className="w-full gap-2 border-[#D1127B] text-[#D1127B] hover:bg-[#D1127B] hover:text-white"
+             asChild
+           >
+             <a href="/finances/validations">
+               <ShieldCheck className="h-4 w-4" /> Validations
+             </a>
+           </Button>
+           <Button variant="outline" size="sm" className="w-full gap-2">
+             <History className="h-4 w-4" /> Historique
+           </Button>
+        </div>
+
                     <Table>
                       <TableHeader>
                         <TableRow>

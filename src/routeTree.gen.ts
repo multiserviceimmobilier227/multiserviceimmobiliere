@@ -18,6 +18,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
 import { Route as AuthenticatedFinancesIndexRouteImport } from './routes/_authenticated/finances/index'
+import { Route as AuthenticatedFinancesValidationsRouteImport } from './routes/_authenticated/finances/validations'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
 import { Route as AuthenticatedImmobilierInventaireRouteImport } from './routes/_authenticated/immobilier/inventaire'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
@@ -74,6 +75,12 @@ const AuthenticatedFinancesIndexRoute =
   AuthenticatedFinancesIndexRouteImport.update({
     id: '/finances/',
     path: '/finances/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancesValidationsRoute =
+  AuthenticatedFinancesValidationsRouteImport.update({
+    id: '/finances/validations',
+    path: '/finances/validations',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedImmobilierAcquisitionsRoute =
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
   '/_authenticated/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/finances/validations'
     | '/immobilier/acquisitions'
     | '/immobilier/inventaire'
     | '/immobilier/lotissements'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/finances/validations'
     | '/immobilier/acquisitions'
     | '/immobilier/inventaire'
     | '/immobilier/lotissements'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/finances/validations'
     | '/_authenticated/immobilier/acquisitions'
     | '/_authenticated/immobilier/inventaire'
     | '/_authenticated/immobilier/lotissements'
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/finances'
       fullPath: '/finances/'
       preLoaderRoute: typeof AuthenticatedFinancesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finances/validations': {
+      id: '/_authenticated/finances/validations'
+      path: '/finances/validations'
+      fullPath: '/finances/validations'
+      preLoaderRoute: typeof AuthenticatedFinancesValidationsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/immobilier/acquisitions': {
@@ -427,6 +447,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedFinancesValidationsRoute: typeof AuthenticatedFinancesValidationsRoute
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
   AuthenticatedImmobilierInventaireRoute: typeof AuthenticatedImmobilierInventaireRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
@@ -446,6 +467,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedFinancesValidationsRoute: AuthenticatedFinancesValidationsRoute,
   AuthenticatedImmobilierAcquisitionsRoute:
     AuthenticatedImmobilierAcquisitionsRoute,
   AuthenticatedImmobilierInventaireRoute:
