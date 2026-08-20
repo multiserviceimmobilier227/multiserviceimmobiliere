@@ -221,9 +221,9 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
             <Button 
               type="submit" 
               className="w-full bg-[#D1127B] hover:bg-[#b00e68]" 
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || (form.watch('paymentMethod') === 'espece' && !activeJournal)}
             >
-              {mutation.isPending ? "Traitement..." : "Soumettre pour validation"}
+              {mutation.isPending ? "Traitement..." : (form.watch('paymentMethod') === 'espece' && !activeJournal) ? "Caisse fermée" : "Soumettre pour validation"}
             </Button>
           </form>
         </Form>
