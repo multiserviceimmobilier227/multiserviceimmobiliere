@@ -275,7 +275,4 @@ export const getPlotHistory = createServerFn({ method: "GET" })
     }
 
     return history;
-    
-    if (error) throw new Error(error.message);
-    return data;
   });
