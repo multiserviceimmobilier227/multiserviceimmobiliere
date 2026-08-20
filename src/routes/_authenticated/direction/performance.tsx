@@ -68,10 +68,17 @@ function PerformanceDirectionPage() {
     queryFn: () => getAgences(),
   });
 
-  const { data: profitability, isLoading } = useQuery({
+  const { data: profitability, isLoading: loadingProfitability } = useQuery({
     queryKey: ['lotissement-profitability', agenceId],
     queryFn: () => getLotissementProfitability({ 
       data: { agenceId: agenceId === "all" ? undefined : agenceId } 
+    }),
+  });
+
+  const { data: commercialPerf, isLoading: loadingCommercial } = useQuery({
+    queryKey: ['commercial-performance', agenceId],
+    queryFn: () => getCommercialPerformance({
+      data: { agenceId: agenceId === "all" ? undefined : agenceId }
     }),
   });
 
@@ -82,6 +89,8 @@ function PerformanceDirectionPage() {
       (item.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   }, [profitability, searchTerm]);
+
+  const isLoading = loadingProfitability || loadingCommercial;
 
   const stats = useMemo(() => {
     if (!filteredData.length) return {
@@ -214,36 +223,34 @@ function PerformanceDirectionPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 border-border/50">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Rentabilité Comparée par Lotissement
+              <Award className="h-5 w-5 text-primary" />
+              Top Performance Commerciale (Agents)
             </CardTitle>
+            <CardDescription className="font-sans text-xs">Classement par volume de ventes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[350px] w-full">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45} 
-                    textAnchor="end" 
-                    interval={0} 
-                    height={60}
+                <BarChart data={commercialPerf?.slice(0, 5)} layout="vertical" margin={{ left: 40, right: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="agent_name" 
+                    type="category" 
+                    width={100} 
                     tick={{ fontSize: 10 }}
                   />
-                  <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} />
                   <Tooltip 
-                    formatter={(value: number) => formatFCFA(value)}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    formatter={(value: number, name: string) => [
+                      name === 'total_value' ? formatFCFA(value) : value, 
+                      name === 'total_value' ? 'Valeur Ventes' : 'Nombre Ventes'
+                    ]}
                   />
-                  <Legend />
-                  <Bar dataKey="collected_amount" name="Encaissé" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="total_costs" name="Coûts (Acq+Dép)" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="net_profit" name="Profit Net" fill="#D1127B" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total_sales" name="Ventes" fill="#D1127B" radius={[0, 4, 4, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -253,12 +260,13 @@ function PerformanceDirectionPage() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
-              <PieIcon className="h-5 w-5 text-primary" />
-              Répartition Financière Globale
+              <Zap className="h-5 w-5 text-emerald-500" />
+              Répartition Financière & Efficacité
             </CardTitle>
+            <CardDescription className="font-sans text-xs">Recouvrement vs Investissement.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full">
+          <CardContent className="flex flex-col md:flex-row items-center justify-between">
+            <div className="h-[250px] w-full md:w-1/2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -275,22 +283,37 @@ function PerformanceDirectionPage() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: number) => formatFCFA(value)} />
-                  <Legend verticalAlign="bottom" height={36}/>
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between text-xs font-sans">
-                <span className="text-muted-foreground">Efficacité Recouvrement:</span>
-                <span className="font-bold text-emerald-600">
-                  {stats.totalSold > 0 ? ((stats.totalCollected / stats.totalSold) * 100).toFixed(1) : 0}%
-                </span>
+            <div className="w-full md:w-1/2 space-y-4">
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="flex justify-between text-sm font-sans mb-1">
+                  <span className="text-muted-foreground">Efficacité Recouvrement:</span>
+                  <span className="font-bold text-emerald-600">
+                    {stats.totalSold > 0 ? ((stats.totalCollected / stats.totalSold) * 100).toFixed(1) : 0}%
+                  </span>
+                </div>
+                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-emerald-500 h-full transition-all duration-500" 
+                    style={{ width: `${stats.totalSold > 0 ? (stats.totalCollected / stats.totalSold) * 100 : 0}%` }}
+                  />
+                </div>
               </div>
-              <div className="flex justify-between text-xs font-sans">
-                <span className="text-muted-foreground">Marge brute / CA Vendu:</span>
-                <span className="font-bold text-[#D1127B]">
-                  {stats.totalSold > 0 ? ((stats.totalProfit / stats.totalSold) * 100).toFixed(1) : 0}%
-                </span>
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="flex justify-between text-sm font-sans mb-1">
+                  <span className="text-muted-foreground">Taux de Marge Réel:</span>
+                  <span className="font-bold text-[#D1127B]">
+                    {stats.totalSold > 0 ? ((stats.totalProfit / stats.totalSold) * 100).toFixed(1) : 0}%
+                  </span>
+                </div>
+                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-[#D1127B] h-full transition-all duration-500" 
+                    style={{ width: `${stats.totalSold > 0 ? Math.max(0, (stats.totalProfit / stats.totalSold) * 100) : 0}%` }}
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
