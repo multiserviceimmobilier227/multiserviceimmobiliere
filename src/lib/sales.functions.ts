@@ -367,24 +367,9 @@ export const registerPayment = createServerFn({ method: "POST" })
 
     if (paymentError) throw new Error(paymentError.message);
 
-    // Phase A-01: Audit log for the payment
-    const { data: saleData } = await supabase
-      .from("sales")
-      .select("total_amount, balance")
-      .eq("id", data.saleId)
-      .single();
+    // Phase A-02 : la journalisation d'audit est assurée par le trigger
+    // tr_audit_payment_creation (source unique de vérité, pas de doublon).
 
-    const initialBalance = saleData ? Number(saleData.balance) : 0;
-    
-    await supabase.from("audit_finance").insert({
-      operation_type: 'paiement',
-      amount: data.amount,
-      previous_balance: initialBalance,
-      new_balance: Math.max(0, initialBalance - data.amount),
-      payment_id: payment.id,
-      sale_id: data.saleId,
-      user_id: context.userId
-    });
 
     // 2. Update payment schedules (Phase 10 logic)
     // Find oldest unpaid schedules and apply the amount to them
