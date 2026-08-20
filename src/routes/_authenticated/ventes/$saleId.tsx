@@ -1,7 +1,7 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale as cancelSaleOrigin, confirmPayment as confirmPayFn, correctPayment as correctPayFn, getImputationPreview, getSaleFinancialLedger } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale as cancelSaleOrigin, cancelSaleWithRefund, confirmPayment as confirmPayFn, correctPayment as correctPayFn, getImputationPreview, getSaleFinancialLedger } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History, Ban, Printer } from 'lucide-react'
+import { FileText, CheckCircle2, AlertTriangle, AlertCircle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History, Ban, Printer } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,6 +51,8 @@ function SaleDetailsComponent() {
   
   const registerPaymentFn = useServerFn(registerPayment)
   const cancelSaleFn = useServerFn(cancelSaleOrigin)
+  const cancelRefundFn = useServerFn(cancelSaleWithRefund)
+
   const [isCancelOpen, setIsCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
@@ -174,29 +176,28 @@ function SaleDetailsComponent() {
 
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelSaleFn({
+    mutationFn: () => cancelRefundFn({
       data: {
         saleId,
         reason: cancelReason,
-        refundAmount: refundAmount ? parseFloat(refundAmount) : 0,
       }
     }),
     onSuccess: (res: any) => {
       toast.success(
-        res?.refunded > 0
-          ? `Vente annulée. Remboursement de ${Number(res.refunded).toLocaleString('fr-FR')} FCFA enregistré.`
-          : 'Vente annulée. Parcelle libérée et CA ajusté.'
+        'Vente annulée avec succès. Une créance de remboursement a été créée pour la Direction.'
       )
       setIsCancelOpen(false)
       setCancelReason('')
       setRefundAmount('')
       queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['pendingRefunds'] })
     },
     onError: (error: any) => {
       toast.error(`Erreur : ${error.message}`)
     }
   });
+
 
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
@@ -399,8 +400,9 @@ function SaleDetailsComponent() {
               <DialogHeader>
                 <DialogTitle>Annulation du contrat</DialogTitle>
                 <DialogDescription>
-                  La parcelle sera libérée, les échéances non payées annulées et le chiffre d'affaires contracté ajusté. Seules les sommes réellement encaissées peuvent être remboursées.
+                  Attention : La parcelle sera remise en vente. Le montant encaissé sera transformé en une créance de remboursement que le PDG devra valider et ordonner dans le module financier.
                 </DialogDescription>
+
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="rounded-md border p-3 text-sm">
@@ -421,10 +423,11 @@ function SaleDetailsComponent() {
                   <Label htmlFor="cancel-reason">Motif de l'annulation</Label>
                   <Input id="cancel-reason" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Désistement du client, litige..." />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="refund-amount">Montant à rembourser (FCFA)</Label>
-                  <Input id="refund-amount" type="number" min={0} max={refundableAmount} value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} placeholder="0" />
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+                  <AlertCircle className="h-4 w-4 inline mr-2" />
+                  Le remboursement ne sera pas immédiat. Il sera géré dans le menu <strong>Finances &gt; Remboursements</strong> après cette validation.
                 </div>
+
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCancelOpen(false)}>Fermer</Button>

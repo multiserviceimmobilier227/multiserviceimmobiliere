@@ -849,6 +849,129 @@ export const getSaleArrearsDetails = createServerFn({ method: "GET" })
     return arrears;
   });
 
+export const cancelSaleWithRefund = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    saleId: z.string().uuid(),
+    reason: z.string()
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context!;
+
+    // 1. Verify PDG role
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "pdg" as any)
+      .single();
+
+    if (!roleData) throw new Error("Seul le PDG peut annuler une vente avec remboursement.");
+
+    // 2. Update sale status to trigger the refund debt calculation
+    // Using any for status and casting to work with types that might be stale
+    const { data: sale, error } = await supabase
+      .from("sales")
+      .update({
+        status: "annule" as any,
+        notes: data.reason
+      })
+      .eq("id", data.saleId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return sale;
+  });
+
+export const registerRefund = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    saleId: z.string().uuid(),
+    amount: z.number().positive(),
+    method: z.enum(["espece", "virement", "cheque", "mobile_money"]),
+    reference: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context!;
+
+    // 1. Get sale details for refund validation
+    // Use any because total_to_refund is new
+    const { data: saleData } = await supabase
+      .from("sales")
+      .select("*")
+      .eq("id", data.saleId)
+      .single();
+
+    const sale = saleData as any;
+
+    if (!sale || sale.refund_status !== "En cours") {
+      throw new Error("Cette vente n'est pas éligible au remboursement.");
+    }
+
+    // 2. Create the refund record
+    // Use any because the table is new
+    const { data: refund, error: refundError } = await (supabase
+      .from("refunds" as any) as any)
+      .insert({
+        sale_id: data.saleId,
+        client_id: sale.client_id,
+        amount: data.amount,
+        processed_by: userId,
+        reason: data.notes ?? null,
+        refund_date: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (refundError) throw new Error(refundError.message);
+
+    // 3. Update audit finance
+    await supabase.from("audit_finance").insert({
+      sale_id: data.saleId,
+      refund_id: refund.id,
+      amount: data.amount,
+      operation_type: "REFUND",
+      notes: data.notes ?? "Remboursement client",
+      user_id: userId
+    });
+
+    // 4. Check if fully refunded
+    const { data: totalRefunded } = await (supabase
+      .from("refunds" as any) as any)
+      .select("amount")
+      .eq("sale_id", data.saleId);
+    
+    const sum = totalRefunded?.reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0;
+
+    if (sum >= Number(sale.total_to_refund)) {
+      await supabase
+        .from("sales")
+        .update({ 
+          refund_status: "Soldé" 
+        } as any)
+        .eq("id", data.saleId);
+    }
+
+    return refund;
+  });
+
+export const getPendingRefunds = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Use any for the view name
+    const { data, error } = await (context.supabase
+      .from("v_pending_refunds" as any) as any)
+      .select("*");
+    
+    if (error) throw new Error(error.message);
+    return data;
+  });
+
+
+
 
 
 

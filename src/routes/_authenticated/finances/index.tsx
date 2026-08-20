@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button';
 import { formatFCFA } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { Wallet, ArrowUpCircle, History, Receipt, CreditCard, LayoutDashboard, ShieldCheck, Undo2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveCashJournal } from '@/lib/finance.functions';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
+import RefundManagement from '@/components/finances/RefundManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 export const Route = createFileRoute('/_authenticated/finances/')({
   component: FinanceDashboard,
@@ -165,7 +167,11 @@ function FinanceDashboard() {
           <TabsTrigger value="history" className="gap-2">
             <History className="h-4 w-4" /> Historique Flux
           </TabsTrigger>
+          <TabsTrigger value="refunds" className="gap-2">
+            <Undo2 className="h-4 w-4" /> Remboursements
+          </TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -366,7 +372,11 @@ function FinanceDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="refunds">
+          <RefundManagement />
+        </TabsContent>
       </Tabs>
     </div>
+
   );
 }
