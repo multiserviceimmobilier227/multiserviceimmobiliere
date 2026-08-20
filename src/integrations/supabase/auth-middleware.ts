@@ -89,13 +89,8 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       }
     );
 
-    if (token.startsWith('sb_publishable_')) {
-      console.error('CRITICAL: Middleware received publishable key instead of access token');
-      throw new Error('Unauthorized: Client failed to provide user session');
-    }
     const { data, error } = await supabase.auth.getClaims(token);
     if (error || !data?.claims) {
-      console.error('Auth check failed. Token length:', token.length, 'Error:', error);
       throw new Error('Unauthorized: Invalid token');
     }
 
