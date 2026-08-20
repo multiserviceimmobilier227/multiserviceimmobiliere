@@ -151,6 +151,31 @@ function SaleDetailsComponent() {
   });
 
 
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelSaleFn({
+      data: {
+        saleId,
+        reason: cancelReason,
+        refundAmount: refundAmount ? parseFloat(refundAmount) : 0,
+      }
+    }),
+    onSuccess: (res: any) => {
+      toast.success(
+        res?.refunded > 0
+          ? `Vente annulée. Remboursement de ${Number(res.refunded).toLocaleString('fr-FR')} FCFA enregistré.`
+          : 'Vente annulée. Parcelle libérée et CA ajusté.'
+      )
+      setIsCancelOpen(false)
+      setCancelReason('')
+      setRefundAmount('')
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur : ${error.message}`)
+    }
+  });
+
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
 
