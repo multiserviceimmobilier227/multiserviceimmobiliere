@@ -49,6 +49,20 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
     queryFn: () => getCategoriesFn(),
   });
 
+  const { data: activeJournal } = useQuery({
+    queryKey: ["active-cash-journal"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cash_journals")
+        .select("id, status")
+        .eq("agency_id", agencyId)
+        .eq("status", "ouvert")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const form = useForm<any>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
@@ -62,18 +76,24 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
   });
 
   const mutation = useMutation({
-    mutationFn: (values: ExpenseFormValues) => 
-      submitExpenseFn({ 
+    mutationFn: (values: ExpenseFormValues) => {
+      if (values.paymentMethod === 'espece' && !activeJournal) {
+        throw new Error("Impossible d'enregistrer une dépense en espèces sans session de caisse ouverte.");
+      }
+      
+      return submitExpenseFn({ 
         data: { 
           ...values, 
           agencyId, 
-          cashJournalId,
+          cashJournalId: values.paymentMethod === 'espece' ? activeJournal?.id : null,
           amount: parseFloat(values.amount as any)
         } 
-      }),
+      });
+    },
     onSuccess: () => {
       toast.success("Dépense soumise pour validation");
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["active-cash-journal"] });
       form.reset();
     },
     onError: (error: any) => {
