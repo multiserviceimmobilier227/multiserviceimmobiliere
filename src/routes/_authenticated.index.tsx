@@ -167,11 +167,11 @@ function Dashboard() {
             </div>
             <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Parcelles Vendues/Attribuées</span>
-              <span className="text-lg font-bold text-emerald-600">{stats?.active_sales_count || 0}</span>
+              <span className="text-lg font-bold text-emerald-600">{stats?.activeSalesCount || 0}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Parcelles Disponibles</span>
-              <span className="text-lg font-bold text-blue-600">{2 - (stats?.active_sales_count || 0)}</span>
+              <span className="text-lg font-bold text-blue-600">{2 - (stats?.activeSalesCount || 0)}</span>
             </div>
           </div>
         </div>
