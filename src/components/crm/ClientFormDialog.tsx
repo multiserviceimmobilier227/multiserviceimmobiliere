@@ -34,15 +34,15 @@ const clientSchema = z.object({
   civilite: z.enum(["M.", "Mme", "Mlle"]),
   first_name: z.string().min(2, "Le prénom est requis"),
   last_name: z.string().min(2, "Le nom est requis"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("")).nullable(),
   phone: z.string().min(8, "Numéro de téléphone invalide"),
-  address: z.string().optional(),
+  address: z.string().optional().nullable(),
   id_type: z.enum(["cni", "passeport", "permis", "autre"]),
-  id_number: z.string().min(1, "Le numéro de pièce est requis"),
-  occupation: z.string().optional(),
-  nationalite: z.string().optional(),
-  date_naissance: z.string().optional(),
-  lieu_naissance: z.string().optional(),
+  id_number: z.string().min(1, "Le numéro de pièce est requis").optional().nullable(),
+  occupation: z.string().optional().nullable(),
+  nationalite: z.string().optional().nullable(),
+  date_naissance: z.string().optional().nullable(),
+  lieu_naissance: z.string().optional().nullable(),
 });
 
 type ClientFormValues = z.infer<typeof clientSchema>;
