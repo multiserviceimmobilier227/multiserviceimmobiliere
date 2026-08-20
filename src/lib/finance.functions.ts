@@ -124,19 +124,9 @@ export const submitExpense = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
-
-    // Phase 12.4 : Notifier le PDG pour validation si montant important
-    if (data.amount > 100000) {
-      await supabase.from('notifications').insert({
-        user_id: 'souleymaneoumarou2323@gmail.com', // PDG direct for now, or use role logic
-        title: 'Validation Dépense',
-        message: `Une dépense de ${data.amount} FCFA attend votre validation.`,
-        type: 'finance',
-        agency_id: data.agencyId
-      });
-    }
-
+    // Phase 12.4 : Notification PDG gérée par trigger (SQL fn_tr_notify_pdg_large_expense)
+    // Nous n'avons pas besoin d'insertion manuelle ici pour éviter les erreurs de type et les duplications.
+    
     return expense;
   });
 
