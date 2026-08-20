@@ -26,6 +26,8 @@ export const getClients = createServerFn({ method: "GET" })
   }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
+    const { data: { user } } = await supabase.auth.getUser();
+    
     let query = supabase.from("clients").select(`
       *,
       sales:sales(count)
@@ -36,7 +38,10 @@ export const getClients = createServerFn({ method: "GET" })
     }
     
     const { data: clients, error } = await query.order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error("getClients error:", error);
+      throw error;
+    }
     
     // Transform count object to a simple number
     return clients.map(c => ({
@@ -93,8 +98,11 @@ export const upsertClient = createServerFn({ method: "POST" })
     const { supabase } = await import("@/integrations/supabase/client");
     
     // Check if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const user = authData?.user;
+    
+    if (authError || !user) {
+      console.error("Auth error in upsertClient:", authError);
       throw new Error("Vous devez être connecté pour effectuer cette opération.");
     }
 
