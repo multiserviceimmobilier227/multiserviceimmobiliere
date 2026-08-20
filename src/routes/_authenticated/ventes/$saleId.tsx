@@ -80,6 +80,12 @@ function SaleDetailsComponent() {
     staleTime: 1000
   });
 
+  const { data: financialLedger } = useQuery({
+    queryKey: ['financial-ledger', saleId],
+    queryFn: () => getLedger({ data: { saleId } })
+  });
+
+
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
