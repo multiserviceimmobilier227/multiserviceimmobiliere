@@ -110,6 +110,17 @@ export const upsertClient = createServerFn({ method: "POST" })
       }
     }
 
+    // Phase 12.3: Check for duplicate phone
+    const { data: phoneExisting } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("phone", data.client.phone.trim())
+      .maybeSingle();
+    
+    if (phoneExisting && phoneExisting.id !== data.id) {
+      throw new Error("Un client avec ce numéro de téléphone existe déjà.");
+    }
+
     const updateData: any = {
       first_name: data.client.first_name,
       last_name: data.client.last_name,
