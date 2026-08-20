@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import { addMonths, format } from "date-fns";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -734,10 +735,6 @@ export const markNotificationRead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
-
-
-
-
 
 
 
