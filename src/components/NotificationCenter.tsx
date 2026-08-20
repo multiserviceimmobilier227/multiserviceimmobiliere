@@ -28,7 +28,7 @@ export function NotificationCenter() {
   const fetchNotifications = useServerFn(getNotifications);
   const markReadFn = useServerFn(markNotificationRead);
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notificationsData = [] } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => fetchNotifications(),
     refetchInterval: 30000, // Refresh every 30s
