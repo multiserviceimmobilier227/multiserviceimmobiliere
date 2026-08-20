@@ -85,7 +85,7 @@ function PerformanceDirectionPage() {
 
   const filteredData = useMemo(() => {
     if (!profitability) return [];
-    return profitability.filter(item => 
+    return (profitability as any[]).filter(item => 
       (item.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (item.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
