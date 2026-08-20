@@ -161,10 +161,10 @@ function Dashboard() {
         <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
         <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
           <p className="text-emerald-800 font-medium">
-            Statut : Système d'Excellence Analytique (Phase A-03) Déployé.
+            Statut : MSI 2.0 Certifié - Excellence Opérationnelle et Financière.
           </p>
           <p className="mt-1 text-sm text-emerald-700">
-            Vision cristalline : Les indicateurs de CA Contracté, Recouvrement Réel et Valeur du Stock sont consolidés en temps réel.
+            Intégrité Totale : Moteur d'audit journalisé, réconciliation en temps réel et protection contre les doubles attributions par verrouillage atomique.
           </p>
         </div>
       </div>
