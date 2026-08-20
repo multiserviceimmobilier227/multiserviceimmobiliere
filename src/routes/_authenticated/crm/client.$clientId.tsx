@@ -143,12 +143,13 @@ function ClientDetails() {
           <CardContent className="space-y-4">
             <div className="flex items-center text-sm">
               <Phone className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.phone}</span>
+              <span>{(client as any).phone}</span>
             </div>
             <div className="flex items-center text-sm">
               <Mail className="mr-3 h-4 w-4 text-gray-400" />
-              <span>{client.email || "Aucun email"}</span>
+              <span>{(client as any).email || "Aucun email"}</span>
             </div>
+
             <div className="flex items-center text-sm">
               <MapPin className="mr-3 h-4 w-4 text-gray-400" />
               <span>{client.address || "Adresse non renseignée"}</span>
