@@ -736,5 +736,34 @@ export const markNotificationRead = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const getArrearsList = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context!;
+    
+    const { data, error } = await supabase
+      .from('v_sale_arrears')
+      .select('*')
+      .order('days_overdue', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const getSaleArrearsDetails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ saleId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context!;
+    
+    const { data: arrears, error } = await supabase
+      .rpc('fn_calculate_sale_arrears', { _sale_id: data.saleId })
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    return arrears;
+  });
+
+
 
 
