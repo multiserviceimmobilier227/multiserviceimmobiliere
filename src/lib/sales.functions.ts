@@ -498,14 +498,17 @@ export const getCommercialPerformance = createServerFn({ method: "GET" })
 
     // Aggregate results by agent since the view is grouped by date too
     const aggregated: Record<string, any> = {};
-    data.forEach(row => {
-      if (!aggregated[row.agent_id]) {
-        aggregated[row.agent_id] = { ...row, total_sales: 0, total_value: 0, collected_amount: 0, total_balance: 0 };
+    data?.forEach((row: any) => {
+      const agentId = row.agent_id;
+      if (!agentId) return;
+      
+      if (!aggregated[agentId]) {
+        aggregated[agentId] = { ...row, total_sales: 0, total_value: 0, collected_amount: 0, total_balance: 0 };
       }
-      aggregated[row.agent_id].total_sales += Number(row.total_sales);
-      aggregated[row.agent_id].total_value += Number(row.total_value);
-      aggregated[row.agent_id].collected_amount += Number(row.collected_amount);
-      aggregated[row.agent_id].total_balance += Number(row.total_balance);
+      aggregated[agentId].total_sales += Number(row.total_sales || 0);
+      aggregated[agentId].total_value += Number(row.total_value || 0);
+      aggregated[agentId].collected_amount += Number(row.collected_amount || 0);
+      aggregated[agentId].total_balance += Number(row.total_balance || 0);
     });
 
     return Object.values(aggregated).sort((a, b) => b.total_sales - a.total_sales);
