@@ -66,8 +66,9 @@ function CRMIndex() {
                 <TableHead>Contact</TableHead>
                 <TableHead>Localisation</TableHead>
                 <TableHead>Pièce d'identité</TableHead>
-                <TableHead className="text-right">Vente</TableHead>
+                <TableHead className="text-center">Ventes</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
+
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -110,13 +111,22 @@ function CRMIndex() {
                         {client.id_type} : {client.id_number || "..."}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
+                      {client.sales_count > 0 ? (
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
+                          {client.sales_count} {client.sales_count > 1 ? 'ventes' : 'vente'}
+                        </Badge>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" asChild className="text-[#D1127B] border-[#D1127B] hover:bg-[#D1127B]/10">
                         <Link to="/ventes/nouvelle" search={{ clientId: client.id }}>
                           <ShoppingCart className="mr-2 h-4 w-4" /> Vendre
                         </Link>
                       </Button>
-                    </TableCell>
+
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
                         <Link to="/crm/client/$clientId" params={{ clientId: client.id }}>

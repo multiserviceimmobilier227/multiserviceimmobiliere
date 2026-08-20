@@ -26,16 +26,25 @@ export const getClients = createServerFn({ method: "GET" })
   }).parse(data))
   .handler(async ({ data }) => {
     const { supabase } = await import("@/integrations/supabase/client");
-    let query = supabase.from("clients").select("*");
+    let query = supabase.from("clients").select(`
+      *,
+      sales:sales(count)
+    `);
     
     if (data.search) {
       query = query.or(`first_name.ilike.%${data.search}%,last_name.ilike.%${data.search}%,phone.ilike.%${data.search}%`);
     }
     
-    const { data: clients, error } = await query.order("last_name", { ascending: true });
+    const { data: clients, error } = await query.order("created_at", { ascending: false });
     if (error) throw error;
-    return clients;
+    
+    // Transform count object to a simple number
+    return clients.map(c => ({
+      ...c,
+      sales_count: (c.sales as any)?.[0]?.count || 0
+    }));
   });
+
 
 export const getClientDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
