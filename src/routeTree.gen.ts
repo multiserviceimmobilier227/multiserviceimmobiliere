@@ -22,6 +22,7 @@ import { Route as AuthenticatedFinancesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedFinancesImpayesRouteImport } from './routes/_authenticated/finances/impayes'
 import { Route as AuthenticatedFinancesValidationsRouteImport } from './routes/_authenticated/finances/validations'
 import { Route as AuthenticatedImmobilierAcquisitionsRouteImport } from './routes/_authenticated/immobilier/acquisitions'
+import { Route as AuthenticatedImmobilierBilansRouteImport } from './routes/_authenticated/immobilier/bilans'
 import { Route as AuthenticatedImmobilierInventaireRouteImport } from './routes/_authenticated/immobilier/inventaire'
 import { Route as AuthenticatedImmobilierLotissementsRouteImport } from './routes/_authenticated/immobilier/lotissements'
 import { Route as AuthenticatedImmobilierParcellesRouteImport } from './routes/_authenticated/immobilier/parcelles'
@@ -103,6 +104,12 @@ const AuthenticatedImmobilierAcquisitionsRoute =
     path: '/immobilier/acquisitions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedImmobilierBilansRoute =
+  AuthenticatedImmobilierBilansRouteImport.update({
+    id: '/immobilier/bilans',
+    path: '/immobilier/bilans',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImmobilierInventaireRoute =
   AuthenticatedImmobilierInventaireRouteImport.update({
     id: '/immobilier/inventaire',
@@ -169,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
+  '/immobilier/bilans': typeof AuthenticatedImmobilierBilansRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
@@ -192,6 +200,7 @@ export interface FileRoutesByTo {
   '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
+  '/immobilier/bilans': typeof AuthenticatedImmobilierBilansRoute
   '/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
@@ -217,6 +226,7 @@ export interface FileRoutesById {
   '/_authenticated/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/_authenticated/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
+  '/_authenticated/immobilier/bilans': typeof AuthenticatedImmobilierBilansRoute
   '/_authenticated/immobilier/inventaire': typeof AuthenticatedImmobilierInventaireRoute
   '/_authenticated/immobilier/lotissements': typeof AuthenticatedImmobilierLotissementsRoute
   '/_authenticated/immobilier/parcelles': typeof AuthenticatedImmobilierParcellesRouteWithChildren
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
+    | '/immobilier/bilans'
     | '/immobilier/inventaire'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
+    | '/immobilier/bilans'
     | '/immobilier/inventaire'
     | '/immobilier/lotissements'
     | '/immobilier/parcelles'
@@ -289,6 +301,7 @@ export interface FileRouteTypes {
     | '/_authenticated/finances/impayes'
     | '/_authenticated/finances/validations'
     | '/_authenticated/immobilier/acquisitions'
+    | '/_authenticated/immobilier/bilans'
     | '/_authenticated/immobilier/inventaire'
     | '/_authenticated/immobilier/lotissements'
     | '/_authenticated/immobilier/parcelles'
@@ -400,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImmobilierAcquisitionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/immobilier/bilans': {
+      id: '/_authenticated/immobilier/bilans'
+      path: '/immobilier/bilans'
+      fullPath: '/immobilier/bilans'
+      preLoaderRoute: typeof AuthenticatedImmobilierBilansRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/immobilier/inventaire': {
       id: '/_authenticated/immobilier/inventaire'
       path: '/immobilier/inventaire'
@@ -491,6 +511,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancesImpayesRoute: typeof AuthenticatedFinancesImpayesRoute
   AuthenticatedFinancesValidationsRoute: typeof AuthenticatedFinancesValidationsRoute
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
+  AuthenticatedImmobilierBilansRoute: typeof AuthenticatedImmobilierBilansRoute
   AuthenticatedImmobilierInventaireRoute: typeof AuthenticatedImmobilierInventaireRoute
   AuthenticatedImmobilierLotissementsRoute: typeof AuthenticatedImmobilierLotissementsRoute
   AuthenticatedImmobilierParcellesRoute: typeof AuthenticatedImmobilierParcellesRouteWithChildren
@@ -515,6 +536,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFinancesValidationsRoute: AuthenticatedFinancesValidationsRoute,
   AuthenticatedImmobilierAcquisitionsRoute:
     AuthenticatedImmobilierAcquisitionsRoute,
+  AuthenticatedImmobilierBilansRoute: AuthenticatedImmobilierBilansRoute,
   AuthenticatedImmobilierInventaireRoute:
     AuthenticatedImmobilierInventaireRoute,
   AuthenticatedImmobilierLotissementsRoute:

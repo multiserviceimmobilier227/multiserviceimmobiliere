@@ -2,7 +2,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getLotissementProfitability } from '@/lib/real-estate.functions';
-import { getCommercialPerformance } from '@/lib/sales.functions';
+import { getCommercialPerformance, getCashFlowProjections } from '@/lib/sales.functions';
+import { AreaChart, Area } from 'recharts';
 import { getAgences } from '@/lib/settings.functions';
 import { formatFCFA } from '@/lib/utils';
 import { 
@@ -83,6 +84,12 @@ function PerformanceDirectionPage() {
     }),
   });
 
+  const { data: cashFlow, isLoading: loadingCashFlow } = useQuery({
+    queryKey: ['cashflow-projections'],
+    queryFn: () => getCashFlowProjections(),
+  });
+
+
   const filteredData = useMemo(() => {
     if (!profitability) return [];
     return (profitability as any[]).filter(item => 
@@ -91,7 +98,7 @@ function PerformanceDirectionPage() {
     );
   }, [profitability, searchTerm]);
 
-  const isLoading = loadingProfitability || loadingCommercial;
+  const isLoading = loadingProfitability || loadingCommercial || loadingCashFlow;
 
   const stats = useMemo(() => {
     if (!filteredData.length) return {
@@ -135,9 +142,9 @@ function PerformanceDirectionPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">Bilans & Rentabilité Nette</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary font-sans">Analyses de Performance</h1>
           <p className="text-muted-foreground font-sans">
-            Analyse stratégique de la rentabilité réelle par lotissement.
+            Suivi des ventes et performance commerciale globale.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -261,61 +268,39 @@ function PerformanceDirectionPage() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
-              <Zap className="h-5 w-5 text-emerald-500" />
-              Répartition Financière & Efficacité
+              <TrendingUp className="h-5 w-5 text-emerald-500" />
+              Projections de Trésorerie (12 mois)
             </CardTitle>
-            <CardDescription className="font-sans text-xs">Recouvrement vs Investissement.</CardDescription>
+            <CardDescription className="font-sans text-xs">Encaissements attendus basés sur les échéanciers.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col md:flex-row items-center justify-between">
-            <div className="h-[250px] w-full md:w-1/2">
+          <CardContent>
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => formatFCFA(value)} />
-                </PieChart>
+                <AreaChart data={cashFlow || []}>
+                  <defs>
+                    <linearGradient id="colorCash" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => {
+                      const [year, month] = value.split('-');
+                      const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+                      return `${months[parseInt(month) - 1]} ${year.substring(2)}`;
+                    }}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(value) => `${(value/1000000).toFixed(1)}M`} />
+                  <Tooltip 
+                    formatter={(value: number) => formatFCFA(value)}
+                    labelFormatter={(label) => `Mois: ${label}`}
+                  />
+                  <Area type="monotone" dataKey="amount" name="Attendu" stroke="#10b981" fillOpacity={1} fill="url(#colorCash)" />
+                </AreaChart>
               </ResponsiveContainer>
-            </div>
-            <div className="w-full md:w-1/2 space-y-4">
-              <div className="p-4 bg-muted/30 rounded-lg">
-                <div className="flex justify-between text-sm font-sans mb-1">
-                  <span className="text-muted-foreground">Efficacité Recouvrement:</span>
-                  <span className="font-bold text-emerald-600">
-                    {stats.totalSold > 0 ? ((stats.totalCollected / stats.totalSold) * 100).toFixed(1) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-emerald-500 h-full transition-all duration-500" 
-                    style={{ width: `${stats.totalSold > 0 ? (stats.totalCollected / stats.totalSold) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-              <div className="p-4 bg-muted/30 rounded-lg">
-                <div className="flex justify-between text-sm font-sans mb-1">
-                  <span className="text-muted-foreground">Taux de Marge Réel:</span>
-                  <span className="font-bold text-[#D1127B]">
-                    {stats.totalSold > 0 ? ((stats.totalProfit / stats.totalSold) * 100).toFixed(1) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-[#D1127B] h-full transition-all duration-500" 
-                    style={{ width: `${stats.totalSold > 0 ? Math.max(0, (stats.totalProfit / stats.totalSold) * 100) : 0}%` }}
-                  />
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
