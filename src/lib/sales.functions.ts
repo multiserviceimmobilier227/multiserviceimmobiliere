@@ -26,8 +26,7 @@ export const createSaleDraft = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Start a transaction-like process
-    // Verify client exists
+    // 1. Verify client exists
     const { data: clientCheck, error: clientCheckError } = await supabase
       .from("clients")
       .select("id")
@@ -37,6 +36,29 @@ export const createSaleDraft = createServerFn({ method: "POST" })
     if (clientCheckError || !clientCheck) {
       throw new Error("Client invalide ou inexistant.");
     }
+
+    // 2. Pre-check plot availability to avoid trigger error message
+    const { data: activeSale } = await supabase
+      .from("sales")
+      .select("id")
+      .eq("plot_id", data.plotId)
+      .in("status", ["reservation", "en_cours", "termine"])
+      .maybeSingle();
+
+    if (activeSale) {
+      throw new Error("Cette parcelle est déjà réservée ou vendue.");
+    }
+
+    const { data: plotCheck } = await supabase
+      .from("plots")
+      .select("status")
+      .eq("id", data.plotId)
+      .single();
+
+    if (plotCheck?.status !== "Disponible") {
+      throw new Error("La parcelle sélectionnée n'est plus disponible.");
+    }
+
 
      const { data: sale, error: saleError } = await supabase
        .from("sales")
