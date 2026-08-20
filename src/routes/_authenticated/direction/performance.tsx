@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getLotissementProfitability } from '@/lib/real-estate.functions';
+import { getCommercialPerformance } from '@/lib/sales.functions';
 import { getAgences } from '@/lib/settings.functions';
 import { formatFCFA } from '@/lib/utils';
 import { 
@@ -12,7 +13,10 @@ import {
   PieChart as PieIcon,
   Search,
   ArrowUpRight,
-  Target
+  Target,
+  Users,
+  Award,
+  Zap
 } from 'lucide-react';
 import { 
   Card, 
