@@ -1,6 +1,6 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History } from 'lucide-react'
+import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History, Ban } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,6 +39,10 @@ function SaleDetailsComponent() {
   const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   
   const registerPaymentFn = useServerFn(registerPayment)
+  const cancelSaleFn = useServerFn(cancelSale)
+  const [isCancelOpen, setIsCancelOpen] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [refundAmount, setRefundAmount] = useState('')
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
@@ -96,6 +100,31 @@ function SaleDetailsComponent() {
     }
   })
 
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelSaleFn({
+      data: {
+        saleId,
+        reason: cancelReason,
+        refundAmount: refundAmount ? parseFloat(refundAmount) : 0,
+      }
+    }),
+    onSuccess: (res: any) => {
+      toast.success(
+        res?.refunded > 0
+          ? `Vente annulée. Remboursement de ${Number(res.refunded).toLocaleString('fr-FR')} FCFA enregistré.`
+          : 'Vente annulée. Parcelle libérée et CA ajusté.'
+      )
+      setIsCancelOpen(false)
+      setCancelReason('')
+      setRefundAmount('')
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+    },
+    onError: (error: any) => {
+      toast.error(`Erreur : ${error.message}`)
+    }
+  })
+
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
 
@@ -108,6 +137,12 @@ function SaleDetailsComponent() {
       default: return <Badge variant="secondary">{status}</Badge>
     }
   }
+
+  const collectedAmount =
+    Number(sale.deposit_amount || 0) +
+    ((sale as any).payments || []).reduce((acc: number, p: any) => acc + Number(p.amount || 0), 0)
+  const refundedAmount = ((sale as any).refunds || []).reduce((acc: number, r: any) => acc + Number(r.amount || 0), 0)
+  const refundableAmount = Math.max(0, collectedAmount - refundedAmount)
 
   const plotInfo = sale.plot as any;
   const lotissementName = plotInfo?.ilot?.zone?.lotissement?.name || 'N/A';
@@ -246,6 +281,57 @@ function SaleDetailsComponent() {
               <CheckCircle2 className="mr-2 h-4 w-4" /> {validateMutation.isPending ? 'Validation...' : 'Valider Contrat (PDG)'}
             </Button>
           )}
+
+          {/* Annulation & remboursement (Phase A-02) */}
+          <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" disabled={sale.status === 'annule'}>
+                <Ban className="mr-2 h-4 w-4" /> Annuler la vente
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Annulation du contrat</DialogTitle>
+                <DialogDescription>
+                  La parcelle sera libérée, les échéances non payées annulées et le chiffre d'affaires contracté ajusté. Seules les sommes réellement encaissées peuvent être remboursées.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="rounded-md border p-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Encaissé (acompte + versements)</span>
+                    <span className="font-semibold">{Number(collectedAmount).toLocaleString('fr-FR')} FCFA</span>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-muted-foreground">Déjà remboursé</span>
+                    <span className="font-semibold">{Number(refundedAmount).toLocaleString('fr-FR')} FCFA</span>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-muted-foreground">Remboursable au maximum</span>
+                    <span className="font-semibold">{Number(refundableAmount).toLocaleString('fr-FR')} FCFA</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cancel-reason">Motif de l'annulation</Label>
+                  <Input id="cancel-reason" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Désistement du client, litige..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="refund-amount">Montant à rembourser (FCFA)</Label>
+                  <Input id="refund-amount" type="number" min={0} max={refundableAmount} value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} placeholder="0" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCancelOpen(false)}>Fermer</Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => cancelMutation.mutate()}
+                  disabled={cancelReason.trim().length < 3 || cancelMutation.isPending || parseFloat(refundAmount || '0') > refundableAmount}
+                >
+                  {cancelMutation.isPending ? 'Annulation...' : "Confirmer l'annulation"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
