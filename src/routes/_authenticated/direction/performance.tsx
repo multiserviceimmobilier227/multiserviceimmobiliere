@@ -70,8 +70,8 @@ function PerformanceDirectionPage() {
   const filteredData = useMemo(() => {
     if (!profitability) return [];
     return profitability.filter(item => 
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase())
+      (item.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (item.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   }, [profitability, searchTerm]);
 

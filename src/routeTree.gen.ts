@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm/index'
+import { Route as AuthenticatedDirectionPerformanceRouteImport } from './routes/_authenticated/direction/performance'
 import { Route as AuthenticatedFinancesIndexRouteImport } from './routes/_authenticated/finances/index'
 import { Route as AuthenticatedFinancesImpayesRouteImport } from './routes/_authenticated/finances/impayes'
 import { Route as AuthenticatedFinancesValidationsRouteImport } from './routes/_authenticated/finances/validations'
@@ -72,6 +73,12 @@ const AuthenticatedCrmIndexRoute = AuthenticatedCrmIndexRouteImport.update({
   path: '/crm/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDirectionPerformanceRoute =
+  AuthenticatedDirectionPerformanceRouteImport.update({
+    id: '/direction/performance',
+    path: '/direction/performance',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinancesIndexRoute =
   AuthenticatedFinancesIndexRouteImport.update({
     id: '/finances/',
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/direction/performance': typeof AuthenticatedDirectionPerformanceRoute
   '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
@@ -180,6 +188,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/direction/performance': typeof AuthenticatedDirectionPerformanceRoute
   '/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
@@ -204,6 +213,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/direction/performance': typeof AuthenticatedDirectionPerformanceRoute
   '/_authenticated/finances/impayes': typeof AuthenticatedFinancesImpayesRoute
   '/_authenticated/finances/validations': typeof AuthenticatedFinancesValidationsRoute
   '/_authenticated/immobilier/acquisitions': typeof AuthenticatedImmobilierAcquisitionsRoute
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/direction/performance'
     | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/settings'
     | '/admin/users'
+    | '/direction/performance'
     | '/finances/impayes'
     | '/finances/validations'
     | '/immobilier/acquisitions'
@@ -273,6 +285,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/direction/performance'
     | '/_authenticated/finances/impayes'
     | '/_authenticated/finances/validations'
     | '/_authenticated/immobilier/acquisitions'
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm/'
       preLoaderRoute: typeof AuthenticatedCrmIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/direction/performance': {
+      id: '/_authenticated/direction/performance'
+      path: '/direction/performance'
+      fullPath: '/direction/performance'
+      preLoaderRoute: typeof AuthenticatedDirectionPerformanceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finances/': {
@@ -467,6 +487,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedDirectionPerformanceRoute: typeof AuthenticatedDirectionPerformanceRoute
   AuthenticatedFinancesImpayesRoute: typeof AuthenticatedFinancesImpayesRoute
   AuthenticatedFinancesValidationsRoute: typeof AuthenticatedFinancesValidationsRoute
   AuthenticatedImmobilierAcquisitionsRoute: typeof AuthenticatedImmobilierAcquisitionsRoute
@@ -488,6 +509,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedDirectionPerformanceRoute:
+    AuthenticatedDirectionPerformanceRoute,
   AuthenticatedFinancesImpayesRoute: AuthenticatedFinancesImpayesRoute,
   AuthenticatedFinancesValidationsRoute: AuthenticatedFinancesValidationsRoute,
   AuthenticatedImmobilierAcquisitionsRoute:
