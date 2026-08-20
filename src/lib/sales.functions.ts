@@ -481,7 +481,7 @@ export const getCommercialPerformance = createServerFn({ method: "GET" })
       .select("*");
     
     if (input?.agenceId) {
-      query = query.eq("agence_id", input.agenceId);
+      query = query.eq("agency_id", input.agenceId);
     }
     
     const { data, error } = await query.order("total_sales", { ascending: false });
