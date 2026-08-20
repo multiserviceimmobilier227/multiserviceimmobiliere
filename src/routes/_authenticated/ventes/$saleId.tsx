@@ -123,30 +123,33 @@ function SaleDetailsComponent() {
     }
   })
 
-  const cancelMutation = useMutation({
-    mutationFn: () => cancelSaleFn({
+  const confirmPaymentMutation = useMutation({
+    mutationFn: (paymentId: string) => confirmPay({ data: { paymentId } }),
+    onSuccess: () => {
+      toast.success('Paiement confirmé par le PDG');
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
+    },
+    onError: (error: any) => toast.error(error.message)
+  });
+
+  const correctPaymentMutation = useMutation({
+    mutationFn: () => correctPay({
       data: {
-        saleId,
-        reason: cancelReason,
-        refundAmount: refundAmount ? parseFloat(refundAmount) : 0,
+        paymentId: selectedPayment?.id,
+        newAmount: parseFloat(correctAmount),
+        reason: correctReason
       }
     }),
-    onSuccess: (res: any) => {
-      toast.success(
-        res?.refunded > 0
-          ? `Vente annulée. Remboursement de ${Number(res.refunded).toLocaleString('fr-FR')} FCFA enregistré.`
-          : 'Vente annulée. Parcelle libérée et CA ajusté.'
-      )
-      setIsCancelOpen(false)
-      setCancelReason('')
-      setRefundAmount('')
-      queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+    onSuccess: () => {
+      toast.success('Montant corrigé et journalisé');
+      setIsCorrectOpen(false);
+      setCorrectAmount('');
+      setCorrectReason('');
+      queryClient.invalidateQueries({ queryKey: ['sale', saleId] });
     },
-    onError: (error: any) => {
-      toast.error(`Erreur : ${error.message}`)
-    }
-  })
+    onError: (error: any) => toast.error(error.message)
+  });
+
 
   if (isLoading) return <div className="p-8 text-center">Chargement du dossier de vente...</div>
   if (!sale) return <div className="p-8 text-center">Vente introuvable.</div>
