@@ -1,4 +1,5 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
+import { supabase } from '@/integrations/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale, confirmPayment, correctPayment } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
