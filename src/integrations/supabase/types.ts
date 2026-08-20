@@ -826,6 +826,44 @@ export type Database = {
         }
         Relationships: []
       }
+      refunds: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          processed_by: string | null
+          reason: string | null
+          refund_date: string | null
+          sale_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          processed_by?: string | null
+          reason?: string | null
+          refund_date?: string | null
+          sale_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          processed_by?: string | null
+          reason?: string | null
+          refund_date?: string | null
+          sale_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           cancellation_reason: string | null
@@ -1284,6 +1322,15 @@ export type Database = {
           name: string | null
           potential_revenue: number | null
           total_investment: number | null
+        }
+        Relationships: []
+      }
+      v_financial_summary: {
+        Row: {
+          inventory_value: number | null
+          total_ca_potential: number | null
+          total_collected: number | null
+          total_outstanding: number | null
         }
         Relationships: []
       }
