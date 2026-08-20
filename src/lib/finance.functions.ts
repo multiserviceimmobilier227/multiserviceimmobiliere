@@ -125,6 +125,18 @@ export const submitExpense = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
+
+    // Phase 12.4 : Notifier le PDG pour validation si montant important
+    if (data.amount > 100000) {
+      await supabase.from('notifications').insert({
+        user_id: 'souleymaneoumarou2323@gmail.com', // PDG direct for now, or use role logic
+        title: 'Validation Dépense',
+        message: `Une dépense de ${data.amount} FCFA attend votre validation.`,
+        type: 'finance',
+        agency_id: data.agencyId
+      });
+    }
+
     return expense;
   });
 
