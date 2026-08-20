@@ -125,8 +125,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       monthlySales,
       monthlyCollections,
       totalCAPotential: summary?.total_ca_potential || 0,
-      totalCollected: summary?.total_collected || 0,
+      totalCollected: summary?.total_collected_net || 0,
       totalOutstanding: summary?.total_outstanding || 0,
-      inventoryValue: summary?.inventory_value || 0
+      inventoryValue: summary?.stock_value || 0
     };
   });
