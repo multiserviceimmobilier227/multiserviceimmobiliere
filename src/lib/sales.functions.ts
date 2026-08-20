@@ -710,10 +710,8 @@ export const markNotificationRead = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ notificationId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.rpc('mark_notification_as_read', { 
-      _notification_id: data.notificationId,
-      _user_id: userId
-    });
+    const { error } = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', data.notificationId).eq('user_id', userId);
+
     if (error) throw new Error(error.message);
     return { success: true };
   });
