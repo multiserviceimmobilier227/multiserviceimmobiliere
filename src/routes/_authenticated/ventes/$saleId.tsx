@@ -331,7 +331,26 @@ function SaleDetailsComponent() {
                     placeholder="Ex: CHQ-123456 ou Transaction ID" 
                   />
                 </div>
+
+                {imputationPreview && (
+                  <div className="mt-2 space-y-2 border rounded-md p-3 bg-muted/20">
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground">Prévisualisation de l'imputation</p>
+                    <div className="space-y-1">
+                      {imputationPreview.map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between text-[11px]">
+                          <span>
+                            {item.due_date ? `Mois du ${format(new Date(item.due_date), 'dd/MM/yy')}` : item.type}
+                          </span>
+                          <span className="font-mono font-bold">
+                            {new Intl.NumberFormat('fr-FR').format(item.amount_applied)} FCFA
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsPaymentOpen(false)}>Annuler</Button>
                 <Button onClick={() => paymentMutation.mutate()} disabled={!payAmount || parseFloat(payAmount) <= 0}>Confirmer l'encaissement</Button>
