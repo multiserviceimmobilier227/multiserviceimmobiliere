@@ -34,15 +34,15 @@ const clientSchema = z.object({
   civilite: z.enum(["M.", "Mme", "Mlle"]),
   first_name: z.string().min(2, "Le prénom est requis"),
   last_name: z.string().min(2, "Le nom est requis"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("")).nullable(),
   phone: z.string().min(8, "Numéro de téléphone invalide"),
-  address: z.string().optional(),
+  address: z.string().optional().nullable(),
   id_type: z.enum(["cni", "passeport", "permis", "autre"]),
-  id_number: z.string().min(1, "Le numéro de pièce est requis"),
-  occupation: z.string().optional(),
-  nationalite: z.string().optional(),
-  date_naissance: z.string().optional(),
-  lieu_naissance: z.string().optional(),
+  id_number: z.string().min(1, "Le numéro de pièce est requis").optional().nullable(),
+  occupation: z.string().optional().nullable(),
+  nationalite: z.string().optional().nullable(),
+  date_naissance: z.string().optional().nullable(),
+  lieu_naissance: z.string().optional().nullable(),
 });
 
 type ClientFormValues = z.infer<typeof clientSchema>;
@@ -179,7 +179,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Email (Optionnel)</FormLabel>
                     <FormControl>
-                      <Input placeholder="exemple@gmail.com" type="email" {...field} />
+                      <Input placeholder="exemple@gmail.com" type="email" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -216,7 +216,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Numéro de pièce</FormLabel>
                     <FormControl>
-                      <Input placeholder="Numéro" {...field} />
+                      <Input placeholder="Numéro" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -230,7 +230,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Profession</FormLabel>
                     <FormControl>
-                      <Input placeholder="Profession" {...field} />
+                      <Input placeholder="Profession" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -243,7 +243,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Nationalité</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nationalité" {...field} />
+                      <Input placeholder="Nationalité" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -257,7 +257,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Date de naissance</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -270,7 +270,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                   <FormItem>
                     <FormLabel>Lieu de naissance</FormLabel>
                     <FormControl>
-                      <Input placeholder="Lieu" {...field} />
+                      <Input placeholder="Lieu" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -285,7 +285,7 @@ export function ClientFormDialog({ open, onOpenChange, client, onSuccess }: Clie
                 <FormItem>
                   <FormLabel>Adresse de résidence</FormLabel>
                   <FormControl>
-                    <Input placeholder="Adresse complète" {...field} />
+                    <Input placeholder="Adresse complète" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
