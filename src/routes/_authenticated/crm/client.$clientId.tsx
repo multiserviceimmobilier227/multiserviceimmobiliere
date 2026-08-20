@@ -1,11 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
+import { cancelSale } from "@/lib/sales.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle, MessageSquare, Ban, UserCheck, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -32,12 +41,16 @@ function ClientDetails() {
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [interactionNotes, setInteractionNotes] = useState("");
   const [interactionType, setInteractionType] = useState("Appel");
+  const [isPdgActionOpen, setIsPdgActionOpen] = useState(false);
+  const [pdgActionType, setPdgActionType] = useState<'convocation' | 'suspension' | 'autre'>('convocation');
+  const [pdgActionNotes, setPdgActionNotes] = useState("");
 
   // Document upload state
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docName, setDocName] = useState("");
   const [docType, setDocType] = useState("CNI");
   const [isUploading, setIsUploading] = useState(false);
+  const [isActionPending, setIsActionPending] = useState(false);
 
   const { data: client, isLoading } = useQuery({
     queryKey: ["client", clientId],
@@ -102,6 +115,45 @@ function ClientDetails() {
   if (isLoading) return <div>Chargement du dossier...</div>;
   if (!client) return <div>Client introuvable</div>;
 
+  const handlePdgAction = async () => {
+    if (!pdgActionNotes) {
+      toast.error("Veuillez saisir une note justificative.");
+      return;
+    }
+
+    try {
+      setIsActionPending(true);
+      
+      // 1. Log as interaction
+      await mutation.mutateAsync({
+        data: {
+          client_id: clientId,
+          interaction_type: pdgActionType === 'convocation' ? 'CONVOCATION DIRECTION' : 'SUSPENSION CONTRAT',
+          notes: `ACTION PDG : ${pdgActionNotes}`
+        }
+      });
+
+      toast.success("Action PDG enregistrée avec succès");
+      setIsPdgActionOpen(false);
+      setPdgActionNotes("");
+    } catch (error) {
+      toast.error("Erreur lors de l'enregistrement de l'action.");
+    } finally {
+      setIsActionPending(false);
+    }
+  };
+
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
+      return data?.role;
+    }
+  });
+
+  const isPdg = userRole === 'pdg' || userRole === 'super_admin';
   return (
     <div className="space-y-6">
       {(client as any).has_critical_delay && (
@@ -117,6 +169,31 @@ function ClientDetails() {
             </div>
           </div>
           <div className="flex gap-2">
+            {isPdg && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-white text-red-600 border-none hover:bg-gray-100 font-bold">
+                    <Ban className="mr-2 h-4 w-4" /> ACTIONS DIRECTION
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Actions Sanction/Recouvrement</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => { setPdgActionType('convocation'); setIsPdgActionOpen(true); }}>
+                    <UserCheck className="mr-2 h-4 w-4" /> Convoquer le client
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600" onClick={() => { setPdgActionType('suspension'); setIsPdgActionOpen(true); }}>
+                    <Ban className="mr-2 h-4 w-4" /> Suspendre les contrats
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/ventes/$saleId" params={{ saleId: client.sales?.[0]?.id || "" }}>
+                      <ShoppingCart className="mr-2 h-4 w-4" /> Régularisation forcée
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <Button variant="outline" className="bg-white text-red-600 border-none hover:bg-gray-100" asChild>
               <Link to="/ventes/$saleId" params={{ saleId: client.sales?.[0]?.id || "" }}>
                 Régulariser
@@ -191,7 +268,28 @@ function ClientDetails() {
           </CardContent>
         </Card>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card className="bg-green-50/50 border-green-100">
+              <CardContent className="pt-6">
+                <div className="text-xs font-semibold text-green-600 uppercase mb-1">Total Payé</div>
+                <div className="text-2xl font-bold text-green-700">
+                  {new Intl.NumberFormat('fr-FR').format(
+                    client.sales?.reduce((acc: number, s: any) => acc + (Number(s.total_amount) - Number(s.balance)), 0) || 0
+                  )} FCFA
+                </div>
+              </CardContent>
+            </Card>
+            <Card className={client.total_arrears > 0 ? "bg-red-50/50 border-red-100" : "bg-gray-50/50 border-gray-100"}>
+              <CardContent className="pt-6">
+                <div className="text-xs font-semibold text-red-600 uppercase mb-1">Total Arriérés</div>
+                <div className="text-2xl font-bold text-red-700">
+                  {new Intl.NumberFormat('fr-FR').format(client.total_arrears || 0)} FCFA
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Tabs defaultValue="acquisitions" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="acquisitions"><LayoutGrid className="mr-2 h-4 w-4" /> Acquisitions</TabsTrigger>
@@ -345,11 +443,16 @@ function ClientDetails() {
                   ) : (
                     <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
                       {client.interactions?.map((item: any) => (
-                        <div key={item.id} className="relative">
-                          <div className="absolute -left-6 top-1 h-4 w-4 rounded-full bg-white border-2 border-[#D1127B]" />
+                        <div key={item.id} className={`relative p-3 rounded-lg border ${item.notes?.includes('ACTION PDG') ? 'bg-red-50 border-red-100' : 'bg-white border-transparent'}`}>
+                          <div className={`absolute -left-[1.85rem] top-4 h-4 w-4 rounded-full bg-white border-2 ${item.notes?.includes('ACTION PDG') ? 'border-red-600' : 'border-[#D1127B]'}`} />
                           <div className="text-xs text-gray-400 mb-1">{formatDateNiamey(item.interaction_date)}</div>
-                          <div className="text-sm font-semibold">{item.interaction_type}</div>
-                          <div className="text-sm text-gray-600 mt-1">{item.notes}</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-semibold">{item.interaction_type}</div>
+                            {item.notes?.includes('ACTION PDG') && (
+                              <Badge variant="destructive" className="h-4 text-[10px]">DIRECTION</Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{item.notes}</div>
                         </div>
                       ))}
                     </div>
@@ -438,6 +541,42 @@ function ClientDetails() {
                 {isUploading ? "Upload en cours..." : "Enregistrer"}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Action PDG Dialog */}
+      <Dialog open={isPdgActionOpen} onOpenChange={setIsPdgActionOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Ban className="h-5 w-5" />
+              {pdgActionType === 'convocation' ? 'Convocation Client' : 'Suspension de Contrat'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-red-50 p-3 rounded text-sm text-red-800 border border-red-100">
+              <strong>Attention :</strong> Cette action sera enregistrée de manière indélébile dans l'historique du client avec votre signature.
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Motif et instructions de la direction</label>
+              <Textarea 
+                placeholder="Précisez les conditions de reprise ou le motif de convocation..."
+                className="h-32"
+                value={pdgActionNotes}
+                onChange={(e) => setPdgActionNotes(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsPdgActionOpen(false)}>Annuler</Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isActionPending}
+              onClick={handlePdgAction}
+            >
+              Confirmer l'Action
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
