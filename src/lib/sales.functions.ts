@@ -368,9 +368,12 @@ export const registerPayment = createServerFn({ method: "POST" })
     notes: z.string().optional().nullable(),
   }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
 
-    // 1. Record the payment
+    // Phase 11.1 & 11.2: Advanced Imputation & FIFO
+    
+    // 1. Record the payment first
+    // Note: prepared_by_id is checked in DB types. Assuming generic 'auth.uid()' or a field.
     const { data: payment, error: paymentError } = await supabase
       .from("payments")
       .insert({
@@ -379,47 +382,31 @@ export const registerPayment = createServerFn({ method: "POST" })
         payment_date: data.paymentDate,
         method: data.method,
         reference: data.reference ?? null,
-        notes: data.notes ?? null,
+        notes: data.notes ?? null
       })
       .select()
       .single();
 
     if (paymentError) throw new Error(paymentError.message);
 
-    // Phase A-02 : la journalisation d'audit est assurée par le trigger
-    // tr_audit_payment_creation (source unique de vérité, pas de doublon).
-
-
-    // 2. Update payment schedules (Phase 10 logic)
-    // Find oldest unpaid schedules and apply the amount to them
-    const { data: schedules } = await supabase
-      .from("payment_schedules")
-      .select("*")
-      .eq("sale_id", data.saleId)
-      .neq("status", "Payé")
-      .order("due_date", { ascending: true });
-
-    if (schedules && schedules.length > 0) {
-      let remainingPayment = data.amount;
-      for (const schedule of schedules) {
-        if (remainingPayment <= 0) break;
-        
-        const currentPaid = schedule.amount_paid || 0;
-        const currentDue = schedule.amount_due;
-        const needed = currentDue - currentPaid;
-        
-        const apply = Math.min(remainingPayment, needed);
-        const newPaid = currentPaid + apply;
-        remainingPayment -= apply;
-        
-        await supabase
-          .from("payment_schedules")
-          .update({ 
-            amount_paid: newPaid,
-            status: newPaid >= currentDue ? "Payé" : "Partiel"
-          })
-          .eq("id", schedule.id);
+    // 2. Call the new imputation engine
+    const { data: imputedData, error: imputationError } = await supabase.rpc(
+      'fn_impute_payment_on_schedule',
+      {
+        p_payment_id: payment.id,
+        p_sale_id: data.saleId,
+        p_amount: data.amount
       }
+    );
+
+    if (imputationError) {
+      console.error("Imputation error:", imputationError);
+    } else {
+      // Update payment with imputation details
+      await supabase
+        .from("payments")
+        .update({ imputed_data: imputedData })
+        .eq("id", payment.id);
     }
 
     // 3. Update sale balance
@@ -437,7 +424,7 @@ export const registerPayment = createServerFn({ method: "POST" })
         .eq("id", data.saleId);
     }
 
-    return payment;
+    return { ...payment, imputed_data: imputedData };
   });
 
 

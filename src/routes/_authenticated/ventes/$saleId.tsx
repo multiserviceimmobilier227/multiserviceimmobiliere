@@ -9,12 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History, Ban } from 'lucide-react'
+import { FileText, CheckCircle2, AlertTriangle, Calendar, User, MapPin, Receipt, RefreshCw, DollarSign, History, Ban, Printer } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useState } from 'react'
+import { ReceiptGenerator } from '@/components/ventes/ReceiptGenerator'
 
 export const Route = createFileRoute('/_authenticated/ventes/$saleId')({
   component: SaleDetailsComponent,
@@ -43,6 +44,8 @@ function SaleDetailsComponent() {
   const [isCancelOpen, setIsCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
+  const [selectedPayment, setSelectedPayment] = useState<any>(null)
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false)
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
@@ -88,11 +91,13 @@ function SaleDetailsComponent() {
         reference: payRef || null,
       }
     }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('Paiement enregistré avec succès')
       setIsPaymentOpen(false)
       setPayAmount('')
       setPayRef('')
+      setSelectedPayment(data)
+      setIsReceiptOpen(true)
       queryClient.invalidateQueries({ queryKey: ['sale', saleId] })
     },
     onError: (error: any) => {
@@ -517,6 +522,17 @@ function SaleDetailsComponent() {
                         <p className="text-muted-foreground">{format(new Date(p.payment_date), 'dd/MM/yyyy')} - {p.method}</p>
                         {p.reference && <p className="text-[10px] text-muted-foreground">Réf: {p.reference}</p>}
                       </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
+                        onClick={() => {
+                          setSelectedPayment(p);
+                          setIsReceiptOpen(true);
+                        }}
+                      >
+                        <Printer className="h-4 w-4" />
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -525,6 +541,12 @@ function SaleDetailsComponent() {
           )}
         </div>
       </div>
+      <ReceiptGenerator 
+        isOpen={isReceiptOpen} 
+        onOpenChange={setIsReceiptOpen} 
+        sale={sale} 
+        payment={selectedPayment} 
+      />
     </div>
   )
 }
