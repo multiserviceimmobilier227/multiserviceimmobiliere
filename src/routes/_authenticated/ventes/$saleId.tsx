@@ -1,12 +1,15 @@
 import { createFileRoute, useParams, Link } from '@tanstack/react-router'
 import { supabase } from '@/integrations/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale, confirmPayment, correctPayment } from '@/lib/sales.functions'
+import { getSaleDetails, validateSale as validateSaleFn, adjustSalePrice, createMutationRequest, registerPayment, cancelSale as cancelSaleOrigin, confirmPayment as confirmPayFn, correctPayment as correctPayFn, getImputationPreview, getSaleFinancialLedger } from '@/lib/sales.functions'
 import { useServerFn } from '@tanstack/react-start'
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -30,8 +33,12 @@ function SaleDetailsComponent() {
   const validate = useServerFn(validateSaleFn)
   const adjustPrice = useServerFn(adjustSalePrice)
   const mutateSale = useServerFn(createMutationRequest)
-  const confirmPay = useServerFn(confirmPayment)
-  const correctPay = useServerFn(correctPayment)
+  const confirmPay = useServerFn(confirmPayFn)
+  const correctPay = useServerFn(correctPayFn)
+
+  const getPreview = useServerFn(getImputationPreview)
+  const getLedger = useServerFn(getSaleFinancialLedger)
+
 
   const [newPrice, setNewPrice] = useState<string>('')
   const [adjustReason, setAdjustReason] = useState('')
@@ -43,7 +50,7 @@ function SaleDetailsComponent() {
   const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   
   const registerPaymentFn = useServerFn(registerPayment)
-  const cancelSaleFn = useServerFn(cancelSale)
+  const cancelSaleFn = useServerFn(cancelSaleOrigin)
   const [isCancelOpen, setIsCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
@@ -52,6 +59,7 @@ function SaleDetailsComponent() {
   const [isCorrectOpen, setIsCorrectOpen] = useState(false)
   const [correctAmount, setCorrectAmount] = useState('')
   const [correctReason, setCorrectReason] = useState('')
+
 
   const { data: userRoles } = useQuery({
     queryKey: ['user-roles'],
@@ -64,6 +72,20 @@ function SaleDetailsComponent() {
   });
 
   const isPdgOrAdmin = userRoles?.some((r: any) => ['pdg', 'admin', 'super_admin'].includes(r as string));
+
+  const { data: imputationPreview } = useQuery({
+    queryKey: ['imputation-preview', saleId, payAmount],
+    queryFn: () => getPreview({ data: { saleId, amount: parseFloat(payAmount) } }),
+    enabled: !!payAmount && parseFloat(payAmount) > 0 && isPaymentOpen,
+    staleTime: 1000
+  });
+
+  const { data: financialLedger } = useQuery({
+    queryKey: ['financial-ledger', saleId],
+    queryFn: () => getLedger({ data: { saleId } })
+  });
+
+
 
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', saleId],
@@ -319,7 +341,27 @@ function SaleDetailsComponent() {
                     placeholder="Ex: CHQ-123456 ou Transaction ID" 
                   />
                 </div>
+
+                {imputationPreview && (
+                  <div className="mt-2 space-y-2 border rounded-md p-3 bg-muted/20">
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground">Prévisualisation de l'imputation</p>
+                    <div className="space-y-1">
+                      {(imputationPreview as any[]).map((item: any, idx: number) => (
+
+                        <div key={idx} className="flex justify-between text-[11px]">
+                          <span>
+                            {item.due_date ? `Mois du ${format(new Date(item.due_date), 'dd/MM/yy')}` : item.type}
+                          </span>
+                          <span className="font-mono font-bold">
+                            {new Intl.NumberFormat('fr-FR').format(item.amount_applied)} FCFA
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsPaymentOpen(false)}>Annuler</Button>
                 <Button onClick={() => paymentMutation.mutate()} disabled={!payAmount || parseFloat(payAmount) <= 0}>Confirmer l'encaissement</Button>
@@ -490,6 +532,45 @@ function SaleDetailsComponent() {
 
         <div className="space-y-6">
           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <History className="h-4 w-4" />
+                Journal d'Audit Financier
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-4">
+                  {financialLedger?.map((log: any) => (
+                    <div key={log.id} className="text-xs border-b pb-2">
+                      <div className="flex justify-between items-start">
+                        <span className={`font-bold uppercase ${
+                          log.operation_type === 'CORRECTION_FINANCIERE' ? 'text-orange-600' : 
+                          log.operation_type === 'annulation' ? 'text-red-600' : 'text-blue-600'
+                        }`}>
+                          {log.operation_type}
+                        </span>
+                        <span className="text-muted-foreground">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                      </div>
+                      <div className="mt-1 flex justify-between">
+                        <span>Montant : <strong>{new Intl.NumberFormat('fr-FR').format(log.amount)} FCFA</strong></span>
+                        <span className="text-[10px] italic">{log.notes}</span>
+                      </div>
+                      <div className="mt-1 text-[10px] text-muted-foreground">
+                        Solde : {new Intl.NumberFormat('fr-FR').format(log.previous_balance)} → {new Intl.NumberFormat('fr-FR').format(log.new_balance)}
+                      </div>
+                    </div>
+                  ))}
+                  {(!financialLedger || financialLedger.length === 0) && (
+                    <p className="text-center text-muted-foreground text-xs py-8">Aucun mouvement journalisé.</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          <Card>
+
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />

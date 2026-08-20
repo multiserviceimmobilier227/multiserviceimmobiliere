@@ -181,6 +181,7 @@ export type Database = {
       }
       audit_finance: {
         Row: {
+          agency_id: string | null
           amount: number
           created_at: string | null
           id: string
@@ -194,6 +195,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          agency_id?: string | null
           amount: number
           created_at?: string | null
           id?: string
@@ -207,6 +209,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          agency_id?: string | null
           amount?: number
           created_at?: string | null
           id?: string
@@ -220,6 +223,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "audit_finance_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "audit_finance_payment_id_fkey"
             columns: ["payment_id"]
@@ -1549,6 +1559,10 @@ export type Database = {
           total_payments: number
           total_refunds: number
         }[]
+      }
+      fn_get_payment_imputation_preview: {
+        Args: { p_amount: number; p_sale_id: string }
+        Returns: Json
       }
       fn_impute_payment_on_schedule: {
         Args: { p_amount: number; p_payment_id: string; p_sale_id: string }

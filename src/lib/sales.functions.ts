@@ -230,6 +230,26 @@ export const getSaleDetails = createServerFn({ method: "GET" })
     return sale;
   });
 
+export const getImputationPreview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ 
+    saleId: z.string().uuid(), 
+    amount: z.number().positive() 
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: preview, error } = await context.supabase.rpc(
+      'fn_get_payment_imputation_preview',
+      {
+        p_sale_id: data.saleId,
+        p_amount: data.amount
+      }
+    );
+
+    if (error) throw new Error(error.message);
+    return preview;
+  });
+
+
 export const adjustSalePrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ 

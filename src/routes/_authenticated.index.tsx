@@ -3,7 +3,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { getClients } from "@/lib/crm.functions";
 import { getPlots } from "@/lib/real-estate.functions";
 import { getDashboardStats } from "@/lib/acquisitions.functions";
+import { getSaleFinancialLedger } from "@/lib/sales.functions";
 import { formatFCFA } from "@/lib/utils";
+import { format } from "date-fns";
+
 import { createFileRoute } from '@tanstack/react-router';
 import { 
   BarChart, 
@@ -19,7 +22,9 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, History } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 export const Route = createFileRoute('/_authenticated/')({
   component: Dashboard,
@@ -29,6 +34,8 @@ function Dashboard() {
   const fetchClients = useServerFn(getClients);
   const fetchPlots = useServerFn(getPlots);
   const fetchStats = useServerFn(getDashboardStats);
+  const fetchLedger = useServerFn(getSaleFinancialLedger);
+
 
   const { data: clients } = useQuery({
     queryKey: ["clients", ""],
@@ -44,6 +51,12 @@ function Dashboard() {
     queryKey: ["dashboard-stats"],
     queryFn: () => fetchStats(),
   });
+
+  const { data: globalLedger } = useQuery({
+    queryKey: ["global-financial-ledger"],
+    queryFn: () => fetchLedger({ data: { saleId: undefined as any } }),
+  });
+
 
   // Data for the summary chart
   const chartData = [
@@ -213,6 +226,64 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      <div className="mt-8">
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-bold font-sans text-[#D1127B] flex items-center gap-2 mb-4">
+            <History className="h-5 w-5" />
+            Flux de Trésorerie Global (Derniers Mouvements)
+          </h2>
+          <ScrollArea className="h-[400px]">
+            <div className="space-y-2">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b text-muted-foreground uppercase">
+                    <th className="text-left pb-2 font-medium">Date</th>
+                    <th className="text-left pb-2 font-medium">Opération</th>
+                    <th className="text-right pb-2 font-medium">Montant</th>
+                    <th className="text-left pb-2 font-medium px-4">Notes / Affectation</th>
+                    <th className="text-right pb-2 font-medium">Nouveau Solde</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {globalLedger?.map((log: any) => (
+                    <tr key={log.id} className="hover:bg-muted/50 transition-colors">
+                      <td className="py-3 text-muted-foreground whitespace-nowrap">
+                        {format(new Date(log.created_at), 'dd/MM/yy HH:mm')}
+                      </td>
+                      <td className="py-3">
+                        <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] uppercase ${
+                          log.operation_type === 'CORRECTION_FINANCIERE' ? 'bg-orange-100 text-orange-700' : 
+                          log.operation_type === 'annulation' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {log.operation_type}
+                        </span>
+                      </td>
+                      <td className={`py-3 text-right font-bold ${log.amount > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {formatFCFA(log.amount)}
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground italic">
+                        {log.notes}
+                      </td>
+                      <td className="py-3 text-right font-mono font-medium">
+                        {formatFCFA(log.new_balance)}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!globalLedger || globalLedger.length === 0) && (
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center text-muted-foreground italic">
+                        Aucun mouvement financier enregistré dans le grand livre global.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
+
     </>
   );
 }
