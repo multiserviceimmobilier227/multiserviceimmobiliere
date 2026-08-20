@@ -372,7 +372,11 @@ function FinanceDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="refunds">
+          <RefundManagement />
+        </TabsContent>
       </Tabs>
     </div>
+
   );
 }
