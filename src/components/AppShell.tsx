@@ -124,6 +124,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <Logo />
           </div>
           <ScrollArea className="flex-1 px-4 py-4">
+            <div className="mb-6">
+              <CashJournalStatus />
+            </div>
             <Navigation />
           </ScrollArea>
           <div className="border-t p-4">
@@ -153,6 +156,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
                     <Logo />
                   </div>
                   <ScrollArea className="flex-1 px-4 py-4">
+                    <div className="mb-6">
+                      <CashJournalStatus />
+                    </div>
                     <Navigation onItemClick={() => setIsMobileMenuOpen(false)} />
                   </ScrollArea>
                   <div className="border-t p-4">
