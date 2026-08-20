@@ -41,7 +41,7 @@ export function NotificationCenter() {
     },
   });
 
-  const unreadCount = (notifications as any[]).filter(n => !n.read_at).length;
+  const unreadCount = (Array.isArray(notificationsData) ? notificationsData : []).filter((n: any) => !n.is_read).length;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -73,22 +73,22 @@ export function NotificationCenter() {
           </Badge>
         </div>
         <ScrollArea className="h-[400px]">
-          {notifications.length === 0 ? (
+          {(Array.isArray(notificationsData) ? notificationsData : []).length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-muted-foreground p-4">
               <Bell className="h-8 w-8 mb-2 opacity-20" />
               <p className="text-xs">Aucune notification</p>
             </div>
           ) : (
             <div className="divide-y">
-              {(notifications as any[]).map((n) => (
+              {(Array.isArray(notificationsData) ? notificationsData : []).map((n: any) => (
                 <div 
                   key={n.id} 
-                  className={`p-4 hover:bg-muted/50 transition-colors relative ${!n.read_at ? 'bg-muted/20' : ''}`}
+                  className={`p-4 hover:bg-muted/50 transition-colors relative ${!n.is_read ? 'bg-muted/20' : ''}`}
                 >
                   <div className="flex gap-3">
                     <div className="mt-1">{getIcon(n.type)}</div>
                     <div className="flex-1 space-y-1">
-                      <p className={`text-xs font-bold ${!n.read_at ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <p className={`text-xs font-bold ${!n.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {n.title}
                       </p>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -99,7 +99,7 @@ export function NotificationCenter() {
                           {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                         </span>
                         <div className="flex gap-2">
-                          {!n.read_at && (
+                          {!n.is_read && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -109,6 +109,7 @@ export function NotificationCenter() {
                               <Check className="h-3 w-3" />
                             </Button>
                           )}
+
                           {n.link && (
                             <Link to={n.link as any} onClick={() => setIsOpen(false)}>
                               <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -125,7 +126,7 @@ export function NotificationCenter() {
             </div>
           )}
         </ScrollArea>
-        {notifications.length > 0 && (
+        {(Array.isArray(notificationsData) ? notificationsData : []).length > 0 && (
           <div className="p-2 border-t text-center">
              <Button variant="link" size="sm" className="text-[10px] h-auto p-0 text-muted-foreground">
                Tout marquer comme lu

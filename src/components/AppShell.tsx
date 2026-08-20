@@ -16,7 +16,9 @@ import {
   PieChart,
   ClipboardList
 } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { MsiLogo } from "@/components/ui/msi-logo";
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -166,7 +168,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
             </h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
+            <NotificationCenter />
             <div className="hidden sm:block text-right font-sans">
+
               <p className="text-sm font-medium">Administrateur</p>
               <p className="text-xs text-muted-foreground">Maradi, Niger</p>
             </div>
