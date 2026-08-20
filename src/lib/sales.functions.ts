@@ -741,7 +741,7 @@ export const getArrearsList = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase } = context!;
     
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('v_sale_arrears')
       .select('*')
       .order('days_overdue', { ascending: false });
@@ -756,13 +756,14 @@ export const getSaleArrearsDetails = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase } = context!;
     
-    const { data: arrears, error } = await supabase
+    const { data: arrears, error } = await (supabase as any)
       .rpc('fn_calculate_sale_arrears', { _sale_id: data.saleId })
       .maybeSingle();
 
     if (error) throw new Error(error.message);
     return arrears;
   });
+
 
 
 
