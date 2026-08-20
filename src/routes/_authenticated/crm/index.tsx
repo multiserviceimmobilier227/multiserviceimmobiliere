@@ -126,14 +126,13 @@ function CRMIndex() {
                           <ShoppingCart className="mr-2 h-4 w-4" /> Vendre
                         </Link>
                       </Button>
-
-                    <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
                         <Link to="/crm/client/$clientId" params={{ clientId: client.id }}>
                           <Eye className="mr-2 h-4 w-4" /> Voir Dossier
                         </Link>
                       </Button>
                     </TableCell>
+
                   </TableRow>
                 ))
               )}
