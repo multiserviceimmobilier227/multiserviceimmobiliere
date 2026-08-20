@@ -195,7 +195,7 @@ function PerformanceDirectionPage() {
               <CalendarComponent
                 initialFocus
                 mode="range"
-                defaultMonth={dateRange.from}
+                defaultMonth={dateRange.from || new Date()}
                 selected={{ from: dateRange.from, to: dateRange.to }}
                 onSelect={(range: any) => setDateRange({ from: range?.from, to: range?.to })}
                 numberOfMonths={2}
