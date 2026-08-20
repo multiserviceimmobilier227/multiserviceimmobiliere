@@ -251,6 +251,13 @@ export type Database = {
             referencedRelation: "sales"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "audit_finance_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
+          },
         ]
       }
       audit_finance_corrections: {
@@ -544,6 +551,13 @@ export type Database = {
             referencedRelation: "sales"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contract_snapshots_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
+          },
         ]
       }
       contracts: {
@@ -584,6 +598,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
           },
         ]
       }
@@ -988,6 +1009,7 @@ export type Database = {
           created_at: string | null
           due_date: string
           id: string
+          last_reminder_sent_at: string | null
           notes: string | null
           sale_id: string
           schedule_type: string | null
@@ -999,6 +1021,7 @@ export type Database = {
           created_at?: string | null
           due_date: string
           id?: string
+          last_reminder_sent_at?: string | null
           notes?: string | null
           sale_id: string
           schedule_type?: string | null
@@ -1010,6 +1033,7 @@ export type Database = {
           created_at?: string | null
           due_date?: string
           id?: string
+          last_reminder_sent_at?: string | null
           notes?: string | null
           sale_id?: string
           schedule_type?: string | null
@@ -1022,6 +1046,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
           },
         ]
       }
@@ -1072,6 +1103,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
           },
         ]
       }
@@ -1289,6 +1327,13 @@ export type Database = {
             referencedRelation: "sales"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "refunds_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
+          },
         ]
       }
       reservations: {
@@ -1417,6 +1462,13 @@ export type Database = {
             referencedRelation: "sales"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sale_adjustments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
+          },
         ]
       }
       sale_mutations: {
@@ -1481,6 +1533,13 @@ export type Database = {
             referencedRelation: "sales"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sale_mutations_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
+          },
         ]
       }
       sale_transfers: {
@@ -1535,6 +1594,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_transfers_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_sale_arrears"
+            referencedColumns: ["sale_id"]
           },
         ]
       }
@@ -1768,6 +1834,37 @@ export type Database = {
         }
         Relationships: []
       }
+      v_sale_arrears: {
+        Row: {
+          agence_name: string | null
+          agency_id: string | null
+          client_id: string | null
+          client_name: string | null
+          client_phone: string | null
+          days_overdue: number | null
+          is_critical_delay: boolean | null
+          lotissement_name: string | null
+          oldest_unpaid_due_date: string | null
+          sale_id: string | null
+          total_arrears: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       check_financial_integrity: {
@@ -1778,6 +1875,15 @@ export type Database = {
           mismatch_amount: number
           total_payments: number
           total_refunds: number
+        }[]
+      }
+      fn_calculate_sale_arrears: {
+        Args: { _sale_id: string }
+        Returns: {
+          days_overdue: number
+          is_critical_delay: boolean
+          oldest_unpaid_due_date: string
+          total_arrears: number
         }[]
       }
       fn_calculate_theoretical_cash: {
