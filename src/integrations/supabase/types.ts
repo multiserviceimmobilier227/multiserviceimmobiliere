@@ -1742,6 +1742,10 @@ export type Database = {
           total_refunds: number
         }[]
       }
+      fn_calculate_theoretical_cash: {
+        Args: { _agency_id: string }
+        Returns: number
+      }
       fn_get_payment_imputation_preview: {
         Args: { p_amount: number; p_sale_id: string }
         Returns: Json

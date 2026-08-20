@@ -204,9 +204,86 @@ export const closeCashSession = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
-
-    // If discrepancy > 5000, we could trigger a notification here
-    // for Phase 12.5 requirements
-    
     return closedJournal;
+  });
+
+/**
+ * Phase 12.6 : Récupération des flux financiers consolidés
+ */
+export const getFinancialFlows = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context!;
+    
+    // Combined view of inflows and outflows
+    const { data, error } = await supabase
+      .from("daily_cash_operations")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data || [];
+  });
+
+/**
+ * Phase 12.7 : Correction de dépense (Annule et Remplace)
+ */
+export const correctExpense = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    expenseId: z.string().uuid(),
+    reason: z.string().min(5),
+    newData: z.object({
+      amount: z.number().positive(),
+      description: z.string(),
+      beneficiary: z.string()
+    })
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context!;
+
+    // 1. Get old data for audit
+    const { data: oldExpense } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("id", data.expenseId)
+      .single();
+
+    if (!oldExpense) throw new Error("Dépense non trouvée.");
+    
+    // Check if linked to closed journal
+    if (oldExpense.cash_journal_id) {
+       const { data: journal } = await supabase
+         .from("cash_journals")
+         .select("status")
+         .eq("id", oldExpense.cash_journal_id)
+         .single();
+       if (journal?.status === 'fermé') throw new Error("Impossible de corriger une dépense sur une caisse clôturée.");
+    }
+
+    // 2. Insert into audit log
+    await supabase.from("audit_finance_corrections").insert({
+      record_id: data.expenseId,
+      record_type: 'expense',
+      old_data: oldExpense as any,
+      new_data: data.newData as any,
+      reason: data.reason,
+      corrected_by: userId
+    });
+
+    // 3. Update expense
+    const { data: updated, error } = await supabase
+      .from("expenses")
+      .update({
+        amount: data.newData.amount,
+        description: data.newData.description,
+        beneficiary: data.newData.beneficiary,
+        status: 'en_attente_validation' 
+      })
+      .eq("id", data.expenseId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return updated;
   });
