@@ -5,6 +5,17 @@ import { getPlots, getLotissements } from "@/lib/real-estate.functions";
 import { getDashboardStats } from "@/lib/acquisitions.functions";
 import { formatFCFA } from "@/lib/utils";
 import { createFileRoute } from '@tanstack/react-router';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell,
+  Legend
+} from 'recharts';
 
 export const Route = createFileRoute('/_authenticated/')({
   component: Dashboard,
@@ -29,6 +40,14 @@ function Dashboard() {
     queryKey: ["dashboard-stats"],
     queryFn: () => fetchStats(),
   });
+
+  // Data for the summary chart
+  const chartData = [
+    { name: 'Potentiel', montant: stats?.totalCAPotential || 0, color: '#D1127B' },
+    { name: 'Encaissé', montant: stats?.totalCollected || 0, color: '#10b981' },
+    { name: 'Restant', montant: stats?.totalOutstanding || 0, color: '#f59e0b' },
+    { name: 'Stock', montant: stats?.inventoryValue || 0, color: '#3b82f6' }
+  ];
 
   return (
     <>
@@ -55,34 +74,68 @@ function Dashboard() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Recouvrement Global</h3>
-          <div className="mt-4 flex items-end gap-2">
-            <p className="text-3xl font-bold text-emerald-600">{formatFCFA(stats?.totalCollected || 0)}</p>
-            <p className="text-sm text-muted-foreground pb-1">encaissé sur {formatFCFA(stats?.totalCAPotential || 0)}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="lg:col-span-2 rounded-xl border bg-card p-6 shadow-sm">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-6">Comparatif Financier (FCFA)</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" />
+                <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                <Tooltip 
+                  formatter={(value: number) => [formatFCFA(value), 'Montant']}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                />
+                <Bar dataKey="montant" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <div className="mt-4 h-2 w-full bg-secondary rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-emerald-500 transition-all duration-500" 
-              style={{ width: `${Math.min(100, ((stats?.totalCollected || 0) / (stats?.totalCAPotential || 1)) * 100)}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-right text-muted-foreground">
-            Taux de recouvrement : {Math.round(((stats?.totalCollected || 0) / (stats?.totalCAPotential || 1)) * 100)}%
-          </p>
         </div>
 
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Clients & Parcelles</h3>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-2xl font-bold text-[#D1127B]">{clients?.filter(c => c.sales_count > 0).length || 0}</p>
-              <p className="text-xs text-muted-foreground uppercase">Clients Actifs</p>
+        <div className="space-y-6">
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Recouvrement Global</h3>
+            <div className="mt-4 flex items-end gap-2">
+              <p className="text-3xl font-bold text-emerald-600">{formatFCFA(stats?.totalCollected || 0)}</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-600">{plots?.length || 0}</p>
-              <p className="text-xs text-muted-foreground uppercase">Parcelles Libres</p>
+            <p className="text-xs text-muted-foreground mt-1">sur un potentiel de {formatFCFA(stats?.totalCAPotential || 0)}</p>
+            
+            <div className="mt-6 h-3 w-full bg-secondary rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 transition-all duration-500" 
+                style={{ width: `${Math.min(100, ((stats?.totalCollected || 0) / (stats?.totalCAPotential || 1)) * 100)}%` }}
+              />
+            </div>
+            <div className="mt-2 flex justify-between items-center">
+              <p className="text-xs text-muted-foreground font-medium">Taux de réalisation</p>
+              <p className="text-sm font-bold text-emerald-600">
+                {Math.round(((stats?.totalCollected || 0) / (stats?.totalCAPotential || 1)) * 100)}%
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Activités & Stock</h3>
+            <div className="mt-4 space-y-4">
+              <div className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="text-lg font-bold text-[#D1127B]">{clients?.filter(c => c.sales_count > 0).length || 0}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase">Clients Actifs</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-blue-600">{plots?.length || 0}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase">Parcelles Libres</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-muted-foreground">Reste à recouvrer</p>
+                <p className="text-sm font-bold text-orange-500">{formatFCFA(stats?.totalOutstanding || 0)}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -91,8 +144,8 @@ function Dashboard() {
       <div className="mt-8 rounded-xl border bg-card p-8">
         <h2 className="text-xl font-bold font-sans text-[#D1127B]">Tableau de Bord MSI 2.0</h2>
         <p className="mt-2 text-muted-foreground font-sans">
-          Bienvenue Souleymane. Le système est désormais opérationnel pour la gestion foncière et le CRM. 
-          Vous pouvez créer des lotissements, gérer vos clients et suivre vos parcelles en temps réel.
+          Bienvenue Souleymane. Le système est désormais opérationnel avec une intégrité financière totale. 
+          Toutes les ventes annulées sont automatiquement déduites du Chiffre d'Affaires et les parcelles sont libérées instantanément.
         </p>
       </div>
     </>
