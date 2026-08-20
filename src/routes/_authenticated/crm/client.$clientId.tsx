@@ -1,11 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getClientDetails, addClientInteraction } from "@/lib/crm.functions";
+import { cancelSale } from "@/lib/sales.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle } from "lucide-react";
+import { User, FileText, History, LayoutGrid, Phone, Mail, MapPin, Plus, Upload, Eye, ShoppingCart, AlertTriangle, MessageSquare, Ban, UserCheck, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { formatDateNiamey } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -32,12 +41,16 @@ function ClientDetails() {
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [interactionNotes, setInteractionNotes] = useState("");
   const [interactionType, setInteractionType] = useState("Appel");
+  const [isPdgActionOpen, setIsPdgActionOpen] = useState(false);
+  const [pdgActionType, setPdgActionType] = useState<'convocation' | 'suspension' | 'autre'>('convocation');
+  const [pdgActionNotes, setPdgActionNotes] = useState("");
 
   // Document upload state
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docName, setDocName] = useState("");
   const [docType, setDocType] = useState("CNI");
   const [isUploading, setIsUploading] = useState(false);
+  const [isActionPending, setIsActionPending] = useState(false);
 
   const { data: client, isLoading } = useQuery({
     queryKey: ["client", clientId],
