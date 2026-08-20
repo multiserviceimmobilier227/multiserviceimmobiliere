@@ -123,8 +123,8 @@ function Dashboard() {
           </div>
 
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Activités & Stock</h3>
-            <div className="mt-4 space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Performance Commerciale</h3>
+            <div className="space-y-4">
               <div className="flex justify-between items-center border-b pb-2">
                 <div>
                   <p className="text-lg font-bold text-[#D1127B]">{clients?.filter(c => c.sales_count > 0).length || 0}</p>
@@ -135,7 +135,20 @@ function Dashboard() {
                   <p className="text-[10px] text-muted-foreground uppercase">Parcelles Libres</p>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
+              
+              <div className="pt-2">
+                <p className="text-xs text-muted-foreground mb-2 italic">Tendance Recouvrement (Potentiel vs Réel)</p>
+                <div className="h-[100px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData.filter(d => ['Potentiel', 'Encaissé'].includes(d.name))}>
+                      <Area type="monotone" dataKey="montant" stroke="#D1127B" fill="#fce7f3" />
+                      <Tooltip formatter={(value: number) => formatFCFA(value)} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t">
                 <p className="text-xs text-muted-foreground">Reste à recouvrer</p>
                 <p className="text-sm font-bold text-orange-500">{formatFCFA(stats?.totalOutstanding || 0)}</p>
               </div>
