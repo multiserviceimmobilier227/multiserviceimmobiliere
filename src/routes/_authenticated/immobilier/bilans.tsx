@@ -228,35 +228,28 @@ function BilansImmobilierPage() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
-              Top Performance Commerciale (Agents)
+              <Zap className="h-5 w-5 text-emerald-500" />
+              Efficacité du Recouvrement par Site
             </CardTitle>
-            <CardDescription className="font-sans text-xs">Classement par volume de ventes.</CardDescription>
+            <CardDescription className="font-sans text-xs">Comparaison CA Vendu vs CA Encaissé.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={commercialPerf?.slice(0, 5) || []} layout="vertical" margin={{ left: 40, right: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                  <XAxis type="number" hide />
-                  <YAxis 
-                    dataKey="agent_name" 
-                    type="category" 
-                    width={100} 
-                    tick={{ fontSize: 10 }}
-                  />
-                  <Tooltip 
-                    formatter={(value: number, name: string) => [
-                      name === 'total_value' ? formatFCFA(value) : value, 
-                      name === 'total_value' ? 'Valeur Ventes' : 'Nombre Ventes'
-                    ]}
-                  />
-                  <Bar dataKey="total_sales" name="Ventes" fill="#D1127B" radius={[0, 4, 4, 0]} barSize={20} />
+                <BarChart data={filteredData.slice(0, 8)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(value) => `${(value/1000000).toFixed(0)}M`} />
+                  <Tooltip formatter={(value: number) => formatFCFA(value)} />
+                  <Legend />
+                  <Bar dataKey="sold_value" name="Vendu" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="collected_amount" name="Encaissé" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
+
 
         <Card className="border-border/50">
           <CardHeader>
@@ -321,7 +314,9 @@ function BilansImmobilierPage() {
         </Card>
       </div>
 
-      <Card className="border-border/50">
+      <div className="mt-6">
+        <Card className="border-border/50">
+
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle className="text-lg font-sans">Détails des Bilans par Site</CardTitle>
