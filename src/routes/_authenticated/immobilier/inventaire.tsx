@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { formatFCFA } from '@/lib/utils';
-import { ClipboardList, CheckCircle2, AlertTriangle, Building, User } from 'lucide-react';
+import { ClipboardList, CheckCircle2, AlertTriangle, Building, User, History } from 'lucide-react';
+import { useState } from 'react';
+import { PlotHistoryDialog } from '@/components/immobilier/PlotHistoryDialog';
 
 export const Route = createFileRoute('/_authenticated/immobilier/inventaire')({
   component: InventoryPage,
@@ -16,6 +18,7 @@ export const Route = createFileRoute('/_authenticated/immobilier/inventaire')({
 function InventoryPage() {
   const fetchPlots = useServerFn(getPlots);
   const fetchStats = useServerFn(getDashboardStats);
+  const [selectedPlot, setSelectedPlot] = useState<{ id: string; number: string } | null>(null);
 
   const { data: plots, isLoading: plotsLoading } = useQuery({
     queryKey: ['plots', 'all'],
@@ -140,7 +143,12 @@ function InventoryPage() {
                       <TableCell className="font-semibold text-primary">{formatFCFA(plot.base_price)}</TableCell>
                       <TableCell>{getStatusBadge(plot.status)}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-white transition-colors">
+                        <Badge 
+                          variant="outline" 
+                          className="cursor-pointer hover:bg-[#D1127B] hover:text-white transition-colors flex items-center gap-1"
+                          onClick={() => setSelectedPlot({ id: plot.id, number: plot.plot_number })}
+                        >
+                          <History className="h-3 w-3" />
                           Historique
                         </Badge>
                       </TableCell>
@@ -152,6 +160,11 @@ function InventoryPage() {
           </div>
         </CardContent>
       </Card>
+      <PlotHistoryDialog 
+        plotId={selectedPlot?.id || null} 
+        plotNumber={selectedPlot?.number || null}
+        onClose={() => setSelectedPlot(null)} 
+      />
     </div>
   );
 }
