@@ -167,7 +167,11 @@ function FinanceDashboard() {
           <TabsTrigger value="history" className="gap-2">
             <History className="h-4 w-4" /> Historique Flux
           </TabsTrigger>
+          <TabsTrigger value="refunds" className="gap-2">
+            <Undo2 className="h-4 w-4" /> Remboursements
+          </TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
