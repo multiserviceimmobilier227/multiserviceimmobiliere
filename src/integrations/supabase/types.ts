@@ -1743,7 +1743,7 @@ export type Database = {
         }[]
       }
       fn_calculate_theoretical_cash: {
-        Args: { _agency_id: string }
+        Args: { _journal_id: string }
         Returns: number
       }
       fn_get_payment_imputation_preview: {
@@ -1753,6 +1753,10 @@ export type Database = {
       fn_impute_payment_on_schedule: {
         Args: { p_amount: number; p_payment_id: string; p_sale_id: string }
         Returns: Json
+      }
+      fn_notify_pdg: {
+        Args: { _agency_id: string; _message: string; _title: string }
+        Returns: undefined
       }
       fn_update_late_schedules: { Args: never; Returns: undefined }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
