@@ -419,6 +419,11 @@ export const registerPayment = createServerFn({ method: "POST" })
         .eq("id", data.saleId);
     }
 
+    return payment;
+  });
+
+
+
 
 // ============= Phase A-02 : Annulation et remboursement =============
 
