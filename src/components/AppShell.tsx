@@ -78,8 +78,6 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
       <div className="space-y-1">
         <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
         <NavItem to="/ventes/liste" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
-        <NavItem to="/crm" icon={History} onClick={onItemClick || undefined}>Réservations</NavItem>
-
       </div>
     </div>
 
@@ -88,20 +86,15 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
         Finance
       </h2>
       <div className="space-y-1">
-        <NavItem to="/finances" icon={Wallet}>Journal de Caisse</NavItem>
-        <NavItem to="/finances/impayes" icon={Clock}>Retards & Impayés</NavItem>
-        <NavItem to="/direction/performance" icon={PieChart}>Analyses & Performance</NavItem>
-        <NavItem to="/finances" icon={Undo2} onClick={() => {
-          // This hack is just for direct access since we added the tab
-          const tabs = document.querySelector('[role="tablist"]');
-          const refundTab = tabs?.querySelector('[value="refunds"]') as HTMLElement;
-          if (refundTab) refundTab.click();
-        }}>Remboursements</NavItem>
-        <NavItem to="/finances" icon={ClipboardList}>Audit & Flux</NavItem>
-
+        <NavItem to="/finances" search={{ tab: 'overview' }} icon={Wallet} onClick={onItemClick || undefined}>Journal de Caisse</NavItem>
+        <NavItem to="/finances/impayes" icon={Clock} onClick={onItemClick || undefined}>Retards & Impayés</NavItem>
+        <NavItem to="/finances/validations" icon={ShieldCheck} onClick={onItemClick || undefined}>Validations PDG</NavItem>
+        <NavItem to="/direction/performance" icon={PieChart} onClick={onItemClick || undefined}>Analyses & Performance</NavItem>
+        <NavItem to="/finances" search={{ tab: 'refunds' }} icon={Undo2} onClick={onItemClick || undefined}>Remboursements</NavItem>
+        <NavItem to="/finances" search={{ tab: 'history' }} icon={ClipboardList} onClick={onItemClick || undefined}>Audit & Flux</NavItem>
       </div>
-
     </div>
+
 
     <div>
       <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
