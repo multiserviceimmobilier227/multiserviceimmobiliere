@@ -20,9 +20,9 @@ const FINANCE_TABS = ['overview', 'expenses', 'history', 'refunds'] as const;
 type FinanceTab = (typeof FINANCE_TABS)[number];
 
 export const Route = createFileRoute('/_authenticated/finances/')({
-  validateSearch: (search: Record<string, unknown>): { tab: FinanceTab } => ({
-    tab: FINANCE_TABS.includes(search['tab'] as FinanceTab) ? (search['tab'] as FinanceTab) : 'overview',
-  }),
+  validateSearch: (search: Record<string, unknown>): { tab?: FinanceTab } =>
+    FINANCE_TABS.includes(search['tab'] as FinanceTab) ? { tab: search['tab'] as FinanceTab } : {},
+
   component: FinanceDashboard,
 });
 
