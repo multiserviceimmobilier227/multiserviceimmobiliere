@@ -16,7 +16,8 @@ import {
   PieChart,
   ClipboardList,
   Clock,
-  Undo2
+  Undo2,
+  ShieldCheck
 } from "lucide-react";
 
 
@@ -34,11 +35,13 @@ interface NavItemProps {
   icon: React.ElementType;
   children: ReactNode;
   onClick?: (() => void) | undefined;
+  search?: Record<string, string> | undefined;
 }
 
-const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
+const NavItem = ({ to, icon: Icon, children, onClick, search }: NavItemProps) => (
   <Link
     to={to}
+    search={search as never}
     onClick={onClick}
     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
   >
@@ -46,6 +49,7 @@ const NavItem = ({ to, icon: Icon, children, onClick }: NavItemProps) => (
     {children}
   </Link>
 );
+
 
 const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
   <nav className="space-y-6 pb-20">
