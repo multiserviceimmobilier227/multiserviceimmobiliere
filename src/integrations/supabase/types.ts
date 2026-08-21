@@ -103,13 +103,6 @@ export type Database = {
             foreignKeyName: "acquisitions_lotissement_id_fkey"
             columns: ["lotissement_id"]
             isOneToOne: false
-            referencedRelation: "lotissement_profitability"
-            referencedColumns: ["lotissement_id"]
-          },
-          {
-            foreignKeyName: "acquisitions_lotissement_id_fkey"
-            columns: ["lotissement_id"]
-            isOneToOne: false
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
@@ -257,6 +250,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_finance_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
           },
           {
             foreignKeyName: "audit_finance_sale_id_fkey"
@@ -562,6 +562,13 @@ export type Database = {
             foreignKeyName: "contract_snapshots_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
+          },
+          {
+            foreignKeyName: "contract_snapshots_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
             referencedRelation: "v_sale_arrears"
             referencedColumns: ["sale_id"]
           },
@@ -605,6 +612,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
           },
           {
             foreignKeyName: "contracts_sale_id_fkey"
@@ -805,13 +819,6 @@ export type Database = {
             foreignKeyName: "expenses_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "lotissement_profitability"
-            referencedColumns: ["lotissement_id"]
-          },
-          {
-            foreignKeyName: "expenses_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
@@ -882,13 +889,6 @@ export type Database = {
           name?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
-            columns: ["lotissement_id"]
-            isOneToOne: false
-            referencedRelation: "lotissement_profitability"
-            referencedColumns: ["lotissement_id"]
-          },
           {
             foreignKeyName: "lotissement_attachments_lotissement_id_fkey"
             columns: ["lotissement_id"]
@@ -1072,6 +1072,13 @@ export type Database = {
             foreignKeyName: "payment_schedules_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
             referencedRelation: "v_sale_arrears"
             referencedColumns: ["sale_id"]
           },
@@ -1124,6 +1131,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
           },
           {
             foreignKeyName: "payments_sale_id_fkey"
@@ -1339,38 +1353,61 @@ export type Database = {
       refunds: {
         Row: {
           amount: number
+          client_id: string | null
           created_at: string | null
           id: string
+          method: string | null
           processed_by: string | null
           reason: string | null
+          reference: string | null
           refund_date: string | null
           sale_id: string
         }
         Insert: {
           amount: number
+          client_id?: string | null
           created_at?: string | null
           id?: string
+          method?: string | null
           processed_by?: string | null
           reason?: string | null
+          reference?: string | null
           refund_date?: string | null
           sale_id: string
         }
         Update: {
           amount?: number
+          client_id?: string | null
           created_at?: string | null
           id?: string
+          method?: string | null
           processed_by?: string | null
           reason?: string | null
+          reference?: string | null
           refund_date?: string | null
           sale_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "refunds_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "refunds_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
             referencedRelation: "sales"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
           },
           {
             foreignKeyName: "refunds_sale_id_fkey"
@@ -1511,6 +1548,13 @@ export type Database = {
             foreignKeyName: "sale_adjustments_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
+          },
+          {
+            foreignKeyName: "sale_adjustments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
             referencedRelation: "v_sale_arrears"
             referencedColumns: ["sale_id"]
           },
@@ -1582,6 +1626,13 @@ export type Database = {
             foreignKeyName: "sale_mutations_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
+          },
+          {
+            foreignKeyName: "sale_mutations_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
             referencedRelation: "v_sale_arrears"
             referencedColumns: ["sale_id"]
           },
@@ -1644,6 +1695,13 @@ export type Database = {
             foreignKeyName: "sale_transfers_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
+            referencedRelation: "v_pending_refunds"
+            referencedColumns: ["sale_id"]
+          },
+          {
+            foreignKeyName: "sale_transfers_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
             referencedRelation: "v_sale_arrears"
             referencedColumns: ["sale_id"]
           },
@@ -1667,10 +1725,12 @@ export type Database = {
           prepared_by_id: string | null
           price_validated_by_id: string | null
           price_validation_date: string | null
+          refund_status: string
           sale_date: string
           status: Database["public"]["Enums"]["sale_status"]
           total_amount: number | null
           total_price: number
+          total_to_refund: number
           updated_at: string
           validated_by_id: string | null
           validation_date: string | null
@@ -1692,10 +1752,12 @@ export type Database = {
           prepared_by_id?: string | null
           price_validated_by_id?: string | null
           price_validation_date?: string | null
+          refund_status?: string
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_amount?: number | null
           total_price: number
+          total_to_refund?: number
           updated_at?: string
           validated_by_id?: string | null
           validation_date?: string | null
@@ -1717,10 +1779,12 @@ export type Database = {
           prepared_by_id?: string | null
           price_validated_by_id?: string | null
           price_validation_date?: string | null
+          refund_status?: string
           sale_date?: string
           status?: Database["public"]["Enums"]["sale_status"]
           total_amount?: number | null
           total_price?: number
+          total_to_refund?: number
           updated_at?: string
           validated_by_id?: string | null
           validation_date?: string | null
@@ -1838,13 +1902,6 @@ export type Database = {
             foreignKeyName: "zones_lotissement_id_fkey"
             columns: ["lotissement_id"]
             isOneToOne: false
-            referencedRelation: "lotissement_profitability"
-            referencedColumns: ["lotissement_id"]
-          },
-          {
-            foreignKeyName: "zones_lotissement_id_fkey"
-            columns: ["lotissement_id"]
-            isOneToOne: false
             referencedRelation: "lotissements"
             referencedColumns: ["id"]
           },
@@ -1859,39 +1916,6 @@ export type Database = {
       }
     }
     Views: {
-      lotissement_profitability: {
-        Row: {
-          location: string | null
-          lotissement_id: string | null
-          margin_percentage: number | null
-          name: string | null
-          potential_revenue: number | null
-          total_investment: number | null
-        }
-        Relationships: []
-      }
-      v_commercial_performance: {
-        Row: {
-          agency_id: string | null
-          agency_name: string | null
-          agent_email: string | null
-          agent_id: string | null
-          agent_name: string | null
-          avg_sale_value: number | null
-          collected_amount: number | null
-          total_sales: number | null
-          total_value: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sales_agency_id_fkey"
-            columns: ["agency_id"]
-            isOneToOne: false
-            referencedRelation: "agences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       v_commercial_performance_detailed: {
         Row: {
           active_sales: number | null
@@ -1956,6 +1980,29 @@ export type Database = {
             columns: ["agence_id"]
             isOneToOne: false
             referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_pending_refunds: {
+        Row: {
+          cancelled_at: string | null
+          client_id: string | null
+          client_name: string | null
+          client_phone: string | null
+          plot_number: string | null
+          refund_status: string | null
+          remaining_amount: number | null
+          sale_id: string | null
+          total_refunded: number | null
+          total_to_refund: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -2039,7 +2086,6 @@ export type Database = {
         Args: { _agency_id: string; _message: string; _title: string }
         Returns: undefined
       }
-      fn_update_late_schedules: { Args: never; Returns: undefined }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
       handle_plot_transfer: {
         Args: {
