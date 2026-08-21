@@ -16,12 +16,21 @@ import RefundManagement from '@/components/finances/RefundManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
+const FINANCE_TABS = ['overview', 'expenses', 'history', 'refunds'] as const;
+type FinanceTab = (typeof FINANCE_TABS)[number];
+
 export const Route = createFileRoute('/_authenticated/finances/')({
+  validateSearch: (search: Record<string, unknown>): { tab: FinanceTab } => ({
+    tab: FINANCE_TABS.includes(search['tab'] as FinanceTab) ? (search['tab'] as FinanceTab) : 'overview',
+  }),
   component: FinanceDashboard,
 });
 
 function FinanceDashboard() {
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const getActiveJournalFn = useServerFn(getActiveCashJournal);
+
   
   const { data: activeJournal } = useQuery({
     queryKey: ['active-cash-journal'],
