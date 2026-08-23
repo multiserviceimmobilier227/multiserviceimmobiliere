@@ -126,6 +126,7 @@ export type Database = {
         Row: {
           address: string | null
           city: string
+          code: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
@@ -136,6 +137,7 @@ export type Database = {
         Insert: {
           address?: string | null
           city?: string
+          code?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -146,6 +148,7 @@ export type Database = {
         Update: {
           address?: string | null
           city?: string
+          code?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -707,6 +710,141 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_sequences: {
+        Row: {
+          agency_code: string
+          doc_type: string
+          last_value: number
+          year: number
+        }
+        Insert: {
+          agency_code: string
+          doc_type: string
+          last_value?: number
+          year: number
+        }
+        Update: {
+          agency_code?: string
+          doc_type?: string
+          last_value?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      document_templates: {
+        Row: {
+          created_at: string
+          doc_type: string
+          footer_text: string | null
+          header_text: string | null
+          id: string
+          is_active: boolean
+          label: string
+          legal_mentions: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          footer_text?: string | null
+          header_text?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          legal_mentions?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          footer_text?: string | null
+          header_text?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          legal_mentions?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          agency_id: string | null
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          content_hash: string
+          doc_number: string
+          doc_type: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          issued_at: string
+          issued_by: string | null
+          payload: Json
+          reissue_count: number
+          replaces_document_id: string | null
+          status: string
+          storage_path: string | null
+          template_version: number
+        }
+        Insert: {
+          agency_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          content_hash: string
+          doc_number: string
+          doc_type: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          payload: Json
+          reissue_count?: number
+          replaces_document_id?: string | null
+          status?: string
+          storage_path?: string | null
+          template_version?: number
+        }
+        Update: {
+          agency_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          content_hash?: string
+          doc_number?: string
+          doc_type?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          payload?: Json
+          reissue_count?: number
+          replaces_document_id?: string | null
+          status?: string
+          storage_path?: string | null
+          template_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_replaces_document_id_fkey"
+            columns: ["replaces_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
@@ -2082,9 +2220,22 @@ export type Database = {
         Args: { p_amount: number; p_payment_id: string; p_sale_id: string }
         Returns: Json
       }
+      fn_next_document_number: {
+        Args: { _agency_id: string; _doc_type: string }
+        Returns: string
+      }
       fn_notify_pdg: {
         Args: { _agency_id: string; _message: string; _title: string }
         Returns: undefined
+      }
+      fn_verify_document: {
+        Args: { _doc_number: string }
+        Returns: {
+          doc_number: string
+          doc_type: string
+          issued_on: string
+          status: string
+        }[]
       }
       get_plot_effective_price: { Args: { _plot_id: string }; Returns: number }
       handle_plot_transfer: {
