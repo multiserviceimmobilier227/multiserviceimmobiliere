@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as VerificationRouteImport } from './routes/verification'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated.index'
 import { Route as AuthenticatedAdminAgencesRouteImport } from './routes/_authenticated/admin/agences'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
@@ -40,6 +41,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerificationRoute = VerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -168,6 +174,7 @@ const AuthenticatedImmobilierParcellesPlotIdPrixRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/verification': typeof VerificationRoute
   '/admin/agences': typeof AuthenticatedAdminAgencesRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/verification': typeof VerificationRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/agences': typeof AuthenticatedAdminAgencesRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/verification': typeof VerificationRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/agences': typeof AuthenticatedAdminAgencesRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/verification'
     | '/admin/agences'
     | '/admin/audit'
     | '/admin/settings'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/verification'
     | '/'
     | '/admin/agences'
     | '/admin/audit'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/verification'
     | '/_authenticated/'
     | '/_authenticated/admin/agences'
     | '/_authenticated/admin/audit'
@@ -318,6 +330,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  VerificationRoute: typeof VerificationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verification': {
+      id: '/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof VerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -559,6 +579,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  VerificationRoute: VerificationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
