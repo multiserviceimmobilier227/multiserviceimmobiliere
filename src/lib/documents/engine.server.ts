@@ -163,7 +163,7 @@ function verifyUrl(origin: string, docNumber: string) {
 export async function emitDocument(
   supabase: Client,
   userId: string,
-  input: { docType: DocType; entityId: string; forceNew?: boolean },
+  input: { docType: DocType; entityId: string; forceNew?: boolean | undefined },
   origin: string,
 ): Promise<EmitResult> {
   const { docType, entityId } = input;

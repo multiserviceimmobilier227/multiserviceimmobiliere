@@ -9,9 +9,9 @@ import { DOC_TYPE_LABELS, type DocType } from "./types";
 export interface VerificationResult {
   found: boolean;
   docNumber: string;
-  docLabel?: string;
-  issuedOn?: string;
-  status?: "emis" | "annule" | "remplace";
+  docLabel?: string | undefined;
+  issuedOn?: string | undefined;
+  status?: "emis" | "annule" | "remplace" | undefined;
 }
 
 export async function verifyDocument(docNumber: string): Promise<VerificationResult> {
