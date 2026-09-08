@@ -71,6 +71,20 @@ function newPage(ctx: Ctx) {
   ctx.pageIndex += 1;
   ctx.y = A4[1] - MARGIN;
   drawWatermarks(ctx);
+  ctx.page.drawText("MULTI SERVICES IMMOBILIERE", {
+    x: MARGIN, y: ctx.y, size: 8, font: ctx.bold, color: MAGENTA,
+  });
+  const cont = safe(`${ctx.docNumber} (suite)`);
+  const w = ctx.regular.widthOfTextAtSize(cont, 8);
+  ctx.page.drawText(cont, {
+    x: A4[0] - MARGIN - w, y: ctx.y, size: 8, font: ctx.regular, color: MUTED,
+  });
+  ctx.y -= 8;
+  ctx.page.drawLine({
+    start: { x: MARGIN, y: ctx.y }, end: { x: MARGIN + CONTENT_WIDTH, y: ctx.y },
+    thickness: 0.6, color: LINE,
+  });
+  ctx.y -= 22;
 }
 
 function ensure(ctx: Ctx, needed: number) {
@@ -121,7 +135,8 @@ function drawHeader(ctx: Ctx, payload: DocumentPayload, docNumber: string, issue
 }
 
 function drawSectionTitle(ctx: Ctx, title: string) {
-  ensure(ctx, 34);
+  ensure(ctx, 40);
+  ctx.y -= 6;
   ctx.page.drawText(safe(title.toUpperCase()), {
     x: MARGIN, y: ctx.y, size: 9, font: ctx.bold, color: MAGENTA,
   });
@@ -261,7 +276,7 @@ async function buildQrImage(pdf: PDFDocument, verifyUrl: string) {
   const qr = QRCode.create(verifyUrl, { errorCorrectionLevel: "M" });
   const size = qr.modules.size;
   const data = qr.modules.data;
-  const scale = 4;
+  const scale = Math.max(1.6, Math.min(2.6, 92 / size));
   const quiet = 2;
   const dim = (size + quiet * 2) * scale;
 
@@ -324,13 +339,15 @@ function drawFooters(
       x: A4[0] - MARGIN - w, y: MARGIN, size: 7, font: ctx.regular, color: MUTED,
     });
     if (isLast) {
-      const qrX = A4[0] - MARGIN - qr.size * qr.scale;
-      drawQr(page, qr, qrX, MARGIN + 46);
-      const hint = safe("Vérifier ce document");
+      const qrSide = qr.size * qr.scale;
+      const qrX = A4[0] - MARGIN - qrSide;
+      const qrY = MARGIN + 52;
+      drawQr(page, qr, qrX, qrY);
+      const hint = safe("Verifier ce document");
       const hw = ctx.regular.widthOfTextAtSize(hint, 6.5);
       page.drawText(hint, {
-        x: A4[0] - MARGIN - Math.max(hw, qr.size * qr.scale) + (Math.max(hw, qr.size * qr.scale) - hw),
-        y: MARGIN + 38,
+        x: A4[0] - MARGIN - Math.max(hw, qrSide) + (Math.max(hw, qrSide) - hw) / 2,
+        y: qrY + qrSide + 8,
         size: 6.5,
         font: ctx.regular,
         color: MUTED,
