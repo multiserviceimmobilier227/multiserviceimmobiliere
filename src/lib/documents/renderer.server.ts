@@ -94,10 +94,14 @@ function ensure(ctx: Ctx, needed: number) {
 function drawWatermarks(ctx: Ctx) {
   const label = ctx.cancelled ? "ANNULE" : ctx.duplicate ? "DUPLICATA" : null;
   if (!label) return;
+  const wmSize = 64;
+  const wmWidth = ctx.bold.widthOfTextAtSize(label, wmSize);
+  const angle = 32;
+  const rad = (angle * Math.PI) / 180;
   ctx.page.drawText(label, {
-    x: 92,
-    y: 330,
-    size: 78,
+    x: (A4[0] - wmWidth * Math.cos(rad)) / 2,
+    y: (A4[1] - wmWidth * Math.sin(rad)) / 2,
+    size: wmSize,
     font: ctx.bold,
     color: ctx.cancelled ? rgb(0.85, 0.25, 0.25) : MAGENTA,
     opacity: 0.12,
