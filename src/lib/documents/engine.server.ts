@@ -208,7 +208,7 @@ export async function emitDocument(
   const built = await buildDocument(supabase, docType, entityId);
 
   const { data: docNumber, error: numberError } = await supabase.rpc("fn_next_document_number", {
-    _agency_id: built.agencyId,
+    _agency_id: built.agencyId as unknown as string,
     _doc_type: docType,
   });
   if (numberError || !docNumber) throw new Error(numberError?.message ?? "Numérotation impossible");
