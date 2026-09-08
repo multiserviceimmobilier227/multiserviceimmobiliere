@@ -20,7 +20,7 @@ const TENS: Record<number, string> = {
   9: "quatre-vingt",
 };
 
-function belowHundred(n: number): string {
+function belowHundred(n: number, isFinal = true): string {
   if (n < 20) return UNITS[n]!;
   const t = Math.floor(n / 10);
   const u = n % 10;
@@ -31,18 +31,18 @@ function belowHundred(n: number): string {
     if (t === 7) return u === 1 ? "soixante et onze" : `soixante-${UNITS[rest]}`;
     return `quatre-vingt-${UNITS[rest]}`;
   }
-  if (u === 0) return t === 8 ? "quatre-vingts" : base;
+  if (u === 0) return t === 8 && isFinal ? "quatre-vingts" : base;
   if (u === 1 && t !== 8) return `${base} et un`;
   return `${base}-${UNITS[u]}`;
 }
 
-function belowThousand(n: number): string {
+function belowThousand(n: number, isFinal = true): string {
   const h = Math.floor(n / 100);
   const rest = n % 100;
-  if (h === 0) return belowHundred(rest);
+  if (h === 0) return belowHundred(rest, isFinal);
   const hundreds = h === 1 ? "cent" : `${UNITS[h]} cent`;
-  if (rest === 0) return h === 1 ? "cent" : `${hundreds}s`;
-  return `${hundreds} ${belowHundred(rest)}`;
+  if (rest === 0) return h === 1 ? "cent" : isFinal ? `${hundreds}s` : hundreds;
+  return `${hundreds} ${belowHundred(rest, isFinal)}`;
 }
 
 const SCALES: Array<{ value: number; singular: string; plural: string }> = [
@@ -65,7 +65,7 @@ export function numberToFrenchWords(input: number): string {
       parts.push("mille");
     } else {
       const label = count > 1 ? scale.plural : scale.singular;
-      parts.push(`${belowThousand(count)} ${label}`);
+      parts.push(`${belowThousand(count, scale.value !== 1_000)} ${label}`);
     }
   }
   if (n > 0) parts.push(belowThousand(n));
@@ -78,7 +78,8 @@ export function numberToFrenchWords(input: number): string {
 export function amountToWordsFCFA(amount: number): string {
   const rounded = Math.round(Number(amount) || 0);
   const words = numberToFrenchWords(rounded);
-  return `${words.charAt(0).toUpperCase()}${words.slice(1)} (${formatFCFA(rounded)}) francs CFA`;
+  const unit = Math.abs(rounded) < 2 ? "franc CFA" : "francs CFA";
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)} (${formatFCFA(rounded)}) ${unit}`;
 }
 
 /** Formatage FCFA à l'entier, séparateur d'espace insécable fine évité pour le PDF. */
