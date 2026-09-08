@@ -170,10 +170,16 @@ export function ReceiptGenerator({
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" /> Imprimer
           </Button>
-          <Button className="bg-[#D1127B] text-white hover:bg-[#D1127B]/90">
-            <Download className="mr-2 h-4 w-4" /> Télécharger PDF
+          <Button
+            className="bg-[#D1127B] text-white hover:bg-[#D1127B]/90"
+            onClick={handleOfficialPdf}
+            disabled={isGenerating}
+          >
+            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Reçu officiel PDF
           </Button>
         </DialogFooter>
+
         <style dangerouslySetInnerHTML={{ __html: `
           @media print {
             body * {
