@@ -1,11 +1,16 @@
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Printer, Download, CheckCircle2, FileText, AlertTriangle } from "lucide-react";
+import { Printer, Download, CheckCircle2, FileText, AlertTriangle, Loader2 } from "lucide-react";
 import { MsiLogo } from "@/components/ui/msi-logo";
+import { emitOfficialDocument } from "@/lib/documents.functions";
+import { downloadPdf } from "@/lib/documents/download";
 
 interface ReceiptGeneratorProps {
   isOpen: boolean;
@@ -20,11 +25,32 @@ export function ReceiptGenerator({
   sale,
   payment
 }: ReceiptGeneratorProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const emitDocument = useServerFn(emitOfficialDocument);
+
   if (!sale || !payment) return null;
 
   const handlePrint = () => {
     window.print();
   };
+
+  const handleOfficialPdf = async () => {
+    setIsGenerating(true);
+    try {
+      const result = await emitDocument({ data: { docType: "recu", entityId: payment.id } });
+      downloadPdf(result.pdfBase64, result.fileName);
+      toast.success(
+        result.duplicate
+          ? `Duplicata du reçu ${result.docNumber} téléchargé`
+          : `Reçu officiel ${result.docNumber} émis`,
+      );
+    } catch (error: any) {
+      toast.error(error?.message || "Impossible de générer le reçu officiel");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
 
   const totalPaid = (sale.payments || []).reduce((acc: number, p: any) => acc + Number(p.amount), 0) + Number(sale.deposit_amount || 0);
   const remainingBalance = Number(sale.total_price || 0) - totalPaid;
