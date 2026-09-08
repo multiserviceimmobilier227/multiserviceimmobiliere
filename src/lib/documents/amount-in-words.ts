@@ -78,7 +78,8 @@ export function numberToFrenchWords(input: number): string {
 export function amountToWordsFCFA(amount: number): string {
   const rounded = Math.round(Number(amount) || 0);
   const words = numberToFrenchWords(rounded);
-  return `${words.charAt(0).toUpperCase()}${words.slice(1)} (${formatFCFA(rounded)}) francs CFA`;
+  const unit = Math.abs(rounded) < 2 ? "franc CFA" : "francs CFA";
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)} (${formatFCFA(rounded)}) ${unit}`;
 }
 
 /** Formatage FCFA à l'entier, séparateur d'espace insécable fine évité pour le PDF. */
