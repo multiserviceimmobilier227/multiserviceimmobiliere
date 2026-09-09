@@ -2220,6 +2220,7 @@ export type Database = {
         Args: { p_amount: number; p_payment_id: string; p_sale_id: string }
         Returns: Json
       }
+      fn_my_access: { Args: never; Returns: Json }
       fn_next_document_number: {
         Args: { _agency_id: string; _doc_type: string }
         Returns: string
@@ -2246,6 +2247,10 @@ export type Database = {
           p_sale_id: string
         }
         Returns: undefined
+      }
+      has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
       }
       has_role:
         | {
