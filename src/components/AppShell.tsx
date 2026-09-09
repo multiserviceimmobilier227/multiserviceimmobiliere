@@ -150,6 +150,13 @@ const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
 
 export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { access, agency, primaryRole, can } = useAccess();
+  const showCash = can("manage_cash_journal");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/auth";
+  };
+
 
   const Logo = () => (
     <Link to="/" className="flex items-center gap-2 font-bold text-primary hover:opacity-90 transition-opacity">
