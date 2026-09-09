@@ -208,13 +208,15 @@ export function AppShell({ children }: { children?: ReactNode }) {
                     <Logo />
                   </div>
                   <ScrollArea className="flex-1 px-4 py-4">
-                    <div className="mb-6">
-                      <CashJournalStatus />
-                    </div>
+                    {showCash && (
+                      <div className="mb-6">
+                        <CashJournalStatus />
+                      </div>
+                    )}
                     <Navigation onItemClick={() => setIsMobileMenuOpen(false)} />
                   </ScrollArea>
                   <div className="border-t p-4">
-                    <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
+                    <Button onClick={handleLogout} variant="ghost" className="w-full justify-start gap-3 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive font-sans">
                       <LogOut className="h-4 w-4" />
                       Déconnexion
                     </Button>
