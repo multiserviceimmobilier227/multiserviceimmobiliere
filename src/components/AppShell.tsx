@@ -231,9 +231,13 @@ export function AppShell({ children }: { children?: ReactNode }) {
           <div className="flex items-center gap-2 md:gap-4">
             <NotificationCenter />
             <div className="hidden sm:block text-right font-sans">
-
-              <p className="text-sm font-medium">Administrateur</p>
-              <p className="text-xs text-muted-foreground">Maradi, Niger</p>
+              <p className="text-sm font-medium">
+                {access.full_name || access.email || "Utilisateur"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {roleLabel(primaryRole)}
+                {agency ? ` — ${agency.name}` : ""}
+              </p>
             </div>
             <Separator orientation="vertical" className="hidden sm:block h-8" />
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary shrink-0">
