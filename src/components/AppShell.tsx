@@ -50,69 +50,100 @@ const NavItem = ({ to, icon: Icon, children, onClick, search }: NavItemProps) =>
   </Link>
 );
 
+type NavEntry = {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  permission?: string;
+  search?: Record<string, string>;
+};
 
-const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => (
-  <nav className="space-y-6 pb-20">
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Général
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/" icon={LayoutDashboard} onClick={onItemClick || undefined}>Tableau de bord</NavItem>
+const NAV_SECTIONS: Array<{ title: string; items: NavEntry[] }> = [
+  {
+    title: "Général",
+    items: [{ to: "/", icon: LayoutDashboard, label: "Tableau de bord", permission: "view_dashboard" }],
+  },
+  {
+    title: "Immobilier",
+    items: [
+      { to: "/immobilier/lotissements", icon: Map, label: "Parcelles & Lotissements", permission: "view_lotissements" },
+      { to: "/immobilier/bilans", icon: PieChart, label: "Bilans Stratégiques", permission: "view_performance" },
+      { to: "/immobilier/inventaire", icon: ClipboardList, label: "Inventaire & Stock", permission: "view_inventory" },
+      { to: "/immobilier/tarifs", icon: CreditCard, label: "Tarifs & Offres", permission: "view_tarifs" },
+      { to: "/immobilier/acquisitions", icon: Building2, label: "Acquisitions & Coûts", permission: "view_acquisitions" },
+    ],
+  },
+  {
+    title: "Clients & Ventes",
+    items: [
+      { to: "/crm", icon: Users, label: "Clients", permission: "view_clients" },
+      { to: "/ventes/liste", icon: FileText, label: "Contrats & Ventes", permission: "view_sales" },
+    ],
+  },
+  {
+    title: "Finance",
+    items: [
+      { to: "/finances", icon: Wallet, label: "Journal de Caisse", permission: "view_finance", search: { tab: "overview" } },
+      { to: "/finances/impayes", icon: Clock, label: "Retards & Impayés", permission: "view_arrears" },
+      { to: "/finances/validations", icon: ShieldCheck, label: "Validations PDG", permission: "validate_sensitive_op" },
+      { to: "/direction/performance", icon: PieChart, label: "Analyses & Performance", permission: "view_performance" },
+      { to: "/finances", icon: Undo2, label: "Remboursements", permission: "manage_refunds", search: { tab: "refunds" } },
+      { to: "/finances", icon: ClipboardList, label: "Audit & Flux", permission: "view_finance", search: { tab: "history" } },
+    ],
+  },
+  {
+    title: "Administration",
+    items: [
+      { to: "/admin/users", icon: Users, label: "Utilisateurs", permission: "manage_users" },
+      { to: "/admin/agences", icon: Building2, label: "Agences", permission: "manage_agences" },
+      { to: "/admin/audit", icon: History, label: "Journal d'Audit", permission: "view_audit_logs" },
+      { to: "/admin/settings", icon: SettingsIcon, label: "Paramètres", permission: "manage_settings" },
+    ],
+  },
+];
+
+const Navigation = ({ onItemClick }: { onItemClick?: () => void }) => {
+  const { can, isLoading } = useAccess();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2 px-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-8 animate-pulse rounded-lg bg-muted" />
+        ))}
       </div>
-    </div>
+    );
+  }
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Immobilier
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/immobilier/lotissements" icon={Map} onClick={onItemClick || undefined}>Parcelles & Lotissements</NavItem>
-        <NavItem to="/immobilier/bilans" icon={PieChart} onClick={onItemClick || undefined}>Bilans Stratégiques</NavItem>
-        <NavItem to="/immobilier/inventaire" icon={ClipboardList} onClick={onItemClick || undefined}>Inventaire & Stock</NavItem>
-        <NavItem to="/immobilier/tarifs" icon={CreditCard} onClick={onItemClick || undefined}>Tarifs & Offres</NavItem>
-        <NavItem to="/immobilier/acquisitions" icon={Building2} onClick={onItemClick || undefined}>Acquisitions & Coûts</NavItem>
-      </div>
-    </div>
+  const sections = NAV_SECTIONS
+    .map((section) => ({ ...section, items: section.items.filter((item) => can(item.permission)) }))
+    .filter((section) => section.items.length > 0);
 
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Clients & Ventes
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/crm" icon={Users} onClick={onItemClick || undefined}>Clients</NavItem>
-        <NavItem to="/ventes/liste" icon={FileText} onClick={onItemClick || undefined}>Contrats & Ventes</NavItem>
-      </div>
-    </div>
-
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Finance
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/finances" search={{ tab: 'overview' }} icon={Wallet} onClick={onItemClick || undefined}>Journal de Caisse</NavItem>
-        <NavItem to="/finances/impayes" icon={Clock} onClick={onItemClick || undefined}>Retards & Impayés</NavItem>
-        <NavItem to="/finances/validations" icon={ShieldCheck} onClick={onItemClick || undefined}>Validations PDG</NavItem>
-        <NavItem to="/direction/performance" icon={PieChart} onClick={onItemClick || undefined}>Analyses & Performance</NavItem>
-        <NavItem to="/finances" search={{ tab: 'refunds' }} icon={Undo2} onClick={onItemClick || undefined}>Remboursements</NavItem>
-        <NavItem to="/finances" search={{ tab: 'history' }} icon={ClipboardList} onClick={onItemClick || undefined}>Audit & Flux</NavItem>
-      </div>
-    </div>
-
-
-    <div>
-      <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
-        Administration
-      </h2>
-      <div className="space-y-1">
-        <NavItem to="/admin/users" icon={Users} onClick={onItemClick || undefined}>Utilisateurs</NavItem>
-        <NavItem to="/admin/agences" icon={Building2} onClick={onItemClick || undefined}>Agences</NavItem>
-        <NavItem to="/admin/audit" icon={History} onClick={onItemClick || undefined}>Journal d'Audit</NavItem>
-        <NavItem to="/admin/settings" icon={SettingsIcon} onClick={onItemClick || undefined}>Paramètres</NavItem>
-      </div>
-    </div>
-  </nav>
-);
+  return (
+    <nav className="space-y-6 pb-20">
+      {sections.map((section) => (
+        <div key={section.title}>
+          <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+            {section.title}
+          </h2>
+          <div className="space-y-1">
+            {section.items.map((item) => (
+              <NavItem
+                key={`${item.to}-${item.label}`}
+                to={item.to}
+                icon={item.icon}
+                search={item.search}
+                onClick={onItemClick || undefined}
+              >
+                {item.label}
+              </NavItem>
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+};
 
 export function AppShell({ children }: { children?: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
