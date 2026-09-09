@@ -24,6 +24,9 @@ import {
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { CashJournalStatus } from "@/components/finance/CashJournalStatus";
 import { MsiLogo } from "@/components/ui/msi-logo";
+import { useAccess } from "@/hooks/useAccess";
+import { roleLabel } from "@/lib/permissions";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
