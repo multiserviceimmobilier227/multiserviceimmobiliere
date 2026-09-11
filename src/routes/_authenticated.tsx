@@ -52,7 +52,9 @@ function AuthenticatedLayout() {
 
   return (
     <AppShell>
-      <Outlet />
+      <AccessGuard>
+        <Outlet />
+      </AccessGuard>
     </AppShell>
   )
 }
