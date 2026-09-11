@@ -98,7 +98,7 @@ export function CashJournalStatus() {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-orange-600 mb-4">
-            Aucune session de caisse n'est ouverte pour votre agence aujourd'hui.
+            Aucune session de caisse n'est ouverte aujourd'hui pour {agencyName ?? "votre agence"}.
           </p>
           {isOpening ? (
             <div className="space-y-3">
