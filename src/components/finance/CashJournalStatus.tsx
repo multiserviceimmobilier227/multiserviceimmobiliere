@@ -160,8 +160,10 @@ export function CashJournalStatus() {
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-emerald-600">Ouvert par :</span>
-            <span className="font-medium text-emerald-800">Agent MSI</span>
+            <span className="text-emerald-600">Agence :</span>
+            <span className="font-medium text-emerald-800">
+              {(activeSession as any).agences?.name ?? agencyName ?? "—"}
+            </span>
           </div>
           <div className="flex justify-between items-center text-xs">
             <span className="text-emerald-600">Solde initial :</span>
