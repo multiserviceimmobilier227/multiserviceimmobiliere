@@ -21,31 +21,70 @@ export const getExpenseCategories = createServerFn({ method: "GET" })
 /**
  * Phase 12.2 : Récupération de l'état de la caisse pour l'agence de l'utilisateur
  */
+/**
+ * Résout l'agence de rattachement de l'utilisateur.
+ * Un utilisateur peut porter plusieurs rôles : on retient le premier rôle rattaché
+ * à une agence, et à défaut (super admin) le siège de Maradi.
+ */
+async function resolveUserAgency(
+  supabase: any,
+  userId: string,
+): Promise<string | null> {
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("agence_id, created_at")
+    .eq("user_id", userId)
+    .not("agence_id", "is", null)
+    .order("created_at", { ascending: true })
+    .limit(1);
+
+  const agencyId = roles?.[0]?.agence_id as string | undefined;
+  if (agencyId) return agencyId;
+
+  const { data: fallback } = await supabase
+    .from("agences")
+    .select("id")
+    .eq("code", "MAR")
+    .maybeSingle();
+
+  return (fallback?.id as string | undefined) ?? null;
+}
+
 export const getActiveCashJournal = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context!;
-    
-    // 1. Get user's agency
-    const { data: userRole } = await supabase
-      .from("user_roles")
-      .select("agence_id")
-      .eq("user_id", userId)
-      .single();
-    
-    if (!userRole?.agence_id) return null;
+    if (!userId) return null;
 
-    // 2. Find active session (status = 'ouvert')
+    const agencyId = await resolveUserAgency(supabase, userId);
+    if (!agencyId) return null;
+
     const { data, error } = await supabase
       .from("cash_journals")
-      .select(`
-        *
-      `)
-      .eq("agency_id", userRole.agence_id)
+      .select("*, agences(name, city, code)")
+      .eq("agency_id", agencyId)
       .eq("status", "ouvert")
       .maybeSingle();
 
     if (error) throw new Error(error.message);
+    return data;
+  });
+
+/**
+ * Agence de rattachement courante (utilisée par l'écran de caisse).
+ */
+export const getMyAgency = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context!;
+    if (!userId) return null;
+    const agencyId = await resolveUserAgency(supabase, userId);
+    if (!agencyId) return null;
+    const { data } = await supabase
+      .from("agences")
+      .select("id, name, city, code")
+      .eq("id", agencyId)
+      .maybeSingle();
     return data;
   });
 

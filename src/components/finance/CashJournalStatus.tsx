@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getActiveCashJournal, openCashSession, closeCashSession } from "@/lib/finance.functions";
+import { getActiveCashJournal, openCashSession, closeCashSession, getMyAgency } from "@/lib/finance.functions";
 import { 
   Wallet, 
   Lock, 
@@ -16,13 +16,13 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { formatFCFA } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 
 export function CashJournalStatus() {
   const queryClient = useQueryClient();
   const getActiveSession = useServerFn(getActiveCashJournal);
   const openSessionFn = useServerFn(openCashSession);
   const closeSessionFn = useServerFn(closeCashSession);
+  const fetchMyAgency = useServerFn(getMyAgency);
   const [openingBalance, setOpeningBalance] = useState<string>("0");
   const [closingBalance, setClosingBalance] = useState<string>("0");
   const [isOpening, setIsOpening] = useState(false);
@@ -35,19 +35,13 @@ export function CashJournalStatus() {
     refetchInterval: 60000,
   });
 
-  const { data: userAgency } = useQuery({
-    queryKey: ["user-agency"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-      const { data } = await supabase
-        .from("user_roles")
-        .select("agence_id")
-        .eq("user_id", user.id)
-        .single();
-      return data?.agence_id;
-    }
+  const { data: agency } = useQuery({
+    queryKey: ["my-agency"],
+    queryFn: () => fetchMyAgency(),
+    staleTime: 5 * 60 * 1000,
   });
+  const userAgency = (agency as any)?.id as string | undefined;
+  const agencyName = (agency as any)?.name as string | undefined;
 
   const openMutation = useMutation({
     mutationFn: async () => {
@@ -104,7 +98,7 @@ export function CashJournalStatus() {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-orange-600 mb-4">
-            Aucune session de caisse n'est ouverte pour votre agence aujourd'hui.
+            Aucune session de caisse n'est ouverte aujourd'hui pour {agencyName ?? "votre agence"}.
           </p>
           {isOpening ? (
             <div className="space-y-3">
@@ -166,8 +160,10 @@ export function CashJournalStatus() {
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-emerald-600">Ouvert par :</span>
-            <span className="font-medium text-emerald-800">Agent MSI</span>
+            <span className="text-emerald-600">Agence :</span>
+            <span className="font-medium text-emerald-800">
+              {(activeSession as any).agences?.name ?? agencyName ?? "—"}
+            </span>
           </div>
           <div className="flex justify-between items-center text-xs">
             <span className="text-emerald-600">Solde initial :</span>
