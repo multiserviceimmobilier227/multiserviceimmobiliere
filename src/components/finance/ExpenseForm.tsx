@@ -8,6 +8,7 @@ import { submitExpense, getExpenseCategories } from "@/lib/finance.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -276,7 +277,7 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
                 )}
               />
               <div className="flex flex-col gap-2">
-                <FormLabel>Justificatif (PDF/Image)</FormLabel>
+                <Label>Justificatif (PDF/Image)</Label>
                 <input 
                   type="file" 
                   className="hidden" 
