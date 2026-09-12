@@ -276,7 +276,7 @@ export function ExpenseForm({ agencyId, cashJournalId }: { agencyId: string, cas
                 )}
               />
               <div className="flex flex-col gap-2">
-                <FormLabel>Justificatif (PDF/Image)</FormLabel>
+                <Label>Justificatif (PDF/Image)</Label>
                 <input 
                   type="file" 
                   className="hidden" 
